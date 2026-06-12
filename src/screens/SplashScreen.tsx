@@ -1,4 +1,5 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
@@ -11,12 +12,13 @@ const splashLogo = require('../assets/logo-1.png');
 
 export function SplashScreen({ navigation }: Props) {
   useEffect(() => {
-    const timer = setTimeout(() => navigation.replace('Auth'), 1200);
+    const timer = setTimeout(() => navigation.replace('MainTabs', { screen: 'Home' }), 1200);
     return () => clearTimeout(timer);
   }, [navigation]);
 
   return (
     <LinearGradient colors={[theme.colors.navy, theme.colors.navySoft]} style={styles.container}>
+      <StatusBar style="light" backgroundColor={theme.colors.navy} translucent={false} />
       <View style={styles.logoCard}>
         <Image
           source={splashLogo}

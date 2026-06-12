@@ -2,10 +2,10 @@ import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
 import { AppHeader } from '../components/AppHeader';
 import { Screen } from '../components/Screen';
-import { SpeakerCard } from '../components/SpeakerCard';
 import { sessions } from '../data/sessions';
 import { speakers } from '../data/speakers';
 import { MainTabParamList, RootStackParamList } from '../navigation/types';
@@ -26,18 +26,31 @@ export function SpeakersScreen({ navigation }: Props) {
 
   return (
     <Screen refreshable header={<AppHeader onProfilePress={() => navigation.navigate('More')} />}>
-      <View style={styles.hero}>
-        <Text style={styles.eyebrow}>Faculty</Text>
-        <Text style={styles.title}>Speakers</Text>
-        <Text style={styles.subtitle}>Meet the experts leading NOSHE 2026 conversations.</Text>
+      <LinearGradient
+        colors={['#F7FBFF', '#EDF6FF']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.hero}
+      >
+        <View style={styles.heroIcon}>
+          <Ionicons name="mic-outline" size={27} color={theme.colors.navy} />
+        </View>
+        <View style={styles.heroCopy}>
+          <Text style={styles.eyebrow}>Faculty</Text>
+          <Text style={styles.title}>Speakers</Text>
+          <Text style={styles.subtitle}>Meet the experts leading NOSHE 2026 conversations.</Text>
+        </View>
+      </LinearGradient>
+
+      <View style={styles.speakerList}>
+        {speakers.map((speaker) => (
+          <SpeakerListCard
+            key={speaker.id}
+            speaker={speaker}
+            onPress={() => setSelectedSpeaker(speaker)}
+          />
+        ))}
       </View>
-      {speakers.map((speaker) => (
-        <SpeakerCard
-          key={speaker.id}
-          speaker={speaker}
-          onPress={() => setSelectedSpeaker(speaker)}
-        />
-      ))}
       <Modal
         animationType="slide"
         visible={Boolean(selectedSpeaker)}
@@ -111,6 +124,28 @@ export function SpeakersScreen({ navigation }: Props) {
   );
 }
 
+function SpeakerListCard({ onPress, speaker }: { onPress: () => void; speaker: Speaker }) {
+  return (
+    <Pressable onPress={onPress} style={({ pressed }) => [styles.speakerCard, pressed && styles.pressed]}>
+      <View style={styles.speakerAvatarWrap}>
+        {speaker.avatarUrl ? (
+          <Image source={{ uri: speaker.avatarUrl }} style={styles.speakerAvatar} />
+        ) : (
+          <Text style={styles.speakerInitials}>{speaker.initials}</Text>
+        )}
+      </View>
+      <View style={styles.speakerInfo}>
+        <Text style={styles.speakerName}>{speaker.name}</Text>
+        <Text style={styles.speakerRole}>{speaker.designation}</Text>
+        <Text style={styles.speakerCompany}>{speaker.company}</Text>
+      </View>
+      <View style={styles.speakerArrow}>
+        <Ionicons name="chevron-forward" size={18} color={theme.colors.navy} />
+      </View>
+    </Pressable>
+  );
+}
+
 function getSessionTimeRange(time: string, duration: string) {
   const endTime = addDuration(time, duration);
   return endTime ? `${time} - ${endTime}` : time;
@@ -143,24 +178,41 @@ function addDuration(time: string, duration: string) {
 
 const styles = StyleSheet.create({
   hero: {
-    backgroundColor: theme.colors.white,
-    borderRadius: 20,
-    padding: 18,
+    borderRadius: 24,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
     borderWidth: 1,
-    borderColor: '#EEF1F6',
+    borderColor: '#DDECF8',
     ...theme.shadow
+  },
+  heroIcon: {
+    width: 58,
+    height: 58,
+    borderRadius: 20,
+    backgroundColor: theme.colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#E3EEF8'
+  },
+  heroCopy: {
+    flex: 1,
+    minWidth: 0
   },
   eyebrow: {
     color: theme.colors.orange,
     fontSize: 12,
-    fontWeight: '700',
+    lineHeight: 16,
+    fontWeight: '600',
     textTransform: 'uppercase'
   },
   title: {
     color: theme.colors.text,
     fontSize: 28,
     lineHeight: 34,
-    fontWeight: '800',
+    fontWeight: '700',
     marginTop: 4
   },
   subtitle: {
@@ -168,11 +220,81 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 20,
     marginTop: 6,
-    fontWeight: '500'
+    fontWeight: '400'
+  },
+  speakerList: {
+    gap: 12
+  },
+  speakerCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 13,
+    backgroundColor: theme.colors.white,
+    borderRadius: 22,
+    padding: 13,
+    borderWidth: 1,
+    borderColor: '#E8F0F8',
+    shadowColor: '#0F4070',
+    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 16,
+    elevation: 3
+  },
+  speakerAvatarWrap: {
+    width: 62,
+    height: 62,
+    borderRadius: 21,
+    backgroundColor: '#F6FAFE',
+    borderWidth: 1,
+    borderColor: '#E2ECF6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden'
+  },
+  speakerAvatar: {
+    width: '100%',
+    height: '100%'
+  },
+  speakerInitials: {
+    color: theme.colors.navy,
+    fontSize: 16,
+    fontWeight: '600'
+  },
+  speakerInfo: {
+    flex: 1,
+    minWidth: 0
+  },
+  speakerName: {
+    color: theme.colors.text,
+    fontSize: 16,
+    lineHeight: 21,
+    fontWeight: '600'
+  },
+  speakerRole: {
+    color: theme.colors.muted,
+    fontSize: 13,
+    lineHeight: 19,
+    fontWeight: '400',
+    marginTop: 3
+  },
+  speakerCompany: {
+    color: theme.colors.orange,
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '500',
+    marginTop: 2
+  },
+  speakerArrow: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#F3F8FD',
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   modal: {
     flex: 1,
-    backgroundColor: theme.colors.white
+    backgroundColor: '#F3F8FD'
   },
   modalContent: {
     paddingHorizontal: 22,
@@ -205,7 +327,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-    marginBottom: 22
+    marginBottom: 22,
+    borderWidth: 4,
+    borderColor: theme.colors.white,
+    shadowColor: '#0F4070',
+    shadowOpacity: 0.12,
+    shadowOffset: { width: 0, height: 12 },
+    shadowRadius: 22,
+    elevation: 5
   },
   modalAvatarImage: {
     width: '100%',
@@ -214,53 +343,61 @@ const styles = StyleSheet.create({
   modalInitials: {
     color: theme.colors.white,
     fontSize: 38,
-    fontWeight: '800'
+    fontWeight: '600'
   },
   modalName: {
-    color: '#111111',
+    color: theme.colors.text,
     fontSize: 30,
     lineHeight: 36,
-    fontWeight: '300',
+    fontWeight: '500',
     textAlign: 'center'
   },
   modalRole: {
-    color: '#222222',
+    color: theme.colors.muted,
     fontSize: 16,
     lineHeight: 22,
     marginTop: 16,
+    fontWeight: '400',
     textAlign: 'center'
   },
   modalCompany: {
-    color: '#222222',
+    color: theme.colors.orange,
     fontSize: 16,
     lineHeight: 22,
+    fontWeight: '500',
     textAlign: 'center'
   },
   modalSection: {
     alignSelf: 'stretch',
-    marginTop: 44
+    marginTop: 44,
+    gap: 12
   },
   modalHeading: {
-    color: '#111111',
-    fontSize: 24,
+    color: theme.colors.text,
+    fontSize: 22,
     lineHeight: 30,
-    fontWeight: '700',
-    marginBottom: 14
+    fontWeight: '600',
+    marginBottom: 2
   },
   modalSessionCard: {
     alignSelf: 'stretch',
     borderWidth: 1,
-    borderColor: '#DDE3EA',
-    borderRadius: 5,
-    padding: 18,
-    gap: 18,
-    backgroundColor: theme.colors.white
+    borderColor: '#E8F0F8',
+    borderRadius: 20,
+    padding: 16,
+    gap: 14,
+    backgroundColor: theme.colors.white,
+    shadowColor: '#0F4070',
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 14,
+    elevation: 2
   },
   modalSessionTitle: {
-    color: '#111111',
-    fontSize: 18,
-    lineHeight: 24,
-    fontWeight: '700'
+    color: theme.colors.text,
+    fontSize: 17,
+    lineHeight: 23,
+    fontWeight: '600'
   },
   sessionMetaRow: {
     flexDirection: 'row',
@@ -269,9 +406,10 @@ const styles = StyleSheet.create({
   },
   sessionMeta: {
     flex: 1,
-    color: '#1F2933',
-    fontSize: 15,
-    lineHeight: 21
+    color: theme.colors.muted,
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '400'
   },
   trackPill: {
     alignSelf: 'flex-start',
@@ -294,6 +432,6 @@ const styles = StyleSheet.create({
   trackText: {
     color: '#303047',
     fontSize: 12,
-    fontWeight: '600'
+    fontWeight: '500'
   }
 });

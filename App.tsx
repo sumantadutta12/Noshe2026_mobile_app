@@ -52,7 +52,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <NavigationContainer>
-        <StatusBar style="light" backgroundColor={theme.colors.navy} />
+        <StatusBar style="dark" backgroundColor={theme.colors.background} translucent={false} />
         <AppNavigator />
       </NavigationContainer>
     </SafeAreaProvider>

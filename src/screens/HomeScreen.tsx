@@ -89,7 +89,7 @@ const specialAttractions = [
     body: 'Focused on cutting-edge ESG frameworks, AI-driven workplace safety, and global green compliance.'
   },
   {
-    icon: 'handshake-outline',
+    icon: 'people-outline',
     title: 'Networking & B2B Engagement',
     body: 'Structured opportunities to collaborate with decision-makers from top-tier energy, manufacturing, and technology sectors.'
   }
@@ -290,14 +290,14 @@ function CounterText({ style, value }: { style: object; value: string }) {
 const styles = StyleSheet.create({
   sectionLabel: {
     color: theme.colors.text,
-    fontSize: 17,
-    lineHeight: 23,
-    fontWeight: '700',
+    fontSize: 16,
+    lineHeight: 22,
+    fontWeight: '600',
     marginTop: 4
   },
   countdown: {
     backgroundColor: theme.colors.white,
-    borderRadius: 20,
+    borderRadius: 22,
     padding: 14,
     flexDirection: 'row',
     alignItems: 'center',
@@ -305,15 +305,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E8F1FA',
     shadowColor: '#0B356C',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 12 },
-    shadowRadius: 22,
-    elevation: 5
+    shadowOpacity: 0.07,
+    shadowOffset: { width: 0, height: 10 },
+    shadowRadius: 18,
+    elevation: 3
   },
   countNumber: {
     color: theme.colors.orange,
     fontSize: 30,
-    fontWeight: '900',
+    fontWeight: '700',
     minWidth: 44,
     textAlign: 'center'
   },
@@ -323,13 +323,13 @@ const styles = StyleSheet.create({
   countTitle: {
     color: theme.colors.text,
     fontSize: 15,
-    fontWeight: '700'
+    fontWeight: '600'
   },
   countMeta: {
     color: theme.colors.muted,
     fontSize: 12,
     marginTop: 3,
-    fontWeight: '500'
+    fontWeight: '400'
   },
   register: {
     minHeight: 42,
@@ -338,37 +338,37 @@ const styles = StyleSheet.create({
   },
   topicSection: {
     backgroundColor: '#F8FAFF',
-    borderRadius: 22,
+    borderRadius: 24,
     borderWidth: 1,
     borderColor: '#E7EDF8',
     padding: 16,
     gap: 12,
     overflow: 'hidden',
     shadowColor: '#1C3A66',
-    shadowOpacity: 0.07,
-    shadowOffset: { width: 0, height: 14 },
-    shadowRadius: 24,
-    elevation: 4
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 10 },
+    shadowRadius: 20,
+    elevation: 3
   },
   topicEyebrow: {
     color: theme.colors.orange,
     fontSize: 12,
     lineHeight: 16,
-    fontWeight: '700',
+    fontWeight: '600',
     textTransform: 'uppercase'
   },
   topicTitle: {
-    color: '#5966CF',
-    fontSize: 27,
-    lineHeight: 33,
-    fontWeight: '700',
+    color: theme.colors.text,
+    fontSize: 25,
+    lineHeight: 31,
+    fontWeight: '600',
     letterSpacing: 0
   },
   topicSubtitle: {
-    color: '#344054',
+    color: theme.colors.muted,
     fontSize: 14,
     lineHeight: 21,
-    fontWeight: '500'
+    fontWeight: '400'
   },
   dayStack: {
     gap: 14,
@@ -376,15 +376,15 @@ const styles = StyleSheet.create({
   },
   dayCard: {
     backgroundColor: theme.colors.white,
-    borderRadius: 20,
+    borderRadius: 22,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: '#E5EAF4',
     shadowColor: '#1E2F4D',
-    shadowOpacity: 0.08,
-    shadowOffset: { width: 0, height: 12 },
-    shadowRadius: 22,
-    elevation: 4
+    shadowOpacity: 0.05,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 16,
+    elevation: 2
   },
   dayHeader: {
     minHeight: 112,
@@ -397,14 +397,14 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.82)',
     fontSize: 12,
     lineHeight: 16,
-    fontWeight: '700',
+    fontWeight: '500',
     letterSpacing: 0.8
   },
   dayDate: {
     color: theme.colors.white,
     fontSize: 26,
     lineHeight: 32,
-    fontWeight: '700',
+    fontWeight: '600',
     marginTop: 10,
     letterSpacing: 0
   },
@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
     color: '#123CA0',
     fontSize: 12,
     lineHeight: 17,
-    fontWeight: '700',
+    fontWeight: '500',
     textAlign: 'center',
     paddingHorizontal: 9,
     paddingVertical: 8
@@ -485,14 +485,14 @@ const styles = StyleSheet.create({
     color: theme.colors.orange,
     fontSize: 12,
     lineHeight: 17,
-    fontWeight: '700',
+    fontWeight: '600',
     textTransform: 'uppercase'
   },
   sessionTitle: {
     color: '#071326',
     fontSize: 14,
     lineHeight: 21,
-    fontWeight: '600',
+    fontWeight: '400',
     marginTop: 8
   },
   specialSection: {
@@ -503,10 +503,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
     shadowColor: '#071326',
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 18 },
-    shadowRadius: 30,
-    elevation: 8
+    shadowOpacity: 0.16,
+    shadowOffset: { width: 0, height: 14 },
+    shadowRadius: 24,
+    elevation: 6
   },
   specialVisual: {
     minHeight: 210,
@@ -541,7 +541,7 @@ const styles = StyleSheet.create({
     color: theme.colors.white,
     fontSize: 10,
     lineHeight: 14,
-    fontWeight: '600'
+    fontWeight: '500'
   },
   specialCopy: {
     gap: 10
@@ -550,7 +550,7 @@ const styles = StyleSheet.create({
     color: '#FFC229',
     fontSize: 12,
     lineHeight: 16,
-    fontWeight: '700',
+    fontWeight: '600',
     letterSpacing: 1.4,
     textTransform: 'uppercase'
   },
@@ -558,14 +558,14 @@ const styles = StyleSheet.create({
     color: theme.colors.white,
     fontSize: 30,
     lineHeight: 36,
-    fontWeight: '700',
+    fontWeight: '600',
     letterSpacing: 0
   },
   specialText: {
     color: '#DDE8F8',
     fontSize: 14,
     lineHeight: 23,
-    fontWeight: '500'
+    fontWeight: '400'
   },
   specialCards: {
     gap: 12
@@ -596,13 +596,13 @@ const styles = StyleSheet.create({
     color: theme.colors.white,
     fontSize: 17,
     lineHeight: 22,
-    fontWeight: '700'
+    fontWeight: '600'
   },
   specialCardText: {
     color: '#DDE8F8',
     fontSize: 13,
     lineHeight: 20,
-    fontWeight: '500'
+    fontWeight: '400'
   },
   statsGrid: {
     flexDirection: 'row',
@@ -623,10 +623,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
     shadowColor: '#0B356C',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 12 },
-    shadowRadius: 22,
-    elevation: 5
+    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 16,
+    elevation: 3
   },
   statIcon: {
     width: 46,
@@ -641,13 +641,13 @@ const styles = StyleSheet.create({
     color: theme.colors.navy,
     fontSize: 25,
     lineHeight: 31,
-    fontWeight: '900'
+    fontWeight: '700'
   },
   statLabel: {
     color: theme.colors.text,
     fontSize: 12,
     lineHeight: 18,
-    fontWeight: '600',
+    fontWeight: '400',
     textAlign: 'center'
   },
   quickGrid: {

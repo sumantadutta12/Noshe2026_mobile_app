@@ -41,17 +41,17 @@ const styles = StyleSheet.create({
     width: '48%',
     minHeight: 96,
     backgroundColor: theme.colors.white,
-    borderRadius: 20,
+    borderRadius: 22,
     borderWidth: 1,
     borderColor: '#E0ECF8',
     padding: 15,
     justifyContent: 'space-between',
     overflow: 'hidden',
     shadowColor: '#0B356C',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 12 },
-    shadowRadius: 22,
-    elevation: 5
+    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 16,
+    elevation: 3
   },
   pressed: {
     opacity: 0.9,
@@ -85,11 +85,11 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: 15,
     lineHeight: 20,
-    fontWeight: '800'
+    fontWeight: '600'
   },
   titleUnderline: {
-    width: 24,
-    height: 3,
+    width: 22,
+    height: 2,
     borderRadius: 2,
     backgroundColor: theme.colors.orange,
     marginTop: 7

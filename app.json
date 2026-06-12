@@ -8,7 +8,7 @@
     "splash": {
       "image": "./src/assets/logo-1.png",
       "resizeMode": "contain",
-      "backgroundColor": "#004EA8"
+      "backgroundColor": "#0D74C8"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -17,7 +17,10 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.noshe2026.app",
+      "versionCode": 1,
       "adaptiveIcon": {
+        "foregroundImage": "./src/assets/logo-1.png",
         "backgroundColor": "#004EA8"
       }
     },
@@ -25,8 +28,12 @@
       "bundler": "metro"
     },
     "plugins": [
-      "expo-font",
-      "react-native-bottom-tabs"
-    ]
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "33aa4120-a431-43e4-8b2b-cc0e0ccd8b3d"
+      }
+    }
   }
 }

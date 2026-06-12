@@ -2,6 +2,7 @@ import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useMemo, useState } from 'react';
 import {
   Image,
@@ -168,33 +169,75 @@ export function AgendaScreen({ navigation }: Props) {
               onPress={() => setSelectedSession(null)}
               style={({ pressed }) => [styles.sessionModalClose, pressed && styles.pressed]}
             >
-              <Ionicons name="close" size={24} color="#111827" />
+              <Ionicons name="close" size={22} color={theme.colors.white} />
             </Pressable>
 
             <ScrollView
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.sessionModalContent}
             >
-              <Text style={styles.sessionModalTitle}>{selectedSession.title}</Text>
+              <LinearGradient
+                colors={['#08244D', '#004EA8', '#1684D8']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.sessionModalHero}
+              >
+                <View style={styles.sessionHeroGlow} />
+                <View style={styles.sessionHeroTopline}>
+                  <View style={styles.sessionHeroRule} />
+                  <Text style={styles.sessionHeroEyebrow}>Session Details</Text>
+                </View>
+                <Text style={styles.sessionModalTitle}>{selectedSession.title}</Text>
 
-              <View style={styles.sessionModalTrackPill}>
-                <View style={styles.sessionModalTrackDot} />
-                <Text style={styles.sessionModalTrackText}>{selectedSession.track}</Text>
-              </View>
+                <View style={styles.sessionModalTrackPill}>
+                  <Ionicons
+                    name={iconForTrack[selectedSession.track]}
+                    size={14}
+                    color={theme.colors.orange}
+                  />
+                  <Text style={styles.sessionModalTrackText}>{selectedSession.track}</Text>
+                </View>
+              </LinearGradient>
 
-              <View style={styles.sessionModalMetaRow}>
-                <Text style={styles.sessionModalMetaText}>
-                  {selectedSession.date}, {getSessionTimeRange(selectedSession.time, selectedSession.duration)} (IST)
-                </Text>
+              <View style={styles.sessionModalInfoGrid}>
+                <View style={styles.sessionModalInfoCard}>
+                  <View style={styles.sessionModalInfoIcon}>
+                    <Ionicons name="calendar-outline" size={18} color={theme.colors.orange} />
+                  </View>
+                  <Text style={styles.sessionModalInfoLabel}>Date & Time</Text>
+                  <Text style={styles.sessionModalInfoValue}>
+                    {selectedSession.date}, {getSessionTimeRange(selectedSession.time, selectedSession.duration)} (IST)
+                  </Text>
+                </View>
                 {selectedSession.hall ? (
-                  <Ionicons name="location" size={18} color="#A7AFBB" />
+                  <View style={styles.sessionModalInfoCard}>
+                    <View style={styles.sessionModalInfoIcon}>
+                      <Ionicons name="location-outline" size={18} color={theme.colors.orange} />
+                    </View>
+                    <Text style={styles.sessionModalInfoLabel}>Venue</Text>
+                    <Text style={styles.sessionModalInfoValue}>{selectedSession.hall}</Text>
+                  </View>
                 ) : null}
               </View>
-              {selectedSession.hall ? (
-                <Text style={styles.sessionModalHall}>{selectedSession.hall}</Text>
+
+              {selectedSession.summary ? (
+                <View style={styles.sessionModalSummaryCard}>
+                  <Text style={styles.sessionModalSummaryTitle}>About Session</Text>
+                  <Text style={styles.sessionModalSummaryText}>{selectedSession.summary}</Text>
+                </View>
               ) : null}
 
-              <Text style={styles.sessionModalSectionTitle}>Speakers</Text>
+              <View style={styles.sessionModalSectionHeader}>
+                <View>
+                  <Text style={styles.sessionModalSectionEyebrow}>Featured</Text>
+                  <Text style={styles.sessionModalSectionTitle}>Speakers</Text>
+                </View>
+                <View style={styles.sessionModalSpeakerCount}>
+                  <Text style={styles.sessionModalSpeakerCountText}>
+                    {selectedSessionSpeakers.length}
+                  </Text>
+                </View>
+              </View>
               <View style={styles.sessionModalSpeakerList}>
                 {selectedSessionSpeakers.length > 0 ? (
                   selectedSessionSpeakers.map((speaker) => (
@@ -211,6 +254,7 @@ export function AgendaScreen({ navigation }: Props) {
                         <Text style={styles.sessionModalSpeakerRole}>{speaker.designation}</Text>
                         <Text style={styles.sessionModalSpeakerCompany}>{speaker.company}</Text>
                       </View>
+                      <Ionicons name="chevron-forward" size={18} color="#A9B6C6" />
                     </View>
                   ))
                 ) : (
@@ -594,32 +638,37 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: theme.colors.orangeSoft,
-    borderRadius: theme.radius.md,
-    padding: theme.spacing.md,
+    backgroundColor: '#FFF8F2',
+    borderRadius: 18,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
     borderWidth: 1,
-    borderColor: '#FED7AA'
+    borderColor: '#FFE0C7'
   },
   noticeText: {
     flex: 1,
     color: theme.colors.text,
     fontSize: 12,
     lineHeight: 18,
-    fontWeight: '600'
+    fontWeight: '400'
   },
   changeText: {
     color: theme.colors.orange,
     fontSize: 12,
-    fontWeight: '900'
+    fontWeight: '600'
   },
   tabCard: {
     flexDirection: 'row',
     backgroundColor: theme.colors.white,
-    borderRadius: theme.radius.lg,
+    borderRadius: 22,
     borderWidth: 1,
-    borderColor: theme.colors.line,
+    borderColor: '#E5EEF7',
     overflow: 'hidden',
-    ...theme.shadow
+    shadowColor: '#0F4070',
+    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 16,
+    elevation: 3
   },
   tab: {
     flex: 1,
@@ -639,7 +688,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 17,
     textAlign: 'center',
-    fontWeight: '800'
+    fontWeight: '600'
   },
   activeTabTitle: {
     color: theme.colors.navy
@@ -650,7 +699,7 @@ const styles = StyleSheet.create({
     lineHeight: 15,
     marginTop: 3,
     textAlign: 'center',
-    fontWeight: '600'
+    fontWeight: '400'
   },
   activeTabDate: {
     color: theme.colors.orange
@@ -663,21 +712,21 @@ const styles = StyleSheet.create({
   },
   screenTitle: {
     color: theme.colors.text,
-    fontSize: 30,
-    lineHeight: 36,
-    fontWeight: '800'
+    fontSize: 28,
+    lineHeight: 34,
+    fontWeight: '600'
   },
   timeline: {
-    gap: 9
+    gap: 12
   },
   timelineItem: {
     flexDirection: 'row',
     backgroundColor: theme.colors.white,
-    borderRadius: 18,
-    padding: 12,
+    borderRadius: 22,
+    padding: 13,
     borderWidth: 1,
-    borderColor: '#EEF1F6',
-    shadowColor: '#0F172A',
+    borderColor: '#E8F0F8',
+    shadowColor: '#0F4070',
     shadowOpacity: 0.06,
     shadowOffset: { width: 0, height: 8 },
     shadowRadius: 16,
@@ -691,9 +740,9 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   sessionIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 38,
+    height: 38,
+    borderRadius: 16,
     backgroundColor: theme.colors.navy,
     alignItems: 'center',
     justifyContent: 'center'
@@ -718,13 +767,13 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     fontSize: 11,
     lineHeight: 15,
-    fontWeight: '700'
+    fontWeight: '500'
   },
   sessionTitle: {
     color: theme.colors.text,
     fontSize: 16,
     lineHeight: 22,
-    fontWeight: '700'
+    fontWeight: '600'
   },
   metaRow: {
     flexDirection: 'row',
@@ -740,7 +789,7 @@ const styles = StyleSheet.create({
     color: theme.colors.muted,
     fontSize: 12,
     lineHeight: 17,
-    fontWeight: '500'
+    fontWeight: '400'
   },
   avatarRow: {
     flexDirection: 'row',
@@ -767,7 +816,7 @@ const styles = StyleSheet.create({
   avatarFallback: {
     color: theme.colors.navy,
     fontSize: 10,
-    fontWeight: '800'
+    fontWeight: '600'
   },
   emptyCard: {
     minHeight: 180,
@@ -779,7 +828,7 @@ const styles = StyleSheet.create({
   emptyTitle: {
     color: theme.colors.text,
     fontSize: 17,
-    fontWeight: '900'
+    fontWeight: '600'
   },
   emptyText: {
     color: theme.colors.muted,
@@ -788,44 +837,91 @@ const styles = StyleSheet.create({
   },
   sessionModal: {
     flex: 1,
-    backgroundColor: theme.colors.white
+    backgroundColor: '#F3F8FD'
   },
   sessionModalContent: {
     paddingHorizontal: 14,
-    paddingTop: 16,
-    paddingBottom: 36
+    paddingTop: 14,
+    paddingBottom: 38,
+    gap: 16
   },
   sessionModalClose: {
     position: 'absolute',
-    top: 18,
-    right: 14,
-    zIndex: 2,
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    borderWidth: 2,
-    borderColor: '#111827',
+    top: 22,
+    right: 22,
+    zIndex: 4,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.32)',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: theme.colors.white
+    backgroundColor: 'rgba(255,255,255,0.18)'
+  },
+  sessionModalHero: {
+    minHeight: 198,
+    borderRadius: 28,
+    padding: 20,
+    paddingTop: 24,
+    justifyContent: 'flex-end',
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.82)',
+    shadowColor: '#08234A',
+    shadowOpacity: 0.22,
+    shadowOffset: { width: 0, height: 16 },
+    shadowRadius: 24,
+    elevation: 8
+  },
+  sessionHeroGlow: {
+    position: 'absolute',
+    right: -48,
+    top: -36,
+    width: 170,
+    height: 170,
+    borderRadius: 85,
+    backgroundColor: 'rgba(243,112,33,0.22)'
+  },
+  sessionHeroTopline: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 9,
+    marginBottom: 16
+  },
+  sessionHeroRule: {
+    width: 34,
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: theme.colors.orange
+  },
+  sessionHeroEyebrow: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: 11,
+    lineHeight: 15,
+    fontWeight: '600',
+    letterSpacing: 1.1,
+    textTransform: 'uppercase'
   },
   sessionModalTitle: {
-    color: '#111111',
-    fontSize: 23,
-    lineHeight: 26,
-    fontWeight: '500',
-    paddingRight: 42
+    color: theme.colors.white,
+    fontSize: 28,
+    lineHeight: 34,
+    fontWeight: '700',
+    paddingRight: 40
   },
   sessionModalTrackPill: {
     alignSelf: 'flex-start',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 7,
+    gap: 8,
     borderRadius: theme.radius.pill,
-    backgroundColor: '#EFE9FF',
-    paddingHorizontal: 11,
-    paddingVertical: 7,
-    marginTop: 16
+    backgroundColor: 'rgba(255,255,255,0.16)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.22)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginTop: 18
   },
   sessionModalTrackDot: {
     width: 10,
@@ -834,53 +930,139 @@ const styles = StyleSheet.create({
     backgroundColor: '#8B7CFF'
   },
   sessionModalTrackText: {
-    color: '#303047',
+    color: theme.colors.white,
     fontSize: 12,
-    fontWeight: '600'
+    lineHeight: 16,
+    fontWeight: '500'
   },
-  sessionModalMetaRow: {
+  sessionModalInfoGrid: {
+    gap: 10,
+    marginTop: -2
+  },
+  sessionModalInfoCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    marginTop: 28
+    gap: 12,
+    backgroundColor: theme.colors.white,
+    borderRadius: 20,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#E6EEF7',
+    shadowColor: '#0F4070',
+    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 10 },
+    shadowRadius: 18,
+    elevation: 3
   },
-  sessionModalMetaText: {
+  sessionModalInfoIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 16,
+    backgroundColor: '#FFF2E8',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  sessionModalInfoLabel: {
+    position: 'absolute',
+    left: 68,
+    top: 12,
+    color: theme.colors.muted,
+    fontSize: 11,
+    lineHeight: 14,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.6
+  },
+  sessionModalInfoValue: {
     flex: 1,
-    color: '#111111',
+    color: theme.colors.text,
     fontSize: 14,
     lineHeight: 20,
-    fontWeight: '500'
+    fontWeight: '500',
+    paddingTop: 15
   },
-  sessionModalHall: {
-    color: '#111111',
+  sessionModalSummaryCard: {
+    backgroundColor: theme.colors.white,
+    borderRadius: 22,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E6EEF7'
+  },
+  sessionModalSummaryTitle: {
+    color: theme.colors.text,
+    fontSize: 16,
+    lineHeight: 21,
+    fontWeight: '600'
+  },
+  sessionModalSummaryText: {
+    color: theme.colors.muted,
     fontSize: 14,
-    lineHeight: 20,
-    fontWeight: '500'
+    lineHeight: 22,
+    fontWeight: '400',
+    marginTop: 8
+  },
+  sessionModalSectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 2
+  },
+  sessionModalSectionEyebrow: {
+    color: theme.colors.orange,
+    fontSize: 11,
+    lineHeight: 15,
+    fontWeight: '600',
+    letterSpacing: 0.8,
+    textTransform: 'uppercase'
   },
   sessionModalSectionTitle: {
-    color: '#111111',
-    fontSize: 20,
-    lineHeight: 26,
-    fontWeight: '700',
-    marginTop: 38
+    color: theme.colors.text,
+    fontSize: 22,
+    lineHeight: 28,
+    fontWeight: '600'
+  },
+  sessionModalSpeakerCount: {
+    minWidth: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: theme.colors.navy,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 10
+  },
+  sessionModalSpeakerCountText: {
+    color: theme.colors.white,
+    fontSize: 13,
+    fontWeight: '600'
   },
   sessionModalSpeakerList: {
-    marginTop: 14,
-    gap: 24
+    gap: 10
   },
   sessionModalSpeaker: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 12
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: theme.colors.white,
+    borderRadius: 20,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#E8F0F8',
+    shadowColor: '#0F4070',
+    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 14,
+    elevation: 2
   },
   sessionModalAvatar: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    width: 52,
+    height: 52,
+    borderRadius: 18,
     backgroundColor: theme.colors.background,
     alignItems: 'center',
     justifyContent: 'center',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: theme.colors.white
   },
   sessionModalAvatarImage: {
     width: '100%',
@@ -888,34 +1070,41 @@ const styles = StyleSheet.create({
   },
   sessionModalAvatarText: {
     color: theme.colors.navy,
-    fontSize: 11,
-    fontWeight: '700'
+    fontSize: 14,
+    fontWeight: '600'
   },
   sessionModalSpeakerInfo: {
     flex: 1,
     minWidth: 0
   },
   sessionModalSpeakerName: {
-    color: '#111111',
+    color: theme.colors.text,
     fontSize: 16,
     lineHeight: 21,
     fontWeight: '600'
   },
   sessionModalSpeakerRole: {
-    color: '#111111',
-    fontSize: 14,
-    lineHeight: 20,
-    marginTop: 1
+    color: theme.colors.muted,
+    fontSize: 13,
+    lineHeight: 19,
+    marginTop: 2,
+    fontWeight: '400'
   },
   sessionModalSpeakerCompany: {
-    color: '#111111',
-    fontSize: 14,
-    lineHeight: 20
+    color: theme.colors.orange,
+    fontSize: 13,
+    lineHeight: 19,
+    fontWeight: '500'
   },
   sessionModalEmpty: {
     color: theme.colors.muted,
     fontSize: 14,
-    lineHeight: 21
+    lineHeight: 21,
+    backgroundColor: theme.colors.white,
+    borderRadius: 18,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E8F0F8'
   },
   floatingFilter: {
     position: 'absolute',
@@ -979,14 +1168,14 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: 22,
     lineHeight: 28,
-    fontWeight: '800'
+    fontWeight: '600'
   },
   sheetSubtitle: {
     color: theme.colors.muted,
     fontSize: 13,
     lineHeight: 19,
     marginTop: 3,
-    fontWeight: '500'
+    fontWeight: '400'
   },
   closeButton: {
     width: 38,
@@ -1023,7 +1212,7 @@ const styles = StyleSheet.create({
   filterSectionTitle: {
     color: theme.colors.text,
     fontSize: 15,
-    fontWeight: '800',
+    fontWeight: '600',
     textTransform: 'uppercase'
   },
   categoryList: {
@@ -1052,7 +1241,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: theme.colors.text,
     fontSize: 15,
-    fontWeight: '600'
+    fontWeight: '400'
   },
   timezoneList: {
     gap: 9
@@ -1081,17 +1270,17 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: 14,
     lineHeight: 20,
-    fontWeight: '600'
+    fontWeight: '400'
   },
   activeTimezoneText: {
     color: theme.colors.navy,
-    fontWeight: '800'
+    fontWeight: '600'
   },
   localLabel: {
     color: theme.colors.orange,
     fontSize: 11,
     marginTop: 2,
-    fontWeight: '800'
+    fontWeight: '500'
   },
   radio: {
     width: 22,
@@ -1133,11 +1322,11 @@ const styles = StyleSheet.create({
   cancelText: {
     color: theme.colors.navy,
     fontSize: 14,
-    fontWeight: '800'
+    fontWeight: '600'
   },
   applyText: {
     color: theme.colors.white,
     fontSize: 14,
-    fontWeight: '800'
+    fontWeight: '600'
   }
 });

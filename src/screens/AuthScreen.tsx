@@ -20,7 +20,9 @@ const eventLogo = require('../assets/NTPC-logo.png');
 const otpLength = 6;
 const resendDuration = 30;
 
-export function AuthScreen({ navigation }: Props) {
+export function AuthScreen({ navigation, route }: Props) {
+  const loginMode = route.params?.mode ?? 'attendee';
+  const isAdminLogin = loginMode === 'admin';
   const [mobileNumber, setMobileNumber] = useState('');
   const [otpVisible, setOtpVisible] = useState(false);
   const [otp, setOtp] = useState(Array(otpLength).fill(''));
@@ -91,7 +93,7 @@ export function AuthScreen({ navigation }: Props) {
   return (
     <Screen style={styles.screen}>
       <LinearGradient
-        colors={['#F5FAFF', '#EEF6FF', '#FFFFFF']}
+        colors={['#F8FBFF', '#EEF6FF', '#FFFFFF']}
         locations={[0, 0.52, 1]}
         style={styles.hero}
       >
@@ -106,12 +108,14 @@ export function AuthScreen({ navigation }: Props) {
         </View>
         <View style={styles.heroCopy}>
           <View style={styles.eyebrowRow}>
-            <View style={styles.eyebrowDot} />
-            <Text style={styles.heroEyebrow}>NOSHE 2026</Text>
+            <View style={[styles.eyebrowDot, isAdminLogin && styles.adminEyebrowDot]} />
+            <Text style={styles.heroEyebrow}>{isAdminLogin ? 'NOSHE 2026 Admin' : 'NOSHE 2026'}</Text>
           </View>
-          <Text style={styles.heroTitle}>Attendee Login</Text>
+          <Text style={styles.heroTitle}>{isAdminLogin ? 'Admin Login' : 'Attendee Login'}</Text>
           <Text style={styles.heroText}>
-            Use your registered mobile number to continue with OTP verification.
+            {isAdminLogin
+              ? 'Use your authorised admin mobile number to continue with OTP verification.'
+              : 'Use your registered mobile number to continue with OTP verification.'}
           </Text>
         </View>
       </LinearGradient>
@@ -131,7 +135,7 @@ export function AuthScreen({ navigation }: Props) {
             </Text>
           </View>
           <View style={styles.lockBadge}>
-            <Ionicons name="lock-closed" size={14} color="#7C3AED" />
+            <Ionicons name={isAdminLogin ? 'shield-checkmark' : 'lock-closed'} size={14} color="#7C3AED" />
           </View>
         </View>
 
@@ -259,13 +263,13 @@ const styles = StyleSheet.create({
     marginHorizontal: -theme.spacing.md,
     marginTop: -theme.spacing.md,
     paddingHorizontal: theme.spacing.md,
-    paddingTop: 16,
-    paddingBottom: 30,
-    gap: 18
+    paddingTop: 18,
+    paddingBottom: 28,
+    gap: 16
   },
   logoShell: {
-    minHeight: 102,
-    borderRadius: 14,
+    minHeight: 98,
+    borderRadius: 18,
     backgroundColor: theme.colors.white,
     borderWidth: 1,
     borderColor: '#E7EEF8',
@@ -274,10 +278,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#15406F',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 14 },
-    shadowRadius: 28,
-    elevation: 5
+    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 18,
+    elevation: 3
   },
   logoImage: {
     width: '100%',
@@ -297,39 +301,43 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: '#28A36A'
   },
+  adminEyebrowDot: {
+    backgroundColor: theme.colors.orange
+  },
   heroEyebrow: {
     color: '#7C3AED',
     fontSize: 11,
-    fontWeight: '700',
+    lineHeight: 15,
+    fontWeight: '600',
     letterSpacing: 0
   },
   heroTitle: {
     color: '#111827',
-    fontSize: 31,
-    lineHeight: 37,
-    fontWeight: '800',
+    fontSize: 30,
+    lineHeight: 36,
+    fontWeight: '600',
     letterSpacing: 0
   },
   heroText: {
     color: '#667085',
     fontSize: 15,
     lineHeight: 22,
-    fontWeight: '500'
+    fontWeight: '400'
   },
   loginCard: {
     marginTop: -10,
     backgroundColor: theme.colors.white,
-    borderRadius: 22,
+    borderRadius: 24,
     borderWidth: 1,
-    borderColor: '#ECE7F7',
+    borderColor: '#E8F0F8',
     padding: 16,
     gap: 17,
     overflow: 'hidden',
-    shadowColor: '#22324C',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 20 },
-    shadowRadius: 34,
-    elevation: 8
+    shadowColor: '#0F4070',
+    shadowOpacity: 0.07,
+    shadowOffset: { width: 0, height: 10 },
+    shadowRadius: 20,
+    elevation: 4
   },
   cardAccent: {
     height: 4,
@@ -349,15 +357,15 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     color: '#111827',
-    fontSize: 24,
-    lineHeight: 30,
-    fontWeight: '700'
+    fontSize: 22,
+    lineHeight: 28,
+    fontWeight: '600'
   },
   cardHint: {
     color: '#98A2B3',
     fontSize: 13,
     lineHeight: 19,
-    fontWeight: '500',
+    fontWeight: '400',
     marginTop: 8
   },
   lockBadge: {
@@ -379,30 +387,30 @@ const styles = StyleSheet.create({
   countryBox: {
     width: 74,
     minHeight: 58,
-    borderRadius: 18,
+    borderRadius: 19,
     borderWidth: 1,
-    borderColor: '#E7E1F2',
-    backgroundColor: '#FAFBFD',
+    borderColor: '#E4ECF6',
+    backgroundColor: '#F8FBFE',
     alignItems: 'center',
     justifyContent: 'center'
   },
   countryText: {
     color: '#111827',
     fontSize: 18,
-    fontWeight: '700'
+    fontWeight: '500'
   },
   mobileInput: {
     flex: 1,
     minWidth: 0,
     minHeight: 58,
-    borderRadius: 18,
+    borderRadius: 19,
     borderWidth: 1,
-    borderColor: '#E7E1F2',
-    backgroundColor: '#FAFBFD',
+    borderColor: '#E4ECF6',
+    backgroundColor: '#F8FBFE',
     paddingHorizontal: 18,
     color: '#111827',
     fontSize: 18,
-    fontWeight: '600'
+    fontWeight: '400'
   },
   inputFocused: {
     borderColor: '#8B3DFF',
@@ -421,9 +429,9 @@ const styles = StyleSheet.create({
   },
   otpLabel: {
     color: '#111827',
-    fontSize: 21,
-    lineHeight: 27,
-    fontWeight: '700',
+    fontSize: 20,
+    lineHeight: 26,
+    fontWeight: '600',
     marginTop: 0
   },
   otpRow: {
@@ -437,16 +445,17 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 15,
     borderWidth: 1,
-    borderColor: '#E7E1F2',
-    backgroundColor: '#FAFBFD',
+    borderColor: '#E4ECF6',
+    backgroundColor: '#F8FBFE',
     color: '#111827',
     fontSize: 24,
-    fontWeight: '600',
+    fontWeight: '500',
     lineHeight: 24,
     paddingHorizontal: 0,
     paddingVertical: 0,
     margin: 0,
     includeFontPadding: false,
+    textAlign: 'center',
     textAlignVertical: 'center'
   },
   otpInputFocused: {
@@ -469,22 +478,22 @@ const styles = StyleSheet.create({
   },
   resendText: {
     color: '#7C3AED',
-    fontSize: 16,
-    lineHeight: 22,
-    fontWeight: '600'
+    fontSize: 15,
+    lineHeight: 21,
+    fontWeight: '500'
   },
   resendReady: {
     color: '#5B21B6'
   },
   button: {
     minHeight: 58,
-    borderRadius: 18,
+    borderRadius: 19,
     overflow: 'hidden',
     shadowColor: '#6D28D9',
-    shadowOpacity: 0.22,
-    shadowOffset: { width: 0, height: 12 },
-    shadowRadius: 20,
-    elevation: 5
+    shadowOpacity: 0.16,
+    shadowOffset: { width: 0, height: 9 },
+    shadowRadius: 16,
+    elevation: 4
   },
   buttonGradient: {
     flex: 1,
@@ -496,9 +505,9 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: theme.colors.white,
-    fontSize: 18,
-    lineHeight: 24,
-    fontWeight: '700'
+    fontSize: 17,
+    lineHeight: 23,
+    fontWeight: '600'
   },
   buttonPressed: {
     transform: [{ scale: 0.99 }],

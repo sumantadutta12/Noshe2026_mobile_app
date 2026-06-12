@@ -1,4 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { AdminDashboardScreen } from '../screens/AdminDashboardScreen';
+import { AdminLoginScreen } from '../screens/AdminLoginScreen';
 import { AboutEventScreen } from '../screens/AboutEventScreen';
 import { AuthScreen } from '../screens/AuthScreen';
 import { ContactScreen } from '../screens/ContactScreen';
@@ -32,6 +34,8 @@ export function AppNavigator() {
     >
       <Stack.Screen name="Splash" component={SplashScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Auth" component={AuthScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="AdminLogin" component={AdminLoginScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} options={{ title: 'Admin Dashboard' }} />
       <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
       <Stack.Screen name="About" component={AboutEventScreen} options={{ title: 'About NOSHE 2026' }} />
       <Stack.Screen name="SessionDetails" component={SessionDetailsScreen} options={{ title: 'Session Details' }} />

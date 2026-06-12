@@ -1,0 +1,191 @@
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useState } from 'react';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Screen } from '../components/Screen';
+import { RootStackParamList } from '../navigation/types';
+import { theme } from '../theme/theme';
+
+type Props = NativeStackScreenProps<RootStackParamList, 'AdminLogin'>;
+
+const adminLogo = require('../assets/NTPC-logo.png');
+
+export function AdminLoginScreen({ navigation }: Props) {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const canContinue = username.trim().length > 0 && password.trim().length > 0;
+
+  return (
+    <Screen style={styles.screen}>
+      <LinearGradient
+        colors={['#F8FBFF', '#EEF6FF', '#FFFFFF']}
+        locations={[0, 0.55, 1]}
+        style={styles.hero}
+      >
+        <View style={styles.logoShell}>
+          <Image
+            source={adminLogo}
+            style={styles.logoImage}
+            resizeMode="contain"
+            accessible
+            accessibilityLabel="NTPC logo"
+          />
+        </View>
+        <Text style={styles.eyebrow}>NOSHE 2026 Admin</Text>
+        <Text style={styles.title}>Admin Login</Text>
+        <Text style={styles.subtitle}>
+          Enter admin credentials to view attendance and check-in insights.
+        </Text>
+      </LinearGradient>
+
+      <View style={styles.card}>
+        <View style={styles.fieldGroup}>
+          <Text style={styles.label}>User name</Text>
+          <TextInput
+            value={username}
+            onChangeText={setUsername}
+            placeholder="Enter user name"
+            placeholderTextColor="#99A7B8"
+            autoCapitalize="none"
+            style={styles.input}
+          />
+        </View>
+
+        <View style={styles.fieldGroup}>
+          <Text style={styles.label}>Password</Text>
+          <TextInput
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Enter password"
+            placeholderTextColor="#99A7B8"
+            secureTextEntry
+            style={styles.input}
+          />
+        </View>
+
+        <Pressable
+          disabled={!canContinue}
+          onPress={() => navigation.replace('AdminDashboard')}
+          style={({ pressed }) => [
+            styles.button,
+            !canContinue && styles.buttonDisabled,
+            pressed && canContinue && styles.pressed
+          ]}
+        >
+          <Text style={styles.buttonText}>Open Dashboard</Text>
+          <Ionicons name="arrow-forward" size={19} color={theme.colors.white} />
+        </Pressable>
+      </View>
+    </Screen>
+  );
+}
+
+const styles = StyleSheet.create({
+  screen: {
+    backgroundColor: theme.colors.white
+  },
+  hero: {
+    marginHorizontal: -theme.spacing.md,
+    marginTop: -theme.spacing.md,
+    paddingHorizontal: theme.spacing.md,
+    paddingTop: 22,
+    paddingBottom: 32,
+    alignItems: 'flex-start'
+  },
+  logoShell: {
+    minHeight: 98,
+    alignSelf: 'stretch',
+    borderRadius: 18,
+    backgroundColor: theme.colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#E4EEF8',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginBottom: 16
+  },
+  logoImage: {
+    width: '100%',
+    height: 72
+  },
+  eyebrow: {
+    color: theme.colors.orange,
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: '600',
+    textTransform: 'uppercase'
+  },
+  title: {
+    color: theme.colors.text,
+    fontSize: 30,
+    lineHeight: 36,
+    fontWeight: '600',
+    marginTop: 5
+  },
+  subtitle: {
+    color: theme.colors.muted,
+    fontSize: 14,
+    lineHeight: 22,
+    fontWeight: '400',
+    marginTop: 8
+  },
+  card: {
+    marginTop: -12,
+    backgroundColor: theme.colors.white,
+    borderRadius: 24,
+    padding: 16,
+    gap: 16,
+    borderWidth: 1,
+    borderColor: '#E8F0F8',
+    shadowColor: '#0F4070',
+    shadowOpacity: 0.07,
+    shadowOffset: { width: 0, height: 10 },
+    shadowRadius: 20,
+    elevation: 4
+  },
+  fieldGroup: {
+    gap: 8
+  },
+  label: {
+    color: theme.colors.text,
+    fontSize: 14,
+    lineHeight: 19,
+    fontWeight: '500'
+  },
+  input: {
+    minHeight: 58,
+    borderRadius: 19,
+    borderWidth: 1,
+    borderColor: '#E4ECF6',
+    backgroundColor: '#F8FBFE',
+    color: theme.colors.text,
+    fontSize: 16,
+    fontWeight: '400',
+    paddingHorizontal: 16
+  },
+  button: {
+    minHeight: 58,
+    borderRadius: 19,
+    backgroundColor: theme.colors.orange,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 2
+  },
+  buttonDisabled: {
+    backgroundColor: '#BBC6D4'
+  },
+  buttonText: {
+    color: theme.colors.white,
+    fontSize: 16,
+    lineHeight: 22,
+    fontWeight: '600'
+  },
+  pressed: {
+    opacity: 0.88,
+    transform: [{ scale: 0.99 }]
+  }
+});
