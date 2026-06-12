@@ -4,6 +4,8 @@ import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { CTAButton } from '../components/CTAButton';
 import { Screen } from '../components/Screen';
 import { theme } from '../theme/theme';
+import { Alert } from 'react-native';
+import { submitRegistration } from '../services/registrationService';
 
 const delegateTypes = ['Individual Delegate', 'Corporate Group Pass', 'Student / Research Pass'];
 const dietaryOptions = ['No preference', 'Vegetarian', 'Non-Vegetarian', 'Vegan'];
@@ -19,11 +21,190 @@ export function TicketsScreen() {
   const [dietary, setDietary] = useState(dietaryOptions[0]);
   const [message, setMessage] = useState('');
   const [agree, setAgree] = useState(false);
-
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({
+    fullName: '',
+    phone: '',
+    email: '',
+    organisation: '',
+    designation: '',
+    city: '',
+    delegateType:''
+  });
   const cycleOption = (options: string[], current: string, setter: (value: string) => void) => {
     const currentIndex = options.indexOf(current);
     const nextIndex = (currentIndex + 1) % options.length;
     setter(options[nextIndex]);
+  };
+
+  const validateForm = () => {
+    let valid = true;
+
+    const newErrors = {
+      fullName: '',
+      phone: '',
+      email: '',
+      organisation: '',
+      designation: '',
+      city: '',
+      delegateType:''
+    };
+
+    if (!fullName.trim()) {
+      newErrors.fullName = 'Full Name is required';
+      valid = false;
+    }
+
+    if (!phone.trim()) {
+      newErrors.phone = 'Phone Number is required';
+      valid = false;
+    } else if (!/^\d+$/.test(phone)) {
+      newErrors.phone = 'Only numbers allowed';
+      valid = false;
+    } else if (phone.length > 13) {
+      newErrors.phone = 'Phone number cannot exceed 13 digits';
+      valid = false;
+    }
+
+    if (!email.trim()) {
+      newErrors.email = 'Email is required';
+      valid = false;
+    } else if (
+      !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email)
+    ) {
+      newErrors.email = 'Invalid email address';
+      valid = false;
+    }
+
+    if (!organisation.trim()) {
+      newErrors.organisation = 'Organisation is required';
+      valid = false;
+    }
+
+    if (!designation.trim()) {
+      newErrors.designation = 'Designation is required';
+      valid = false;
+    }
+
+    if (!city.trim()) {
+      newErrors.city = 'City is required';
+      valid = false;
+    }
+
+    if (!delegateType) {
+      newErrors.delegateType =
+        'Please select a delegate type';
+      valid = false;
+    }
+    setErrors(newErrors);
+    return valid;
+  };
+
+  const clearForm = () => {
+    setFullName('');
+    setPhone('');
+    setEmail('');
+    setOrganisation('');
+    setDesignation('');
+    setCity('');
+    setMessage('');
+
+    setDelegateType(delegateTypes[0]);
+    setDietary(dietaryOptions[0]);
+
+    setAgree(false);
+
+    setErrors({
+      fullName: '',
+      phone: '',
+      email: '',
+      organisation: '',
+      designation: '',
+      city: '',
+      delegateType: '',
+    });
+  };
+
+  const handleEmailChange = (text: string) => {
+  setEmail(text);
+
+  if (
+    text &&
+    !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(text)
+  ) {
+    setErrors(prev => ({
+      ...prev,
+      email: 'Invalid email address',
+    }));
+  } else {
+    setErrors(prev => ({
+      ...prev,
+      email: '',
+    }));
+  }
+};
+
+  const handleSubmit = async () => {
+    try {
+    if (!validateForm()) {
+      Alert.alert(
+        'Validation Error',
+        'Please correct the highlighted fields.'
+      );
+      return;
+    } 
+
+      if (!agree) {
+        Alert.alert(
+          'Validation',
+          'Please accept the consent checkbox',
+        );
+        return;
+      }
+
+      setLoading(true);
+
+      const payload = {
+        fullName,
+        phone,
+        email,
+        organisation,
+        designation,
+        delegateType,
+        city,
+        dietary,
+        message,
+      };
+
+      const response = await submitRegistration(payload);
+
+      Alert.alert(
+        'Success',
+        response.message || 'Registration submitted successfully',
+      );
+      clearForm();
+
+      setFullName('');
+      setPhone('');
+      setEmail('');
+      setOrganisation('');
+      setDesignation('');
+      setCity('');
+      setMessage('');
+      setDelegateType(delegateTypes[0]);
+      setDietary(dietaryOptions[0]);
+      setAgree(false);
+    } catch (error: any) {
+      console.log(error);
+
+      Alert.alert(
+        'Error',
+        error?.response?.data?.message ||
+          'Something went wrong',
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -67,31 +248,37 @@ export function TicketsScreen() {
         <View style={styles.fieldGroup}>
           <Text style={styles.fieldLabel}>Full Name *</Text>
           <TextInput value={fullName} onChangeText={setFullName} placeholder="Enter full name" style={styles.input} placeholderTextColor={theme.colors.muted} />
+          {errors.fullName ? (<Text style={styles.errorText}>{errors.fullName}</Text>) : null}
         </View>
 
         <View style={styles.fieldGroup}>
           <Text style={styles.fieldLabel}>Phone Number *</Text>
-          <TextInput value={phone} onChangeText={setPhone} placeholder="Enter phone number" keyboardType="phone-pad" style={styles.input} placeholderTextColor={theme.colors.muted} />
+          <TextInput value={phone} onChangeText={(text) => {const numericText = text.replace(/[^0-9]/g, '');if (numericText.length <= 13) {setPhone(numericText);}}} placeholder="Enter phone number" keyboardType="phone-pad" style={styles.input} placeholderTextColor={theme.colors.muted} />
+          {errors.phone ? (<Text style={styles.errorText}>{errors.phone}</Text>) : null}
         </View>
 
         <View style={styles.fieldGroup}>
           <Text style={styles.fieldLabel}>Email ID *</Text>
-          <TextInput value={email} onChangeText={setEmail} placeholder="Enter email address" keyboardType="email-address" autoCapitalize="none" style={styles.input} placeholderTextColor={theme.colors.muted} />
+          <TextInput value={email} onChangeText={handleEmailChange} placeholder="Enter email address" keyboardType="email-address" autoCapitalize="none" style={styles.input} placeholderTextColor={theme.colors.muted} />
+          {errors.email ? (<Text style={styles.errorText}>{errors.email}</Text>) : null}
         </View>
 
         <View style={styles.fieldGroup}>
           <Text style={styles.fieldLabel}>Organisation *</Text>
           <TextInput value={organisation} onChangeText={setOrganisation} placeholder="Company / institution name" style={styles.input} placeholderTextColor={theme.colors.muted} />
+          {errors.organisation ? (<Text style={styles.errorText}>{errors.organisation}</Text>) : null}
         </View>
 
         <View style={styles.fieldGroup}>
           <Text style={styles.fieldLabel}>Designation *</Text>
           <TextInput value={designation} onChangeText={setDesignation} placeholder="Enter designation" style={styles.input} placeholderTextColor={theme.colors.muted} />
+          {errors.designation ? (<Text style={styles.errorText}>{errors.designation}</Text>) : null}
         </View>
 
         <View style={styles.fieldGroup}>
           <Text style={styles.fieldLabel}>Delegate Type *</Text>
           <Pressable style={styles.selectInput} onPress={() => cycleOption(delegateTypes, delegateType, setDelegateType)}>
+            {errors.delegateType ? (<Text style={styles.errorText}>{errors.delegateType}</Text>) : null}
             <Text style={styles.selectText}>{delegateType}</Text>
             <Ionicons name="chevron-down" size={18} color={theme.colors.muted} />
           </Pressable>
@@ -100,6 +287,7 @@ export function TicketsScreen() {
         <View style={styles.fieldGroup}>
           <Text style={styles.fieldLabel}>City *</Text>
           <TextInput value={city} onChangeText={setCity} placeholder="Enter city" style={styles.input} placeholderTextColor={theme.colors.muted} />
+            {errors.city ? (<Text style={styles.errorText}>{errors.city}</Text>) : null}
         </View>
 
         <View style={styles.fieldGroup}>
@@ -132,7 +320,7 @@ export function TicketsScreen() {
           </Text>
         </Pressable>
 
-        <CTAButton title="Submit Registration" onPress={() => null} />
+        <CTAButton title={loading ? 'Submitting...' : 'Submit Registration'} onPress={handleSubmit}/>      
       </View>
     </Screen>
   );
@@ -288,5 +476,10 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 20,
     flex: 1
-  }
+  },
+  errorText: {
+  color: 'red',
+  marginTop: 4,
+  fontSize: 12,
+},
 });
