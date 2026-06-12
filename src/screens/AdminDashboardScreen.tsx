@@ -1,9 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { CameraView, useCameraPermissions, type BarcodeScanningResult } from 'expo-camera';
 import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useCallback } from 'react';
-import { BackHandler, Pressable, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useCallback, useState } from 'react';
+import { BackHandler, Modal, Pressable, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '../components/Screen';
 import { RootStackParamList } from '../navigation/types';
 import { theme } from '../theme/theme';
@@ -23,13 +25,47 @@ const attendanceTimes = [
 ] as const;
 
 export function AdminDashboardScreen({ navigation }: Props) {
+  const [permission, requestPermission] = useCameraPermissions();
+  const [scannerActive, setScannerActive] = useState(false);
+  const [latestScan, setLatestScan] = useState<string | null>(null);
+
   useFocusEffect(
     useCallback(() => {
-      const subscription = BackHandler.addEventListener('hardwareBackPress', () => true);
+      const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+        if (scannerActive) {
+          setScannerActive(false);
+        }
+
+        return true;
+      });
 
       return () => subscription.remove();
-    }, [])
+    }, [scannerActive])
   );
+
+  const hasCameraPermission = permission?.granted ?? false;
+
+  const handleOpenScanner = useCallback(async () => {
+    if (!hasCameraPermission) {
+      const response = await requestPermission();
+
+      if (!response.granted) {
+        return;
+      }
+    }
+
+    setLatestScan(null);
+    setScannerActive(true);
+  }, [hasCameraPermission, requestPermission]);
+
+  const handleBarcodeScanned = useCallback((result: BarcodeScanningResult) => {
+    setLatestScan(result.data);
+    setScannerActive(false);
+  }, []);
+
+  const handleCloseScanner = useCallback(() => {
+    setScannerActive(false);
+  }, []);
 
   return (
     <Screen refreshable>
@@ -74,6 +110,87 @@ export function AdminDashboardScreen({ navigation }: Props) {
           </View>
         ))}
       </View>
+
+      <View style={styles.scannerCard}>
+        <View style={styles.scannerHeader}>
+          <View style={styles.scannerIcon}>
+            <Ionicons name="qr-code-outline" size={22} color={theme.colors.orange} />
+          </View>
+          <View style={styles.scannerCopy}>
+            <Text style={styles.scannerEyebrow}>QR Code Scanner</Text>
+            <Text style={styles.scannerTitle}>Attendee Check-in</Text>
+          </View>
+        </View>
+
+        <View style={styles.scannerPlaceholder}>
+          <Ionicons name="scan-outline" size={34} color={theme.colors.navy} />
+          <Text style={styles.scannerHelp}>
+            Open the full-screen scanner to verify attendee QR passes at check-in.
+          </Text>
+        </View>
+
+        {latestScan ? (
+          <View style={styles.scanResult}>
+            <Text style={styles.scanResultLabel}>Last scanned QR</Text>
+            <Text style={styles.scanResultValue} numberOfLines={2}>{latestScan}</Text>
+          </View>
+        ) : null}
+
+        <View style={styles.scannerActions}>
+          <Pressable
+            onPress={handleOpenScanner}
+            style={({ pressed }) => [styles.scanButton, pressed && styles.pressed]}
+          >
+            <Ionicons name="camera-outline" size={18} color={theme.colors.white} />
+            <Text style={styles.scanButtonText}>{latestScan ? 'Scan Again' : 'Open Scanner'}</Text>
+          </Pressable>
+        </View>
+      </View>
+
+      <Modal
+        visible={scannerActive && hasCameraPermission}
+        animationType="slide"
+        presentationStyle="fullScreen"
+        statusBarTranslucent
+        navigationBarTranslucent
+        onRequestClose={handleCloseScanner}
+      >
+        <StatusBar hidden animated />
+        <View style={styles.fullScanner}>
+          <CameraView
+            style={styles.fullCamera}
+            facing="back"
+            barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
+            onBarcodeScanned={handleBarcodeScanned}
+          />
+          <View style={styles.scannerShade} />
+
+          <SafeAreaView style={styles.fullScannerContent}>
+            <View style={styles.fullScannerHeader}>
+              <Pressable
+                onPress={handleCloseScanner}
+                style={({ pressed }) => [styles.headerIconButton, pressed && styles.pressed]}
+              >
+                <Ionicons name="arrow-back" size={30} color={theme.colors.white} />
+              </Pressable>
+              <View style={styles.fullScannerTitleWrap}>
+                <Text style={styles.fullScannerTitle}>Scan Attendee QR</Text>
+                <Text style={styles.fullScannerSubtitle}>NOSHE 2026 check-in pass</Text>
+              </View>
+              <View style={styles.headerIconSpacer} />
+            </View>
+
+            <View style={styles.fullScanFrameWrap}>
+              <View style={styles.fullScanFrame}>
+                <View style={styles.scanCornerTopLeft} />
+                <View style={styles.scanCornerTopRight} />
+                <View style={styles.scanCornerBottomLeft} />
+                <View style={styles.scanCornerBottomRight} />
+              </View>
+            </View>
+          </SafeAreaView>
+        </View>
+      </Modal>
 
       <View style={styles.sectionHeader}>
         <View>
@@ -237,6 +354,223 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     fontWeight: '400',
     textAlign: 'center'
+  },
+  scannerCard: {
+    backgroundColor: theme.colors.white,
+    borderRadius: 22,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#E8F0F8',
+    shadowColor: '#0F4070',
+    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 16,
+    elevation: 3,
+    gap: 13
+  },
+  scannerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12
+  },
+  scannerIcon: {
+    width: 46,
+    height: 46,
+    borderRadius: 16,
+    backgroundColor: '#FFF6EF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#FFE2CF'
+  },
+  scannerCopy: {
+    flex: 1,
+    minWidth: 0
+  },
+  scannerEyebrow: {
+    color: theme.colors.orange,
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '600',
+    textTransform: 'uppercase'
+  },
+  scannerTitle: {
+    color: theme.colors.text,
+    fontSize: 20,
+    lineHeight: 26,
+    fontWeight: '700',
+    marginTop: 1
+  },
+  fullScanner: {
+    flex: 1,
+    backgroundColor: '#05070A'
+  },
+  fullCamera: {
+    ...StyleSheet.absoluteFillObject
+  },
+  scannerShade: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.28)'
+  },
+  fullScannerContent: {
+    flex: 1,
+    paddingHorizontal: 24
+  },
+  fullScannerHeader: {
+    minHeight: 104,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: 12
+  },
+  headerIconButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  headerIconSpacer: {
+    width: 44
+  },
+  fullScannerTitleWrap: {
+    flex: 1,
+    minWidth: 0,
+    paddingHorizontal: 4
+  },
+  fullScannerTitle: {
+    color: theme.colors.white,
+    fontSize: 25,
+    lineHeight: 31,
+    fontWeight: '800',
+    textAlign: 'center'
+  },
+  fullScannerSubtitle: {
+    color: 'rgba(255,255,255,0.82)',
+    fontSize: 16,
+    lineHeight: 22,
+    fontWeight: '500',
+    marginTop: 2,
+    textAlign: 'center'
+  },
+  fullScanFrameWrap: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingBottom: 24
+  },
+  fullScanFrame: {
+    width: '86%',
+    maxWidth: 360,
+    aspectRatio: 1,
+    borderRadius: 26,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.24)'
+  },
+  scanCornerTopLeft: {
+    position: 'absolute',
+    left: 28,
+    top: 28,
+    width: 54,
+    height: 54,
+    borderLeftWidth: 5,
+    borderTopWidth: 5,
+    borderColor: '#8A22FF',
+    borderTopLeftRadius: 18
+  },
+  scanCornerTopRight: {
+    position: 'absolute',
+    right: 28,
+    top: 28,
+    width: 54,
+    height: 54,
+    borderRightWidth: 5,
+    borderTopWidth: 5,
+    borderColor: '#8A22FF',
+    borderTopRightRadius: 18
+  },
+  scanCornerBottomLeft: {
+    position: 'absolute',
+    left: 28,
+    bottom: 28,
+    width: 54,
+    height: 54,
+    borderLeftWidth: 5,
+    borderBottomWidth: 5,
+    borderColor: '#8A22FF',
+    borderBottomLeftRadius: 18
+  },
+  scanCornerBottomRight: {
+    position: 'absolute',
+    right: 28,
+    bottom: 28,
+    width: 54,
+    height: 54,
+    borderRightWidth: 5,
+    borderBottomWidth: 5,
+    borderColor: '#8A22FF',
+    borderBottomRightRadius: 18
+  },
+  scannerPlaceholder: {
+    minHeight: 150,
+    borderRadius: 18,
+    backgroundColor: '#F3F8FD',
+    borderWidth: 1,
+    borderColor: '#E2ECF6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 18,
+    gap: 10
+  },
+  scannerHelp: {
+    color: theme.colors.muted,
+    fontSize: 13,
+    lineHeight: 19,
+    fontWeight: '400',
+    textAlign: 'center'
+  },
+  scanResult: {
+    borderRadius: 16,
+    backgroundColor: '#ECFDF3',
+    borderWidth: 1,
+    borderColor: '#C9F0D5',
+    padding: 12,
+    gap: 4
+  },
+  scanResultLabel: {
+    color: '#247B3B',
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: '600',
+    textTransform: 'uppercase'
+  },
+  scanResultValue: {
+    color: theme.colors.text,
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '500'
+  },
+  scannerActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 10,
+    flexWrap: 'wrap'
+  },
+  scanButton: {
+    minHeight: 46,
+    borderRadius: theme.radius.pill,
+    backgroundColor: theme.colors.navy,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8
+  },
+  scanButtonText: {
+    color: theme.colors.white,
+    fontSize: 14,
+    lineHeight: 18,
+    fontWeight: '700'
   },
   sectionHeader: {
     marginTop: 2

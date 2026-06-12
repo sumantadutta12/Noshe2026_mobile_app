@@ -9,8 +9,8 @@ import { Screen } from '../components/Screen';
 import { sessions } from '../data/sessions';
 import { speakers } from '../data/speakers';
 import { MainTabParamList, RootStackParamList } from '../navigation/types';
-import { Image, Modal, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from '../theme/theme';
 import { Speaker } from '../types';
 

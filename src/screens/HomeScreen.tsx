@@ -110,40 +110,49 @@ export function HomeScreen({ navigation }: Props) {
   return (
     <Screen refreshable header={<AppHeader onProfilePress={() => navigation.navigate('More')} />}>
       <EventCard event={event} />
-      <LinearGradient
-        colors={['#071E43', '#004EA8', '#1684D8']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.premiumCountdown}
-      >
-        <View style={styles.countGlow} />
-        <Text style={styles.countHeading}>Event starts in</Text>
-        <View style={styles.countdownGrid}>
-          {[
-            { label: 'Days', value: countdown.days },
-            { label: 'Hours', value: countdown.hours },
-            { label: 'Minutes', value: countdown.minutes },
-            { label: 'Seconds', value: countdown.seconds }
-          ].map((item) => (
-            <View key={item.label} style={styles.countdownCard}>
-              <Text style={styles.countdownValue}>{item.value}</Text>
-              <Text style={styles.countdownLabel}>{item.label}</Text>
+      {!countdown.isFinished ? (
+        <View style={styles.countdownShell}>
+          <LinearGradient
+            colors={['#05326F', '#0A63BB', '#1598E8']}
+            locations={[0, 0.58, 1]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.premiumCountdown}
+          >
+            <View style={styles.countGlow} />
+            <Text style={styles.countHeading}>Event starts in</Text>
+            <View style={styles.countdownGrid}>
+              {[
+                { label: 'Days', value: countdown.days },
+                { label: 'Hours', value: countdown.hours },
+                { label: 'Minutes', value: countdown.minutes },
+                { label: 'Seconds', value: countdown.seconds }
+              ].map((item) => (
+                <View key={item.label} style={styles.countdownCard}>
+                  <Text style={styles.countdownValue}>{item.value}</Text>
+                  <Text style={styles.countdownLabel}>{item.label}</Text>
+                </View>
+              ))}
             </View>
-          ))}
-        </View>
-        <View style={styles.timeChipRow}>
-          <View style={styles.timeChip}>
-            <Ionicons name="time-outline" size={15} color={theme.colors.white} />
-            <Text style={styles.timeChipText}>{eventTimeLabel}</Text>
-          </View>
-          <View style={styles.timeChip}>
-            <Ionicons name="location-outline" size={15} color={theme.colors.white} />
-            <Text style={styles.timeChipText}>PMI Noida</Text>
-          </View>
-        </View>
+            <View style={styles.timeChipRow}>
+              <View style={styles.timeChip}>
+                <View style={styles.timeIconCircle}>
+                  <Ionicons name="time-outline" size={12} color={theme.colors.white} />
+                </View>
+                <Text style={styles.timeChipText}>{eventTimeLabel}</Text>
+              </View>
+              <View style={styles.timeChip}>
+                <View style={styles.timeIconCircle}>
+                  <Ionicons name="location-outline" size={12} color={theme.colors.white} />
+                </View>
+                <Text style={styles.timeChipText}>PMI Noida</Text>
+              </View>
+            </View>
 
-        <CTAButton title="Register Now" style={styles.countRegister} onPress={() => navigation.navigate('Tickets')} />
-      </LinearGradient>
+            <CTAButton title="Register Now" style={styles.countRegister} onPress={() => navigation.navigate('Tickets')} />
+          </LinearGradient>
+        </View>
+      ) : null}
       <Text style={styles.sectionLabel}>Event Snapshot</Text>
       <View style={styles.statsGrid}>
         {[
@@ -321,13 +330,15 @@ function CounterText({ style, value }: { style: object; value: string }) {
 }
 
 function getCountdownParts() {
-  const totalSeconds = Math.max(0, Math.floor((eventStartTime - Date.now()) / 1000));
-  const days = Math.floor(totalSeconds / 86400);
-  const hours = Math.floor((totalSeconds % 86400) / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
+  const totalSeconds = Math.floor((eventStartTime - Date.now()) / 1000);
+  const remainingSeconds = Math.max(0, totalSeconds);
+  const days = Math.floor(remainingSeconds / 86400);
+  const hours = Math.floor((remainingSeconds % 86400) / 3600);
+  const minutes = Math.floor((remainingSeconds % 3600) / 60);
+  const seconds = remainingSeconds % 60;
 
   return {
+    isFinished: totalSeconds <= 0,
     days: formatCountdownValue(days),
     hours: formatCountdownValue(hours),
     minutes: formatCountdownValue(minutes),
@@ -347,90 +358,110 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: 4
   },
-  premiumCountdown: {
+  countdownShell: {
+    backgroundColor: theme.colors.white,
     borderRadius: 28,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: '#E2EDF8',
+    shadowColor: '#0B356C',
+    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 12 },
+    shadowRadius: 22,
+    elevation: 4
+  },
+  premiumCountdown: {
+    borderRadius: 24,
     padding: 16,
-    gap: 14,
+    gap: 13,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.22)',
-    shadowColor: '#08234A',
-    shadowOpacity: 0.18,
-    shadowOffset: { width: 0, height: 14 },
-    shadowRadius: 24,
-    elevation: 7
+    borderColor: 'rgba(255,255,255,0.18)'
   },
   countGlow: {
     position: 'absolute',
-    right: -46,
-    top: -62,
-    width: 176,
-    height: 176,
-    borderRadius: 88,
-    backgroundColor: 'rgba(243,112,33,0.24)'
+    right: -18,
+    top: -54,
+    width: 142,
+    height: 142,
+    borderRadius: 71,
+    backgroundColor: 'rgba(255,255,255,0.2)'
   },
   countHeading: {
     color: theme.colors.white,
-    fontSize: 20,
-    lineHeight: 26,
-    fontWeight: '700'
+    fontSize: 18,
+    lineHeight: 24,
+    fontWeight: '600'
   },
   countdownGrid: {
     flexDirection: 'row',
-    gap: 10
+    gap: 8
   },
   countdownCard: {
     flex: 1,
-    minHeight: 86,
+    minHeight: 82,
     borderRadius: 8,
-    backgroundColor: 'rgba(255,255,255,0.96)',
+    backgroundColor: '#F8FBFF',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
+    paddingVertical: 9,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.72)',
     shadowColor: '#071326',
-    shadowOpacity: 0.14,
-    shadowOffset: { width: 0, height: 8 },
-    shadowRadius: 16,
-    elevation: 4
+    shadowOpacity: 0.09,
+    shadowOffset: { width: 0, height: 6 },
+    shadowRadius: 12,
+    elevation: 3
   },
   countdownValue: {
-    color: '#CFAE96',
-    fontSize: 32,
-    lineHeight: 38,
-    fontWeight: '700'
+    color: '#C8A58E',
+    fontSize: 29,
+    lineHeight: 35,
+    fontWeight: '800'
   },
   countdownLabel: {
     color: theme.colors.text,
-    fontSize: 11,
-    lineHeight: 15,
-    fontWeight: '500'
+    fontSize: 10,
+    lineHeight: 14,
+    fontWeight: '700'
   },
   timeChipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
-    marginTop: 12
+    marginTop: 10
   },
   timeChip: {
     borderRadius: theme.radius.pill,
-    backgroundColor: 'rgba(255,255,255,0.13)',
+    backgroundColor: 'rgba(255,255,255,0.14)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.16)',
+    borderColor: 'rgba(255,255,255,0.24)',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     paddingHorizontal: 10,
     paddingVertical: 7
   },
+  timeIconCircle: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.18)'
+  },
   timeChipText: {
     color: theme.colors.white,
-    fontSize: 11,
+    fontSize: 10,
     lineHeight: 15,
-    fontWeight: '600'
+    fontWeight: '800'
   },
   countRegister: {
-    minHeight: 48,
-    borderRadius: 18
+    minHeight: 46,
+    borderRadius: 16,
+    marginTop: 1
   },
   topicSection: {
     backgroundColor: '#F8FAFF',

@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     color: theme.colors.white,
     fontSize: 38,
     lineHeight: 42,
-    fontWeight: '900',
+    fontWeight: '700',
     letterSpacing: 0
   },
   tagline: {

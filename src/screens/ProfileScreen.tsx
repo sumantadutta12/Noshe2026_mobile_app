@@ -133,6 +133,12 @@ export function ProfileScreen({ navigation }: Props) {
           subtitle="Reach the NOSHE 2026 support desk"
           onPress={() => navigation.navigate('Contact')}
         />
+        <MoreCard
+          icon="shield-checkmark-outline"
+          title="Privacy Policy"
+          subtitle="Camera, registration, and attendee data use"
+          onPress={() => navigation.navigate('PrivacyPolicy')}
+        />
       </View>
 
       {isLoggedIn ? (
