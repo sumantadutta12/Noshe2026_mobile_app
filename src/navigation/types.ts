@@ -3,6 +3,7 @@ import { NavigatorScreenParams } from '@react-navigation/native';
 export type RootStackParamList = {
   Splash: undefined;
   Auth: { mode?: 'attendee' | 'admin' } | undefined;
+  AttendeeDashboard: undefined;
   AdminLogin: undefined;
   AdminDashboard: undefined;
   MainTabs: NavigatorScreenParams<MainTabParamList>;

@@ -1,7 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useCallback } from 'react';
+import { BackHandler, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '../components/Screen';
 import { RootStackParamList } from '../navigation/types';
 import { theme } from '../theme/theme';
@@ -9,9 +11,8 @@ import { theme } from '../theme/theme';
 type Props = NativeStackScreenProps<RootStackParamList, 'AdminDashboard'>;
 
 const attendanceStats = [
-  { label: 'Total Attended', value: '186', icon: 'people-outline' },
-  { label: 'Morning Check-in', value: '124', icon: 'sunny-outline' },
-  { label: 'Afternoon Check-in', value: '62', icon: 'time-outline' }
+  { label: 'Total register', value: '186', icon: 'people-outline' },
+  { label: 'Total Checked-in', value: '124', icon: 'sunny-outline' }
 ] as const;
 
 const attendanceTimes = [
@@ -22,6 +23,14 @@ const attendanceTimes = [
 ] as const;
 
 export function AdminDashboardScreen({ navigation }: Props) {
+  useFocusEffect(
+    useCallback(() => {
+      const subscription = BackHandler.addEventListener('hardwareBackPress', () => true);
+
+      return () => subscription.remove();
+    }, [])
+  );
+
   return (
     <Screen refreshable>
       <LinearGradient
@@ -69,10 +78,7 @@ export function AdminDashboardScreen({ navigation }: Props) {
       <View style={styles.sectionHeader}>
         <View>
           <Text style={styles.sectionEyebrow}>Check-in Time</Text>
-          <Text style={styles.sectionTitle}>Recent Attendance</Text>
-        </View>
-        <View style={styles.countBadge}>
-          <Text style={styles.countBadgeText}>{attendanceTimes.length}</Text>
+          <Text style={styles.sectionTitle}>Total Attendance</Text>
         </View>
       </View>
 
@@ -130,9 +136,9 @@ const styles = StyleSheet.create({
   },
   title: {
     color: theme.colors.white,
-    fontSize: 29,
-    lineHeight: 35,
-    fontWeight: '600',
+    fontSize: 27,
+    lineHeight: 33,
+    fontWeight: '500',
     marginTop: 5
   },
   subtitle: {
@@ -190,15 +196,13 @@ const styles = StyleSheet.create({
   },
   statsGrid: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10
+    gap: 18
   },
   statCard: {
     flex: 1,
-    minWidth: 100,
-    minHeight: 130,
+    minHeight: 122,
     backgroundColor: theme.colors.white,
-    borderRadius: 22,
+    borderRadius: 18,
     padding: 14,
     borderWidth: 1,
     borderColor: '#E8F0F8',
@@ -214,7 +218,7 @@ const styles = StyleSheet.create({
   statIcon: {
     width: 44,
     height: 44,
-    borderRadius: 16,
+    borderRadius: 15,
     backgroundColor: '#FFF6EF',
     alignItems: 'center',
     justifyContent: 'center',
@@ -223,57 +227,41 @@ const styles = StyleSheet.create({
   },
   statValue: {
     color: theme.colors.text,
-    fontSize: 27,
-    lineHeight: 33,
-    fontWeight: '600'
+    fontSize: 28,
+    lineHeight: 34,
+    fontWeight: '700'
   },
   statLabel: {
     color: theme.colors.muted,
-    fontSize: 12,
-    lineHeight: 17,
+    fontSize: 13,
+    lineHeight: 18,
     fontWeight: '400',
     textAlign: 'center'
   },
   sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between'
+    marginTop: 2
   },
   sectionEyebrow: {
     color: theme.colors.orange,
     fontSize: 12,
-    lineHeight: 16,
+    lineHeight: 17,
     fontWeight: '600',
     textTransform: 'uppercase'
   },
   sectionTitle: {
     color: theme.colors.text,
-    fontSize: 22,
-    lineHeight: 28,
-    fontWeight: '600',
-    marginTop: 3
-  },
-  countBadge: {
-    minWidth: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: theme.colors.navy,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 10
-  },
-  countBadgeText: {
-    color: theme.colors.white,
-    fontSize: 13,
-    fontWeight: '600'
+    fontSize: 24,
+    lineHeight: 30,
+    fontWeight: '700',
+    marginTop: 1
   },
   attendanceList: {
-    gap: 10
+    gap: 12
   },
   attendanceCard: {
     backgroundColor: theme.colors.white,
-    borderRadius: 22,
-    padding: 13,
+    borderRadius: 19,
+    padding: 12,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
@@ -286,8 +274,8 @@ const styles = StyleSheet.create({
     elevation: 3
   },
   timeBadge: {
-    width: 72,
-    minHeight: 46,
+    width: 76,
+    minHeight: 54,
     borderRadius: 16,
     backgroundColor: '#F3F8FD',
     alignItems: 'center',
@@ -313,8 +301,8 @@ const styles = StyleSheet.create({
   },
   attendeeRole: {
     color: theme.colors.muted,
-    fontSize: 12,
-    lineHeight: 17,
+    fontSize: 13,
+    lineHeight: 18,
     fontWeight: '400',
     marginTop: 2
   },
@@ -324,8 +312,8 @@ const styles = StyleSheet.create({
     gap: 6,
     borderRadius: theme.radius.pill,
     backgroundColor: '#ECFDF3',
-    paddingHorizontal: 9,
-    paddingVertical: 6
+    paddingHorizontal: 10,
+    paddingVertical: 7
   },
   statusDot: {
     width: 7,
@@ -335,8 +323,8 @@ const styles = StyleSheet.create({
   },
   statusText: {
     color: '#247B3B',
-    fontSize: 11,
-    lineHeight: 15,
+    fontSize: 12,
+    lineHeight: 16,
     fontWeight: '500'
   }
 });

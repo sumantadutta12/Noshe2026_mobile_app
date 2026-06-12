@@ -77,6 +77,16 @@ export function AdminLoginScreen({ navigation }: Props) {
           <Ionicons name="arrow-forward" size={19} color={theme.colors.white} />
         </Pressable>
       </View>
+
+      <Pressable
+        onPress={() => navigation.goBack()}
+        style={({ pressed }) => [styles.backLink, pressed && styles.pressed]}
+        accessibilityRole="button"
+        accessibilityLabel="Go back"
+      >
+        <Ionicons name="arrow-back" size={18} color={theme.colors.navy} />
+        <Text style={styles.backLinkText}>Back</Text>
+      </Pressable>
     </Screen>
   );
 }
@@ -187,5 +197,24 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.88,
     transform: [{ scale: 0.99 }]
+  },
+  backLink: {
+    alignSelf: 'center',
+    minHeight: 42,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingHorizontal: 16,
+    borderRadius: 21,
+    backgroundColor: '#F3F8FD',
+    borderWidth: 1,
+    borderColor: '#E4ECF6'
+  },
+  backLinkText: {
+    color: theme.colors.navy,
+    fontSize: 14,
+    lineHeight: 19,
+    fontWeight: '600'
   }
 });

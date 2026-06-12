@@ -3,9 +3,10 @@ import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { AppHeader } from '../components/AppHeader';
 import { Screen } from '../components/Screen';
+import { useAttendeeAuth } from '../context/AttendeeAuthContext';
 import { MainTabParamList, RootStackParamList } from '../navigation/types';
 import { theme } from '../theme/theme';
 
@@ -48,6 +49,23 @@ const primaryItems = [
 ] as const;
 
 export function ProfileScreen({ navigation }: Props) {
+  const { attendee, isLoggedIn, logout } = useAttendeeAuth();
+
+  const confirmLogout = () => {
+    Alert.alert(
+      'Logout from attendee access?',
+      'Your QR pass and dashboard will be hidden until you login again.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: logout
+        }
+      ]
+    );
+  };
+
   return (
     <Screen refreshable header={<AppHeader onProfilePress={() => navigation.navigate('More')} />}>
       <LinearGradient
@@ -60,29 +78,39 @@ export function ProfileScreen({ navigation }: Props) {
         <View style={styles.loginPanelHeader}>
           <View>
             <Text style={styles.loginEyebrow}>Secure Access</Text>
-            <Text style={styles.loginTitle}>Login to continue</Text>
+            <Text style={styles.loginTitle}>
+              {isLoggedIn ? 'Attendee access active' : 'Login to continue'}
+            </Text>
           </View>
           <View style={styles.loginHeaderIcon}>
             <Ionicons name="shield-checkmark" size={22} color={theme.colors.orange} />
           </View>
         </View>
         <Text style={styles.loginText}>
-          Access attendee services or enter the admin area with OTP verification.
+          {isLoggedIn
+            ? `${attendee?.registrationId} is ready for event check-in and attendee services.`
+            : 'Access attendee services or enter the admin area with OTP verification.'}
         </Text>
         <View style={styles.loginActions}>
           <AccessButton
-            icon="person-circle-outline"
-            title="Login"
-            subtitle="Attendee access"
-            onPress={() => navigation.navigate('Auth', { mode: 'attendee' })}
+            icon={isLoggedIn ? 'qr-code-outline' : 'person-circle-outline'}
+            title={isLoggedIn ? 'User Dashboard' : 'Login'}
+            subtitle={isLoggedIn ? 'View QR pass and attendee details' : 'Attendee access'}
+            onPress={() =>
+              isLoggedIn
+                ? navigation.navigate('AttendeeDashboard')
+                : navigation.navigate('Auth', { mode: 'attendee' })
+            }
           />
-          <AccessButton
-            icon="briefcase-outline"
-            title="Admin Login"
-            subtitle="Admin access"
-            onPress={() => navigation.navigate('AdminLogin')}
-            highlighted
-          />
+          {!isLoggedIn ? (
+            <AccessButton
+              icon="briefcase-outline"
+              title="Admin Login"
+              subtitle="Admin access"
+              onPress={() => navigation.navigate('AdminLogin')}
+              highlighted
+            />
+          ) : null}
         </View>
       </LinearGradient>
 
@@ -106,6 +134,18 @@ export function ProfileScreen({ navigation }: Props) {
           onPress={() => navigation.navigate('Contact')}
         />
       </View>
+
+      {isLoggedIn ? (
+        <View style={styles.menu}>
+          <MoreCard
+            icon="log-out-outline"
+            title="Logout"
+            subtitle="Sign out from attendee access on this device"
+            tone="danger"
+            onPress={confirmLogout}
+          />
+        </View>
+      ) : null}
 
       <Text style={styles.version}>ver 0.0.1</Text>
     </Screen>

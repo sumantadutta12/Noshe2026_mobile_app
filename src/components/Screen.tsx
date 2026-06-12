@@ -1,6 +1,7 @@
 import { PropsWithChildren, ReactNode, useCallback, useState } from 'react';
+import { useHeaderHeight } from '@react-navigation/elements';
 import { RefreshControl, ScrollView, StyleSheet, ViewStyle } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from '../theme/theme';
 
 type Props = PropsWithChildren<{
@@ -12,6 +13,9 @@ type Props = PropsWithChildren<{
 }>;
 
 export function Screen({ children, floating, header, refreshable = false, scroll = true, style }: Props) {
+  const insets = useSafeAreaInsets();
+  const headerHeight = useHeaderHeight();
+  const safeAreaEdges = headerHeight > 0 ? (['left', 'right'] as const) : (['top', 'left', 'right'] as const);
   const [refreshing, setRefreshing] = useState(false);
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -21,7 +25,7 @@ export function Screen({ children, floating, header, refreshable = false, scroll
 
   if (!scroll) {
     return (
-      <SafeAreaView edges={['top', 'left', 'right']} style={[styles.container, style]}>
+      <SafeAreaView edges={safeAreaEdges} style={[styles.container, style]}>
         {header}
         {children}
         {floating}
@@ -30,11 +34,14 @@ export function Screen({ children, floating, header, refreshable = false, scroll
   }
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} style={[styles.container, style]}>
+    <SafeAreaView edges={safeAreaEdges} style={[styles.container, style]}>
       {header}
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: theme.spacing.xl + Math.max(insets.bottom, theme.spacing.lg) }
+        ]}
         refreshControl={
           refreshable ? (
             <RefreshControl

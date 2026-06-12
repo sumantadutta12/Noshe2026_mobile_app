@@ -10,6 +10,7 @@ import { sessions } from '../data/sessions';
 import { speakers } from '../data/speakers';
 import { MainTabParamList, RootStackParamList } from '../navigation/types';
 import { Image, Modal, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from '../theme/theme';
 import { Speaker } from '../types';
 
@@ -19,6 +20,7 @@ type Props = CompositeScreenProps<
 >;
 
 export function SpeakersScreen({ navigation }: Props) {
+  const insets = useSafeAreaInsets();
   const [selectedSpeaker, setSelectedSpeaker] = useState<Speaker | null>(null);
   const linkedSessions = selectedSpeaker
     ? sessions.filter((session) => session.speakerIds.includes(selectedSpeaker.id))
@@ -59,19 +61,25 @@ export function SpeakersScreen({ navigation }: Props) {
       >
         {selectedSpeaker ? (
           <SafeAreaView style={styles.modal}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Close speaker details"
-              onPress={() => setSelectedSpeaker(null)}
-              style={({ pressed }) => [styles.closeButton, pressed && styles.pressed]}
-            >
-              <Ionicons name="close" size={24} color="#111827" />
-            </Pressable>
-
             <ScrollView
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.modalContent}
+              contentContainerStyle={[
+                styles.modalContent,
+                {
+                  paddingTop: Math.max(12, insets.top + 8),
+                  paddingBottom: theme.spacing.xl + Math.max(insets.bottom, theme.spacing.lg)
+                }
+              ]}
             >
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Close speaker details"
+                onPress={() => setSelectedSpeaker(null)}
+                style={({ pressed }) => [styles.closeButton, pressed && styles.pressed]}
+              >
+                <Ionicons name="close" size={24} color="#111827" />
+              </Pressable>
+
               <View style={styles.modalAvatar}>
                 {selectedSpeaker.avatarUrl ? (
                   <Image source={{ uri: selectedSpeaker.avatarUrl }} style={styles.modalAvatarImage} />
@@ -303,10 +311,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   closeButton: {
-    position: 'absolute',
-    top: 18,
-    right: 18,
-    zIndex: 2,
+    alignSelf: 'flex-end',
     width: 34,
     height: 34,
     borderRadius: 17,
@@ -314,7 +319,8 @@ const styles = StyleSheet.create({
     borderColor: '#111827',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: theme.colors.white
+    backgroundColor: theme.colors.white,
+    marginBottom: -8
   },
   pressed: {
     opacity: 0.72

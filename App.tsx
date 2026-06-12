@@ -13,6 +13,7 @@ import { useEffect } from 'react';
 import { Text, TextInput } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { AttendeeAuthProvider } from './src/context/AttendeeAuthContext';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { theme } from './src/theme/theme';
 
@@ -51,10 +52,12 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
-        <StatusBar style="dark" backgroundColor={theme.colors.background} translucent={false} />
-        <AppNavigator />
-      </NavigationContainer>
+      <AttendeeAuthProvider>
+        <NavigationContainer>
+          <StatusBar style="dark" backgroundColor={theme.colors.background} translucent={false} />
+          <AppNavigator />
+        </NavigationContainer>
+      </AttendeeAuthProvider>
     </SafeAreaProvider>
   );
 }
