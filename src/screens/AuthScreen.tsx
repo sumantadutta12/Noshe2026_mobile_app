@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Screen } from '../components/Screen';
+import { useAttendeeAuth } from '../context/AttendeeAuthContext';
 import { RootStackParamList } from '../navigation/types';
 import { theme } from '../theme/theme';
 
@@ -21,6 +22,7 @@ const otpLength = 6;
 const resendDuration = 30;
 
 export function AuthScreen({ navigation, route }: Props) {
+  const { login } = useAttendeeAuth();
   const loginMode = route.params?.mode ?? 'attendee';
   const isAdminLogin = loginMode === 'admin';
   const [mobileNumber, setMobileNumber] = useState('');
@@ -86,7 +88,13 @@ export function AuthScreen({ navigation, route }: Props) {
 
   const handleVerify = () => {
     if (isOtpComplete) {
-      navigation.replace('MainTabs', { screen: 'Home' });
+      if (isAdminLogin) {
+        navigation.replace('MainTabs', { screen: 'Home' });
+        return;
+      }
+
+      login(mobileNumber);
+      navigation.replace('AttendeeDashboard');
     }
   };
 
@@ -152,7 +160,7 @@ export function AuthScreen({ navigation, route }: Props) {
                 setOtp(Array(otpLength).fill(''));
               }
             }}
-            placeholder="Enter your mobile number"
+            placeholder="Mobile number"
             keyboardType="number-pad"
             autoComplete="tel"
             maxLength={10}
@@ -217,6 +225,16 @@ export function AuthScreen({ navigation, route }: Props) {
           </View>
         )}
       </View>
+
+      <Pressable
+        onPress={() => navigation.goBack()}
+        style={({ pressed }) => [styles.backLink, pressed && styles.buttonPressed]}
+        accessibilityRole="button"
+        accessibilityLabel="Go back"
+      >
+        <Ionicons name="arrow-back" size={18} color={theme.colors.navy} />
+        <Text style={styles.backLinkText}>Back</Text>
+      </Pressable>
     </Screen>
   );
 }
@@ -407,9 +425,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E4ECF6',
     backgroundColor: '#F8FBFE',
-    paddingHorizontal: 18,
+    paddingHorizontal: 14,
     color: '#111827',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '400'
   },
   inputFocused: {
@@ -516,5 +534,24 @@ const styles = StyleSheet.create({
   buttonDisabled: {
     shadowOpacity: 0,
     elevation: 0
+  },
+  backLink: {
+    alignSelf: 'center',
+    minHeight: 42,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingHorizontal: 16,
+    borderRadius: 21,
+    backgroundColor: '#F3F8FD',
+    borderWidth: 1,
+    borderColor: '#E4ECF6'
+  },
+  backLinkText: {
+    color: theme.colors.navy,
+    fontSize: 14,
+    lineHeight: 19,
+    fontWeight: '600'
   }
 });

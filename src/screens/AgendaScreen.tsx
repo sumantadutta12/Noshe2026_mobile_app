@@ -23,6 +23,7 @@ import { Screen } from '../components/Screen';
 import { sessions } from '../data/sessions';
 import { speakers } from '../data/speakers';
 import { MainTabParamList, RootStackParamList } from '../navigation/types';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from '../theme/theme';
 import { Session, Track } from '../types';
 
@@ -52,6 +53,7 @@ const iconForTrack: Record<Track, keyof typeof Ionicons.glyphMap> = {
 };
 
 export function AgendaScreen({ navigation }: Props) {
+  const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<AgendaTab>('Day 1');
   const [timezoneSheetOpen, setTimezoneSheetOpen] = useState(false);
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
@@ -163,19 +165,25 @@ export function AgendaScreen({ navigation }: Props) {
       >
         {selectedSession ? (
           <SafeAreaView style={styles.sessionModal}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Close session details"
-              onPress={() => setSelectedSession(null)}
-              style={({ pressed }) => [styles.sessionModalClose, pressed && styles.pressed]}
-            >
-              <Ionicons name="close" size={22} color={theme.colors.white} />
-            </Pressable>
-
             <ScrollView
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.sessionModalContent}
+              contentContainerStyle={[
+                styles.sessionModalContent,
+                {
+                  paddingTop: Math.max(12, insets.top + 8),
+                  paddingBottom: theme.spacing.xl + Math.max(insets.bottom, theme.spacing.lg)
+                }
+              ]}
             >
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Close session details"
+                onPress={() => setSelectedSession(null)}
+                style={({ pressed }) => [styles.sessionModalClose, pressed && styles.pressed]}
+              >
+                <Ionicons name="close" size={22} color={theme.colors.navy} />
+              </Pressable>
+
               <LinearGradient
                 colors={['#08244D', '#004EA8', '#1684D8']}
                 start={{ x: 0, y: 0 }}
@@ -273,7 +281,12 @@ export function AgendaScreen({ navigation }: Props) {
       >
         <View style={styles.sheetBackdrop}>
           <Pressable style={styles.sheetScrim} onPress={() => setTimezoneSheetOpen(false)} />
-          <View style={styles.timezoneSheet}>
+          <View
+            style={[
+              styles.timezoneSheet,
+              { paddingBottom: theme.spacing.lg + Math.max(insets.bottom, theme.spacing.sm) }
+            ]}
+          >
             <View style={styles.sheetHandle} />
             <View style={styles.sheetHeader}>
               <View>
@@ -344,7 +357,12 @@ export function AgendaScreen({ navigation }: Props) {
       >
         <View style={styles.sheetBackdrop}>
           <Pressable style={styles.sheetScrim} onPress={() => setFilterSheetOpen(false)} />
-          <View style={styles.filterSheet}>
+          <View
+            style={[
+              styles.filterSheet,
+              { paddingBottom: theme.spacing.md + Math.max(insets.bottom, theme.spacing.sm) }
+            ]}
+          >
             <View style={styles.sheetHandle} />
             <View style={styles.sheetHeader}>
               <Text style={styles.sheetTitle}>Filter</Text>
@@ -846,18 +864,16 @@ const styles = StyleSheet.create({
     gap: 16
   },
   sessionModalClose: {
-    position: 'absolute',
-    top: 22,
-    right: 22,
-    zIndex: 4,
+    alignSelf: 'flex-end',
     width: 38,
     height: 38,
     borderRadius: 19,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.32)',
+    borderColor: '#D6E9FF',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.18)'
+    backgroundColor: theme.colors.white,
+    marginBottom: 8
   },
   sessionModalHero: {
     minHeight: 198,

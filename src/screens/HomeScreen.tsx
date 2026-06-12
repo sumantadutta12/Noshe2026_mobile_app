@@ -13,7 +13,6 @@ import { Screen } from '../components/Screen';
 import { event } from '../data/events';
 import { MainTabParamList, RootStackParamList } from '../navigation/types';
 import { theme } from '../theme/theme';
-import { getDaysUntilEvent } from '../utils/format';
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<MainTabParamList, 'Home'>,
@@ -96,13 +95,55 @@ const specialAttractions = [
 ] as const;
 
 const specialAttractionsImage = require('../assets/slide-2.jpeg');
+const eventStartTime = new Date('2026-07-03T10:00:00+05:30').getTime();
+const eventTimeLabel = '10:00 AM onwards';
 
 export function HomeScreen({ navigation }: Props) {
-  const daysLeft = getDaysUntilEvent();
+  const [countdown, setCountdown] = useState(() => getCountdownParts());
+
+  useEffect(() => {
+    const timer = setInterval(() => setCountdown(getCountdownParts()), 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <Screen refreshable header={<AppHeader onProfilePress={() => navigation.navigate('More')} />}>
       <EventCard event={event} />
+      <LinearGradient
+        colors={['#071E43', '#004EA8', '#1684D8']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.premiumCountdown}
+      >
+        <View style={styles.countGlow} />
+        <Text style={styles.countHeading}>Event starts in</Text>
+        <View style={styles.countdownGrid}>
+          {[
+            { label: 'Days', value: countdown.days },
+            { label: 'Hours', value: countdown.hours },
+            { label: 'Minutes', value: countdown.minutes },
+            { label: 'Seconds', value: countdown.seconds }
+          ].map((item) => (
+            <View key={item.label} style={styles.countdownCard}>
+              <Text style={styles.countdownValue}>{item.value}</Text>
+              <Text style={styles.countdownLabel}>{item.label}</Text>
+            </View>
+          ))}
+        </View>
+        <View style={styles.timeChipRow}>
+          <View style={styles.timeChip}>
+            <Ionicons name="time-outline" size={15} color={theme.colors.white} />
+            <Text style={styles.timeChipText}>{eventTimeLabel}</Text>
+          </View>
+          <View style={styles.timeChip}>
+            <Ionicons name="location-outline" size={15} color={theme.colors.white} />
+            <Text style={styles.timeChipText}>PMI Noida</Text>
+          </View>
+        </View>
+
+        <CTAButton title="Register Now" style={styles.countRegister} onPress={() => navigation.navigate('Tickets')} />
+      </LinearGradient>
       <Text style={styles.sectionLabel}>Event Snapshot</Text>
       <View style={styles.statsGrid}>
         {[
@@ -127,14 +168,6 @@ export function HomeScreen({ navigation }: Props) {
             <Text style={styles.statLabel}>{stat.label}</Text>
           </View>
         ))}
-      </View>
-      <View style={styles.countdown}>
-        <Text style={styles.countNumber}>{daysLeft}</Text>
-        <View style={styles.countCopy}>
-          <Text style={styles.countTitle}>Days to NOSHE 2026</Text>
-          <Text style={styles.countMeta}>{event.date}</Text>
-        </View>
-        <CTAButton title="Register" style={styles.register} onPress={() => navigation.navigate('Tickets')} />
       </View>
       <Text style={styles.sectionLabel}>Quick Access</Text>
       <View style={styles.quickGrid}>
@@ -287,6 +320,25 @@ function CounterText({ style, value }: { style: object; value: string }) {
   return <Text style={style}>{displayValue}</Text>;
 }
 
+function getCountdownParts() {
+  const totalSeconds = Math.max(0, Math.floor((eventStartTime - Date.now()) / 1000));
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return {
+    days: formatCountdownValue(days),
+    hours: formatCountdownValue(hours),
+    minutes: formatCountdownValue(minutes),
+    seconds: formatCountdownValue(seconds)
+  };
+}
+
+function formatCountdownValue(value: number) {
+  return String(value).padStart(2, '0');
+}
+
 const styles = StyleSheet.create({
   sectionLabel: {
     color: theme.colors.text,
@@ -295,46 +347,90 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: 4
   },
-  countdown: {
-    backgroundColor: theme.colors.white,
-    borderRadius: 22,
-    padding: 14,
+  premiumCountdown: {
+    borderRadius: 28,
+    padding: 16,
+    gap: 14,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.22)',
+    shadowColor: '#08234A',
+    shadowOpacity: 0.18,
+    shadowOffset: { width: 0, height: 14 },
+    shadowRadius: 24,
+    elevation: 7
+  },
+  countGlow: {
+    position: 'absolute',
+    right: -46,
+    top: -62,
+    width: 176,
+    height: 176,
+    borderRadius: 88,
+    backgroundColor: 'rgba(243,112,33,0.24)'
+  },
+  countHeading: {
+    color: theme.colors.white,
+    fontSize: 20,
+    lineHeight: 26,
+    fontWeight: '700'
+  },
+  countdownGrid: {
+    flexDirection: 'row',
+    gap: 10
+  },
+  countdownCard: {
+    flex: 1,
+    minHeight: 86,
+    borderRadius: 8,
+    backgroundColor: 'rgba(255,255,255,0.96)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    shadowColor: '#071326',
+    shadowOpacity: 0.14,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 16,
+    elevation: 4
+  },
+  countdownValue: {
+    color: '#CFAE96',
+    fontSize: 32,
+    lineHeight: 38,
+    fontWeight: '700'
+  },
+  countdownLabel: {
+    color: theme.colors.text,
+    fontSize: 11,
+    lineHeight: 15,
+    fontWeight: '500'
+  },
+  timeChipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 12
+  },
+  timeChip: {
+    borderRadius: theme.radius.pill,
+    backgroundColor: 'rgba(255,255,255,0.13)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.16)',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    borderWidth: 1,
-    borderColor: '#E8F1FA',
-    shadowColor: '#0B356C',
-    shadowOpacity: 0.07,
-    shadowOffset: { width: 0, height: 10 },
-    shadowRadius: 18,
-    elevation: 3
+    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 7
   },
-  countNumber: {
-    color: theme.colors.orange,
-    fontSize: 30,
-    fontWeight: '700',
-    minWidth: 44,
-    textAlign: 'center'
-  },
-  countCopy: {
-    flex: 1
-  },
-  countTitle: {
-    color: theme.colors.text,
-    fontSize: 15,
+  timeChipText: {
+    color: theme.colors.white,
+    fontSize: 11,
+    lineHeight: 15,
     fontWeight: '600'
   },
-  countMeta: {
-    color: theme.colors.muted,
-    fontSize: 12,
-    marginTop: 3,
-    fontWeight: '400'
-  },
-  register: {
-    minHeight: 42,
-    borderRadius: 16,
-    paddingHorizontal: 16
+  countRegister: {
+    minHeight: 48,
+    borderRadius: 18
   },
   topicSection: {
     backgroundColor: '#F8FAFF',

@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AgendaScreen } from '../screens/AgendaScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
@@ -11,6 +12,7 @@ import { theme } from '../theme/theme';
 import { MainTabParamList } from './types';
 
 const Tabs = createBottomTabNavigator<MainTabParamList>();
+const TAB_BAR_BASE_HEIGHT = 66;
 
 const tabIcons: Record<
   keyof MainTabParamList,
@@ -116,6 +118,9 @@ function AnimatedTabLabel({
 }
 
 export function MainTabs() {
+  const insets = useSafeAreaInsets();
+  const bottomInset = Math.max(insets.bottom, 0);
+
   return (
     <Tabs.Navigator
       screenOptions={({ route }) => ({
@@ -123,7 +128,14 @@ export function MainTabs() {
         tabBarActiveTintColor: theme.colors.navy,
         tabBarInactiveTintColor: '#6B7280',
         tabBarHideOnKeyboard: true,
-        tabBarStyle: styles.tabBar,
+        tabBarStyle: [
+          styles.tabBar,
+          {
+            minHeight: TAB_BAR_BASE_HEIGHT + bottomInset,
+            height: TAB_BAR_BASE_HEIGHT + bottomInset,
+            paddingBottom: Math.max(10, bottomInset + 6)
+          }
+        ],
         tabBarItemStyle: styles.tabItem,
         tabBarLabel: ({ color, focused }) => (
           <AnimatedTabLabel color={color} focused={focused} label={route.name} />
