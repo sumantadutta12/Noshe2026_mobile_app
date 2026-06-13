@@ -9,6 +9,9 @@ import { Screen } from '../components/Screen';
 import { useAttendeeAuth } from '../context/AttendeeAuthContext';
 import { MainTabParamList, RootStackParamList } from '../navigation/types';
 import { theme } from '../theme/theme';
+import { logoutUser } from '../services/authServices';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<MainTabParamList, 'More'>,
@@ -49,21 +52,69 @@ const primaryItems = [
 ] as const;
 
 export function ProfileScreen({ navigation }: Props) {
-  const { attendee, isLoggedIn, logout } = useAttendeeAuth();
+  const { attendee } = useAttendeeAuth();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  useEffect(() => {checkLogin();}, []);
 
-  const confirmLogout = () => {
+  const checkLogin = async () => {
+    const token = await AsyncStorage.getItem('token');
+    const name = await AsyncStorage.getItem('name');
+    const uid = await AsyncStorage.getItem('uid');
+
+    if (token && uid) {
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
+    }
+
+  };
+
+  // const confirmLogout = () => {
+  //   Alert.alert(
+  //     'Logout from attendee access?',
+  //     'Your QR pass and dashboard will be hidden until you login again.',
+  //     [
+  //       {
+  //         text: 'Cancel',
+  //         style: 'cancel'
+  //       },
+  //       {
+  //         text: 'Logout',
+  //         style: 'destructive',
+  //         onPress: handleLogout
+  //       }
+  //     ]
+  //   );
+  // };
+  const handleLogout = async() => {
+    try {
+
+    const uid = await AsyncStorage.getItem('uid');
+    const token = await AsyncStorage.getItem('token');
+    console.log(uid,token)
+    if (uid && token) {
+      await logoutUser(uid, token);
+    }
+    await AsyncStorage.removeMany([
+      'uid',
+      'token',
+    ]);
+    setIsLoggedIn(false);
+    // logout();
+
     Alert.alert(
-      'Logout from attendee access?',
-      'Your QR pass and dashboard will be hidden until you login again.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Logout',
-          style: 'destructive',
-          onPress: logout
-        }
-      ]
+      'Success',
+      'Logged out successfully'
     );
+
+  } catch (error) {
+    console.log(error);
+    Alert.alert(
+      'Error',
+      'Logout failed'
+    );
+
+  }
   };
 
   return (
@@ -142,7 +193,7 @@ export function ProfileScreen({ navigation }: Props) {
             title="Logout"
             subtitle="Sign out from attendee access on this device"
             tone="danger"
-            onPress={confirmLogout}
+            onPress={handleLogout}
           />
         </View>
       ) : null}

@@ -6,6 +6,9 @@ import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-nativ
 import { Screen } from '../components/Screen';
 import { RootStackParamList } from '../navigation/types';
 import { theme } from '../theme/theme';
+import { Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { adminLogin } from '../services/adminService';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AdminLogin'>;
 
@@ -15,6 +18,36 @@ export function AdminLoginScreen({ navigation }: Props) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const canContinue = username.trim().length > 0 && password.trim().length > 0;
+  const [loading, setLoading] = useState(false);
+
+  const handleAdminLogin = async () => {
+    try {
+      if (!username.trim()) {
+        Alert.alert('Validation', 'Username is required');
+        return;
+      }
+      if (!password.trim()) {
+        Alert.alert('Validation', 'Password is required');
+        return;
+      }
+      setLoading(true);
+      const response = await adminLogin(username, password);
+      console.log(response);
+
+      if (response.success) {
+        await AsyncStorage.setItem('adminToken', response.token);
+        await AsyncStorage.setItem('adminuid', response.uid);
+        navigation.replace('AdminDashboard');
+      } else {
+        Alert.alert('Login Failed',response.message || 'Invalid credentials');
+      }
+    } catch (error: any) {
+      console.log(error);
+      Alert.alert('Login Failed', error?.response?.data?.message || 'Something went wrong');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Screen style={styles.screen}>
@@ -66,14 +99,14 @@ export function AdminLoginScreen({ navigation }: Props) {
 
         <Pressable
           disabled={!canContinue}
-          onPress={() => navigation.replace('AdminDashboard')}
+          onPress={handleAdminLogin}
           style={({ pressed }) => [
             styles.button,
             !canContinue && styles.buttonDisabled,
             pressed && canContinue && styles.pressed
           ]}
         >
-          <Text style={styles.buttonText}>Open Dashboard</Text>
+          {loading ? 'Please wait...' : 'Open Dashboard'}
           <Ionicons name="arrow-forward" size={19} color={theme.colors.white} />
         </Pressable>
       </View>

@@ -320,7 +320,7 @@ export function TicketsScreen() {
           </Text>
         </Pressable>
 
-        <CTAButton title={loading ? 'Submitting...' : 'Submit Registration'} onPress={handleSubmit}/>      
+        <CTAButton title={loading ? 'Submitting...' : 'Submit Registration'} onPress={handleSubmit}/>     
       </View>
     </Screen>
   );

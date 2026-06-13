@@ -13,6 +13,7 @@ import { Screen } from '../components/Screen';
 import { event } from '../data/events';
 import { MainTabParamList, RootStackParamList } from '../navigation/types';
 import { theme } from '../theme/theme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<MainTabParamList, 'Home'>,
@@ -100,13 +101,22 @@ const eventTimeLabel = '10:00 AM onwards';
 
 export function HomeScreen({ navigation }: Props) {
   const [countdown, setCountdown] = useState(() => getCountdownParts());
-
+  useEffect(() => {checkAdminLogin();}, []);
+  
   useEffect(() => {
-    const timer = setInterval(() => setCountdown(getCountdownParts()), 1000);
+    const timer = setInterval(() => setCountdown(getCountdownParts()), 1000); return () => clearInterval(timer);}, []);
 
-    return () => clearInterval(timer);
-  }, []);
-
+  const checkAdminLogin = async () => {
+    try {
+      const token = await AsyncStorage.getItem('adminToken');
+      if (token) {
+        navigation.replace('AdminDashboard');
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  
   return (
     <Screen refreshable header={<AppHeader onProfilePress={() => navigation.navigate('More')} />}>
       <EventCard event={event} />

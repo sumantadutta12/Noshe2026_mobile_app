@@ -14,6 +14,9 @@ import { Screen } from '../components/Screen';
 import { useAttendeeAuth } from '../context/AttendeeAuthContext';
 import { RootStackParamList } from '../navigation/types';
 import { theme } from '../theme/theme';
+import { Alert } from 'react-native';
+import { sendOtp,verifyLogin } from '../services/authServices';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Auth'>;
 
@@ -25,16 +28,15 @@ export function AuthScreen({ navigation, route }: Props) {
   const { login } = useAttendeeAuth();
   const loginMode = route.params?.mode ?? 'attendee';
   const isAdminLogin = loginMode === 'admin';
-  const [mobileNumber, setMobileNumber] = useState('');
+  const [email, setEmail] = useState('');
   const [otpVisible, setOtpVisible] = useState(false);
   const [otp, setOtp] = useState(Array(otpLength).fill(''));
-  const [mobileFocused, setMobileFocused] = useState(false);
+  const [emailFocused, setEmailFocused] = useState(false);
   const [focusedOtpIndex, setFocusedOtpIndex] = useState<number | null>(null);
   const [resendSeconds, setResendSeconds] = useState(resendDuration);
   const otpRefs = useRef<Array<TextInput | null>>([]);
 
-  const isMobileValid = mobileNumber.length === 10;
-  const isOtpComplete = otp.every(Boolean);
+  const isEmailValid = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email);  const isOtpComplete = otp.every(Boolean);
 
   useEffect(() => {
     if (!otpVisible || resendSeconds <= 0) {
@@ -48,16 +50,45 @@ export function AuthScreen({ navigation, route }: Props) {
     return () => clearTimeout(timer);
   }, [otpVisible, resendSeconds]);
 
-  const handleSendOtp = () => {
-    if (!isMobileValid) {
-      return;
-    }
+  const handleSendOtp = async () => {
+    try {
+      if (!isEmailValid) {
+        return;
+      }
 
-    setOtpVisible(true);
-    setOtp(Array(otpLength).fill(''));
-    setResendSeconds(resendDuration);
-    setTimeout(() => otpRefs.current[0]?.focus(), 120);
+      console.log('Sending OTP to:', email);
+      const response = await sendOtp(email);
+      console.log(response);
+
+      if (response.success) {
+        setOtpVisible(true);
+        setOtp(Array(otpLength).fill(''));
+        setResendSeconds(resendDuration);
+
+        setTimeout(() => {
+          otpRefs.current[0]?.focus();
+        }, 120);
+        Alert.alert('Success',response.message);
+      }
+      else
+      {
+        Alert.alert('Error',response.message);
+      }
+      
+    }catch (error: any) {
+      Alert.alert(
+        'Error',
+        error?.response?.data?.message ||
+        'Failed to send OTP'
+      );
+
+      console.log(error);
+    }
   };
+    // setOtp(Array(otpLength).fill(''));
+    // setResendSeconds(resendDuration);
+    // setTimeout(() => otpRefs.current[0]?.focus(), 120);
+  
 
   const handleOtpChange = (value: string, index: number) => {
     const nextDigit = value.replace(/\D/g, '').slice(-1);
@@ -76,27 +107,77 @@ export function AuthScreen({ navigation, route }: Props) {
     }
   };
 
-  const handleResendOtp = () => {
-    if (resendSeconds > 0) {
-      return;
-    }
+  const handleResendOtp = async() => {
+    try {
+        if (resendSeconds > 0) {
+          return;
+        }
 
-    setOtp(Array(otpLength).fill(''));
-    setResendSeconds(resendDuration);
-    otpRefs.current[0]?.focus();
+        const response = await sendOtp(email);
+
+        if (response.success) {
+          setOtp(Array(otpLength).fill(''));
+          setResendSeconds(resendDuration);
+
+          Alert.alert(
+            'Success',
+            response.message || 'OTP resent successfully'
+          );
+
+          setTimeout(() => {
+            otpRefs.current[0]?.focus();
+          }, 120);
+        } else {
+          Alert.alert(
+            'Error',
+            response.message || 'Failed to resend OTP'
+          );
+        }
+      } catch (error: any) {
+        Alert.alert(
+          'Error',
+          error?.response?.data?.message ||
+          'Failed to resend OTP'
+        );
+
+        console.log(error);
+    }
   };
 
-  const handleVerify = () => {
-    if (isOtpComplete) {
-      if (isAdminLogin) {
-        navigation.replace('MainTabs', { screen: 'Home' });
+  const handleVerify = async () => {
+    try {
+      if (!isOtpComplete) {
         return;
       }
 
-      login(mobileNumber);
-      navigation.replace('AttendeeDashboard');
-    }
-  };
+      const enteredOtp = otp.join('');
+      console.log({email,otp: enteredOtp});
+
+      const response = await verifyLogin(
+        email,
+        enteredOtp
+      );
+
+      if (response.success) {
+        Alert.alert('Success',response.message || 'Login successful');
+        await AsyncStorage.setItem('token',response.data[0].token);
+        await AsyncStorage.setItem('name',response.data[0].name);
+        await AsyncStorage.setItem('uid',response.data[0].uid);
+        if (isAdminLogin) {
+          navigation.replace('MainTabs',{screen: 'Home',});
+          return;
+        }
+        login(email);
+
+        navigation.replace('AttendeeDashboard');
+      } else {
+        Alert.alert('Invalid OTP', response.message || 'OTP verification failed');
+      }
+    } catch (error: any) {
+      Alert.alert('Error', error?.response?.message || 'Verification failed');
+      console.log(error);
+  }
+};
 
   return (
     <Screen style={styles.screen}>
@@ -123,7 +204,7 @@ export function AuthScreen({ navigation, route }: Props) {
           <Text style={styles.heroText}>
             {isAdminLogin
               ? 'Use your authorised admin mobile number to continue with OTP verification.'
-              : 'Use your registered mobile number to continue with OTP verification.'}
+              : 'Use your registered email id to continue with OTP verification.'}
           </Text>
         </View>
       </LinearGradient>
@@ -137,9 +218,9 @@ export function AuthScreen({ navigation, route }: Props) {
         />
         <View style={styles.cardTop}>
           <View style={styles.cardTitleBlock}>
-            <Text style={styles.cardTitle}>Mobile number</Text>
+            <Text style={styles.cardTitle}>Email Id</Text>
             <Text style={styles.cardHint}>
-              Enter a valid 10 digit mobile number to receive the demo OTP.
+              Enter your registered email id to receive the OTP.
             </Text>
           </View>
           <View style={styles.lockBadge}>
@@ -148,33 +229,35 @@ export function AuthScreen({ navigation, route }: Props) {
         </View>
 
         <View style={styles.mobileRow}>
-          <View style={styles.countryBox}>
+          {/* <View style={styles.countryBox}>
             <Text style={styles.countryText}>+91</Text>
-          </View>
-          <TextInput
-            value={mobileNumber}
+          </View> */}
+          <TextInput value={email}
             onChangeText={(value) => {
-              setMobileNumber(value.replace(/\D/g, '').slice(0, 10));
+              setEmail(value);
               if (otpVisible) {
                 setOtpVisible(false);
                 setOtp(Array(otpLength).fill(''));
               }
             }}
-            placeholder="Mobile number"
-            keyboardType="number-pad"
-            autoComplete="tel"
-            maxLength={10}
-            onBlur={() => setMobileFocused(false)}
-            onFocus={() => setMobileFocused(true)}
-            style={[styles.mobileInput, mobileFocused && styles.inputFocused]}
-            placeholderTextColor="#9AA8BA"
+            placeholder="Enter Email ID"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoCorrect={false}
+            onBlur={() => setEmailFocused(false)}
+            onFocus={() => setEmailFocused(true)}
+
+            style={[
+              styles.emailInput,
+              emailFocused && styles.inputFocused,
+            ]}
           />
         </View>
 
         {!otpVisible ? (
           <GradientButton
             title="Send OTP"
-            disabled={!isMobileValid}
+            disabled={!isEmailValid}
             onPress={handleSendOtp}
           />
         ) : (
@@ -417,7 +500,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '500'
   },
-  mobileInput: {
+  emailInput: {
     flex: 1,
     minWidth: 0,
     minHeight: 58,

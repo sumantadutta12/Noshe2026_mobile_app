@@ -2,13 +2,36 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '../components/Screen';
-import { useAttendeeAuth } from '../context/AttendeeAuthContext';
 import { theme } from '../theme/theme';
+import { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getAttendeeDashboard } from '../services/attendeeService';
 
 const qrCodeImage = require('../assets/qr-pe.webp');
 
 export function AttendeeDashboardScreen() {
-  const { attendee } = useAttendeeAuth();
+  const [dashboardData,setDashboardData] = useState<any>(null);
+  useEffect(() => {fetchDashboard();},[]);
+
+  const fetchDashboard = async () => {
+  try{
+        const token =
+          await AsyncStorage.getItem('token');
+        const uid =
+          await AsyncStorage.getItem('uid');
+        if(!token || !uid){
+          return;
+        }
+        const response = await getAttendeeDashboard(uid,token);
+        console.log(response)
+        if(response.success){
+          setDashboardData(response.data[0]);
+        }
+      }
+      catch(error){
+        console.log(error);
+      }
+  };
 
   return (
     <Screen>
@@ -30,15 +53,17 @@ export function AttendeeDashboardScreen() {
 
       <View style={styles.passCard}>
         <View style={styles.qrWrap}>
-          <Image source={qrCodeImage} style={styles.qrImage} resizeMode="contain" />
+          <Image source={{ uri: dashboardData?.qr_code }} style={styles.qrImage} resizeMode="contain"/>
+          {/* <Image source={qrCodeImage} style={styles.qrImage} resizeMode="contain" /> */}
         </View>
 
         <Text style={styles.passLabel}>Digital Delegate Pass</Text>
-        <Text style={styles.passName}>{attendee?.name ?? 'NOSHE Attendee'}</Text>
-        <Text style={styles.passId}>{attendee?.registrationId ?? 'NOSHE26-0000'}</Text>
+        {/* <Text style={styles.passName}>{attendee?.name ?? 'NOSHE Attendee'}</Text> */}
+        <Text style={styles.passName}>{dashboardData?.name || 'NOSHE Attendee'}</Text>
+        {/* <Text style={styles.passId}>{attendee?.registrationId ?? 'NOSHE26-0000'}</Text> */}
 
         <View style={styles.infoList}>
-          <InfoRow icon="call-outline" label="Mobile" value={`+91 ${attendee?.mobileNumber ?? '----------'}`} />
+          <InfoRow icon="call-outline" label="Mobile" value={`+91 ${dashboardData?.mobile_no ?? '----------'}`} />
           <InfoRow icon="calendar-outline" label="Event" value="NOSHE 2026, 3rd - 4th July 2026" />
           <InfoRow icon="location-outline" label="Venue" value="NTPC PMI, Noida" />
         </View>
