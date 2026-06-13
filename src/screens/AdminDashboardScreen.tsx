@@ -2,17 +2,18 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useCallback, useEffect, useState } from 'react';
-import { Alert, BackHandler, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useCallback } from 'react';
+import { BackHandler, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '../components/Screen';
 import { RootStackParamList } from '../navigation/types';
 import { theme } from '../theme/theme';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getDashboardData ,logout} from '../services/adminService';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AdminDashboard'>;
 
-
+const attendanceStats = [
+  { label: 'Total register', value: '186', icon: 'people-outline' },
+  { label: 'Total Checked-in', value: '124', icon: 'sunny-outline' }
+] as const;
 
 const attendanceTimes = [
   { name: 'Dr. Ananya Rao', role: 'Speaker', time: '10:02 AM', status: 'Checked in' },
@@ -22,85 +23,13 @@ const attendanceTimes = [
 ] as const;
 
 export function AdminDashboardScreen({ navigation }: Props) {
-  const [selectedTab, setSelectedTab] = useState('registered');
-  const [selectedType, setSelectedType] =
-  useState('participants');
-  const [dashboardData, setDashboardData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { fetchDashboard();}, []);
   useFocusEffect(
     useCallback(() => {
       const subscription = BackHandler.addEventListener('hardwareBackPress', () => true);
+
       return () => subscription.remove();
     }, [])
   );
- console.log("5",dashboardData)
-   const attendanceStats = [
-    {
-      label: 'Total Register',
-      value: dashboardData?.[0]?.participants?.length?.toString() || '0',
-      icon: 'people-outline',
-      key: 'participants'
-    },
-    {
-      label: 'Total Checked-in',
-      value: dashboardData?.[0]?.checkedIn?.length?.toString() || '0',
-      icon: 'sunny-outline',
-      key: 'checkedIn'
-    }
-  ];
-
-  const fetchDashboard = async () => {
-    try {
-      setLoading(true);
-      const token = await AsyncStorage.getItem('adminToken');
-      if ( !token) {
-        return;
-      }
-      const response = await getDashboardData( token);
-      console.log('Dashboard API', response);
-      if (response.success) {
-        setDashboardData(response.data);
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-   const handleLogout = async() => {
-    try {
-
-    const adminid = await AsyncStorage.getItem('adminuid');
-    if (adminid) {
-      await logout( adminid);
-    }
-    await AsyncStorage.removeMany(['adminToken','adminuid']);
-
-    Alert.alert(
-      'Success',
-      'Logged out successfully'
-    );
-    navigation.replace('MainTabs', { screen: 'More' });
-
-  } catch (error) {
-    console.log(error);
-    Alert.alert(
-      'Error',
-      'Logout failed'
-    );
-
-  }
-  };
-  
-  if (loading) {
-  return (
-    <Screen>
-      <Text>Loading...</Text>
-    </Screen>
-  );
-}
 
   return (
     <Screen refreshable>
@@ -117,7 +46,7 @@ export function AdminDashboardScreen({ navigation }: Props) {
       </LinearGradient>
 
       <Pressable
-        onPress={handleLogout}
+        onPress={() => navigation.replace('MainTabs', { screen: 'More' })}
         style={({ pressed }) => [styles.logoutButton, pressed && styles.pressed]}
       >
         <View style={styles.logoutIcon}>
@@ -132,36 +61,43 @@ export function AdminDashboardScreen({ navigation }: Props) {
 
       <View style={styles.statsGrid}>
         {attendanceStats.map((item) => (
-          <Pressable key={item.label} onPress={() => setSelectedType(item.key)}
-            style={[styles.statCard, selectedType === item.key && { borderColor: theme.colors.orange, borderWidth: 2 }]}>
+          <View key={item.label} style={styles.statCard}>
             <View style={styles.statIcon}>
-              <Ionicons name={item.icon} size={22} color={theme.colors.orange} />
+              <Ionicons
+                name={item.icon}
+                size={22}
+                color={theme.colors.orange}
+              />
             </View>
             <Text style={styles.statValue}>{item.value}</Text>
             <Text style={styles.statLabel}>{item.label}</Text>
-          </Pressable>
+          </View>
         ))}
-    </View>
+      </View>
 
       <View style={styles.sectionHeader}>
         <View>
           <Text style={styles.sectionEyebrow}>Check-in Time</Text>
-          <Text style={styles.sectionTitle}>{selectedType === 'participants' ? 'Registered Participants' : 'Checked-In Participants'}</Text>
+          <Text style={styles.sectionTitle}>Total Attendance</Text>
         </View>
       </View>
 
       <View style={styles.attendanceList}>
-        {dashboardData?.[0]?.[selectedType]?.map(
-          (item: any, index: number) => (
-            <View key={index} style={styles.attendanceCard}>
-              <View style={styles.timeBadge}>
-              <Text style={styles.timeText}>{item.registered_date ? (((item.registered_date.split(" ")[0]).split('-')).reverse()).join('-') : "N/A"}</Text>
+        {attendanceTimes.map((item) => (
+          <View key={`${item.name}-${item.time}`} style={styles.attendanceCard}>
+            <View style={styles.timeBadge}>
+              <Text style={styles.timeText}>{item.time}</Text>
             </View>
             <View style={styles.attendanceCopy}>
               <Text style={styles.attendeeName}>{item.name}</Text>
-              <Text style={styles.attendeeRole}>{item.email_id}</Text>
+              <Text style={styles.attendeeRole}>{item.role}</Text>
             </View>
-          </View>))}
+            <View style={styles.statusPill}>
+              <View style={styles.statusDot} />
+              <Text style={styles.statusText}>{item.status}</Text>
+            </View>
+          </View>
+        ))}
       </View>
     </Screen>
   );
