@@ -4,11 +4,14 @@ import { CameraView, useCameraPermissions, type BarcodeScanningResult } from 'ex
 import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useCallback, useState } from 'react';
-import { BackHandler, Modal, Pressable, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useState, useEffect } from 'react';
+import { Alert,BackHandler, Modal, Pressable, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '../components/Screen';
 import { RootStackParamList } from '../navigation/types';
 import { theme } from '../theme/theme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getDashboardData ,logout} from '../services/adminService';
+import {scanAttendee } from '../services/scannerService';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AdminDashboard'>;
 
@@ -25,9 +28,29 @@ const attendanceTimes = [
 ] as const;
 
 export function AdminDashboardScreen({ navigation }: Props) {
+  const [selectedTab, setSelectedTab] = useState('registered');
+  const [selectedType, setSelectedType] =
+  useState('participants');
+  const [dashboardData, setDashboardData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { fetchDashboard();}, []);
   const [permission, requestPermission] = useCameraPermissions();
   const [scannerActive, setScannerActive] = useState(false);
   const [latestScan, setLatestScan] = useState<string | null>(null);
+  const attendanceStats = [
+    {
+      label: 'Total Register',
+      value: dashboardData?.[0]?.participants?.length?.toString() || '0',
+      icon: 'people-outline',
+      key: 'participants'
+    },
+    {
+      label: 'Total Checked-in',
+      value: dashboardData?.[0]?.checkedIn?.length?.toString() || '0',
+      icon: 'sunny-outline',
+      key: 'checkedIn'
+    }
+  ];
 
   useFocusEffect(
     useCallback(() => {
@@ -58,14 +81,88 @@ export function AdminDashboardScreen({ navigation }: Props) {
     setScannerActive(true);
   }, [hasCameraPermission, requestPermission]);
 
-  const handleBarcodeScanned = useCallback((result: BarcodeScanningResult) => {
-    setLatestScan(result.data);
-    setScannerActive(false);
-  }, []);
+  const handleBarcodeScanned = async ({ data }) => {
+     try {
+        setScannerActive(false);
+        console.log('Scanned Value:', data);
+        const response = await scanAttendee({
+          qr_code: data
+        });
+
+      if (response.success) {
+          // setLatestScan(response.data);
+        await fetchDashboard();
+          Alert.alert(
+            'Success',
+            response.message || 'Attendee scanned successfully'
+          );
+        } else {
+          Alert.alert(
+            'Failed',
+            response.message || 'Invalid QR Code'
+          );
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
   const handleCloseScanner = useCallback(() => {
     setScannerActive(false);
   }, []);
+
+  
+  const fetchDashboard = async () => {
+    try {
+      setLoading(true);
+      const token = await AsyncStorage.getItem('adminToken');
+      if ( !token) {
+        return;
+      }
+      const response = await getDashboardData( token);
+      console.log('Dashboard API', response);
+      if (response.success) {
+        setDashboardData(response.data);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+   const handleLogout = async() => {
+    try {
+
+    const adminid = await AsyncStorage.getItem('adminuid');
+    if (adminid) {
+      await logout( adminid);
+    }
+    await AsyncStorage.removeMany(['adminToken','adminuid']);
+
+    Alert.alert(
+      'Success',
+      'Logged out successfully'
+    );
+    navigation.replace('MainTabs', { screen: 'More' });
+
+  } catch (error) {
+    console.log(error);
+    Alert.alert(
+      'Error',
+      'Logout failed'
+    );
+
+  }
+   }
+  
+  if (loading) {
+  return (
+    <Screen>
+      <Text>Loading...</Text>
+    </Screen>
+  );
+}
 
   return (
     <Screen refreshable>
@@ -82,7 +179,7 @@ export function AdminDashboardScreen({ navigation }: Props) {
       </LinearGradient>
 
       <Pressable
-        onPress={() => navigation.replace('MainTabs', { screen: 'More' })}
+        onPress={handleLogout}
         style={({ pressed }) => [styles.logoutButton, pressed && styles.pressed]}
       >
         <View style={styles.logoutIcon}>
@@ -97,19 +194,16 @@ export function AdminDashboardScreen({ navigation }: Props) {
 
       <View style={styles.statsGrid}>
         {attendanceStats.map((item) => (
-          <View key={item.label} style={styles.statCard}>
+          <Pressable key={item.label} onPress={() => setSelectedType(item.key)}
+            style={[styles.statCard, selectedType === item.key && { borderColor: theme.colors.orange, borderWidth: 2 }]}>
             <View style={styles.statIcon}>
-              <Ionicons
-                name={item.icon}
-                size={22}
-                color={theme.colors.orange}
-              />
+              <Ionicons name={item.icon} size={22} color={theme.colors.orange} />
             </View>
             <Text style={styles.statValue}>{item.value}</Text>
             <Text style={styles.statLabel}>{item.label}</Text>
-          </View>
+          </Pressable>
         ))}
-      </View>
+    </View>
 
       <View style={styles.scannerCard}>
         <View style={styles.scannerHeader}>
@@ -129,12 +223,12 @@ export function AdminDashboardScreen({ navigation }: Props) {
           </Text>
         </View>
 
-        {latestScan ? (
+        {/* {latestScan ? (
           <View style={styles.scanResult}>
             <Text style={styles.scanResultLabel}>Last scanned QR</Text>
             <Text style={styles.scanResultValue} numberOfLines={2}>{latestScan}</Text>
           </View>
-        ) : null}
+        ) : null} */}
 
         <View style={styles.scannerActions}>
           <Pressable
@@ -200,21 +294,17 @@ export function AdminDashboardScreen({ navigation }: Props) {
       </View>
 
       <View style={styles.attendanceList}>
-        {attendanceTimes.map((item) => (
-          <View key={`${item.name}-${item.time}`} style={styles.attendanceCard}>
-            <View style={styles.timeBadge}>
-              <Text style={styles.timeText}>{item.time}</Text>
+        {dashboardData?.[0]?.[selectedType]?.map(
+          (item: any, index: number) => (
+            <View key={index} style={styles.attendanceCard}>
+              <View style={styles.timeBadge}>
+              <Text style={styles.timeText}>{item.registered_date ? (((item.registered_date.split(" ")[0]).split('-')).reverse()).join('-') : "N/A"}</Text>
             </View>
             <View style={styles.attendanceCopy}>
               <Text style={styles.attendeeName}>{item.name}</Text>
-              <Text style={styles.attendeeRole}>{item.role}</Text>
+              <Text style={styles.attendeeRole}>{item.email_id}</Text>
             </View>
-            <View style={styles.statusPill}>
-              <View style={styles.statusDot} />
-              <Text style={styles.statusText}>{item.status}</Text>
-            </View>
-          </View>
-        ))}
+          </View>))}
       </View>
     </Screen>
   );

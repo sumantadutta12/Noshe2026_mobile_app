@@ -3,7 +3,7 @@ import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import {
   Image,
   LayoutAnimation,
@@ -23,6 +23,8 @@ import { MainTabParamList, RootStackParamList } from '../navigation/types';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from '../theme/theme';
 import { Session, Track } from '../types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getAgendaData,getFilterData  } from '../services/agendaService';
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<MainTabParamList, 'Agenda'>,
@@ -61,10 +63,66 @@ export function AgendaScreen({ navigation }: Props) {
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [activeFilterPanel, setActiveFilterPanel] = useState<FilterPanel>('categories');
   const [selectedTracks, setSelectedTracks] = useState<string[]>([]);
-  const selectedSessionSpeakers = selectedSession
-    ? speakers.filter((speaker) => selectedSession.speakerIds.includes(speaker.id))
-    : [];
+  const selectedSessionSpeakers = selectedSession?.speakers || [];
+  const [agendaData, setAgendaData] = useState<any>(null);
+  const [filterSearch, setFilterSearch] = useState('');
+  const [filterData, setFilterData] = useState({
+    tracks: [],
+    categories: [],
+    halls: [],
+    speakers: []
+  });
+  useEffect(() => {loadAgenda();}, []);
+  const summary = "Formal opening of NOSHE-2026 with dignitaries, industry leaders, and occupational health and safery experts";
+  const loadAgenda = async () => {
+    const response = await getAgendaData({
+      track: [],
+      categories: [],
+      halls: [],
+      speakers: []
+    });
 
+    if (response.success) {
+      setAgendaData(response.data);
+    }
+  };
+
+  const applyFilters = async () => {
+    const token = await AsyncStorage.getItem('token');
+
+    const response = await getAgendaData({
+      track: selectedTracks,
+      categories: selectedCategories,
+      halls: selectedHalls,
+      speakers: selectedSpeakers
+    });
+
+    if (response.success) {
+      setAgendaData(response.data);
+      setFilterSheetOpen(false);
+    }
+  };
+
+  const openFilterModal = async () => {
+    setFilterSheetOpen(true);
+
+    const response = await getFilterData( '');
+
+    if (response.success) {
+      setFilterData(response.data);
+    }
+  };
+
+  const handleFilterSearch = async (text: string) => {
+    setFilterSearch(text);
+
+
+    const response = await getFilterData(text);
+
+    if (response.success) {
+      setFilterData(response.data);
+    }
+  };
   const toggleFilterPanel = (panel: FilterPanel) => {
     LayoutAnimation.configureNext({
       duration: 220,
@@ -82,12 +140,38 @@ export function AgendaScreen({ navigation }: Props) {
     });
     setActiveFilterPanel(panel);
   };
+  const clearFilters = async () => {
+  setSelectedTracks([]);
+  setSelectedCategories([]);
+  setSelectedHalls([]);
+  setSelectedSpeakers([]);
+
+  const response = await getAgendaData({
+    track: [],
+    categories: [],
+    halls: [],
+    speakers: []
+  });
+
+  if (response.success) {
+    setAgendaData(response.data);
+    setFilterSheetOpen(false);
+  }
+};
 
   const visibleSessions = useMemo(() => {
-    return activeTab === 'Favorite Sessions'
-      ? sessions.filter((session) => session.bookmarked)
-      : sessions.filter((session) => session.day === activeTab);
-  }, [activeTab]);
+  if (!agendaData) return [];
+
+  if (activeTab === 'Day 1') {
+    return agendaData.day1 || [];
+  }
+
+  if (activeTab === 'Day 2') {
+    return agendaData.day2 || [];
+  }
+
+  return [];
+  }, [activeTab, agendaData]);
 
   return (
     <Screen
@@ -95,7 +179,7 @@ export function AgendaScreen({ navigation }: Props) {
       header={<AppHeader onProfilePress={() => navigation.navigate('More')} />}
       floating={
         <Pressable
-          onPress={() => setFilterSheetOpen(true)}
+          onPress={openFilterModal}
           style={({ pressed }) => [styles.floatingFilter, pressed && styles.pressed]}
           accessibilityRole="button"
           accessibilityLabel="Filter agenda"
@@ -140,11 +224,70 @@ export function AgendaScreen({ navigation }: Props) {
           </View>
         ) : (
           visibleSessions.map((session) => (
-            <AgendaTimelineItem
-              key={session.id}
-              session={session}
+            <Pressable
+              key={session.session_id}
+              style={styles.timelineItem}
               onPress={() => setSelectedSession(session)}
-            />
+            >
+              <View style={styles.iconColumn}>
+                <View style={styles.sessionIcon}>
+                  <Ionicons
+                    name="list-outline"
+                    size={18}
+                    color={theme.colors.white}
+                  />
+                </View>
+              </View>
+              <View style={styles.sessionPanel}>
+                <Text style={styles.trackTag}>
+                  {session.session_categories}
+                </Text>
+
+                <Text style={styles.sessionTitle}>
+                  {session.session_details || session.session_categories}
+                </Text>
+
+                <View style={styles.metaRow}>
+                  <View style={styles.metaItem}>
+                    <Ionicons
+                      name="time-outline"
+                      size={14}
+                      color={theme.colors.orange}
+                    />
+                    <Text style={styles.metaText}>
+                      {session.session_timeline}
+                    </Text>
+                  </View>
+
+                  <View style={styles.metaItem}>
+                    {session.session_halls != null ? (<Ionicons
+                      name="location"
+                      size={14}
+                      color={theme.colors.muted}
+                    />) : null}
+                    <Text style={styles.metaText}>
+                      {session.session_halls}
+                    </Text>
+                  </View>
+                </View>
+
+                <View style={styles.avatarRow}>
+                  {session.speakers && session.speakers?.length > 0 ? (
+                    session.speakers.map((speaker, index) => (
+                      <View key={index} style={styles.avatar}>
+                      <Image
+                        key={index} // Unique key for React mapping
+                        source={{ uri: speaker.speaker_image || speaker.avatar }} // Replace with your exact image property name
+                        style={styles.avatarImage}
+                      />
+                      </View>
+                    ))      
+                  ) : (
+                    <Text style={styles.metaText}>No Speakers</Text>
+                  )}
+                </View>
+              </View>
+            </Pressable>
           ))
         )}
       </View>
@@ -185,15 +328,15 @@ export function AgendaScreen({ navigation }: Props) {
                   <View style={styles.sessionHeroRule} />
                   <Text style={styles.sessionHeroEyebrow}>Session Details</Text>
                 </View>
-                <Text style={styles.sessionModalTitle}>{selectedSession.title}</Text>
+                <Text style={styles.sessionModalTitle}>{selectedSession.session_details}</Text>
 
                 <View style={styles.sessionModalTrackPill}>
                   <Ionicons
-                    name={iconForTrack[selectedSession.track]}
+                    name={iconForTrack[selectedSession.session_track]}
                     size={14}
                     color={theme.colors.orange}
                   />
-                  <Text style={styles.sessionModalTrackText}>{selectedSession.track}</Text>
+                  <Text style={styles.sessionModalTrackText}>{selectedSession.session_categories}</Text>
                 </View>
               </LinearGradient>
 
@@ -204,7 +347,7 @@ export function AgendaScreen({ navigation }: Props) {
                   </View>
                   <Text style={styles.sessionModalInfoLabel}>Date & Time</Text>
                   <Text style={styles.sessionModalInfoValue}>
-                    {selectedSession.date}, {getSessionTimeRange(selectedSession.time, selectedSession.duration)} (IST)
+                    {selectedSession.session_date}, {(selectedSession.timeline)} (IST)
                   </Text>
                 </View>
                 {selectedSession.hall ? (
@@ -213,15 +356,15 @@ export function AgendaScreen({ navigation }: Props) {
                       <Ionicons name="location-outline" size={18} color={theme.colors.orange} />
                     </View>
                     <Text style={styles.sessionModalInfoLabel}>Venue</Text>
-                    <Text style={styles.sessionModalInfoValue}>{selectedSession.hall}</Text>
+                    <Text style={styles.sessionModalInfoValue}>{selectedSession.session_halls}</Text>
                   </View>
                 ) : null}
               </View>
 
-              {selectedSession.summary ? (
+              {summary ? (
                 <View style={styles.sessionModalSummaryCard}>
                   <Text style={styles.sessionModalSummaryTitle}>About Session</Text>
-                  <Text style={styles.sessionModalSummaryText}>{selectedSession.summary}</Text>
+                  <Text style={styles.sessionModalSummaryText}>{summary}</Text>
                 </View>
               ) : null}
 
@@ -238,23 +381,30 @@ export function AgendaScreen({ navigation }: Props) {
               </View>
               <View style={styles.sessionModalSpeakerList}>
                 {selectedSessionSpeakers.length > 0 ? (
-                  selectedSessionSpeakers.map((speaker) => (
-                    <View key={speaker.id} style={styles.sessionModalSpeaker}>
-                      <View style={styles.sessionModalAvatar}>
-                        {speaker.avatarUrl ? (
-                          <Image source={{ uri: speaker.avatarUrl }} style={styles.sessionModalAvatarImage} />
+                  selectedSession?.speakers?.map((speaker, index) => (
+                  <View key={index} style={styles.sessionModalSpeaker}>
+                    <View style={styles.sessionModalAvatar}>
+                        {speaker.speaker_image ? (
+                          <Image source={{ uri: speaker.speaker_image }} style={styles.sessionModalAvatarImage} />
                         ) : (
-                          <Text style={styles.sessionModalAvatarText}>{speaker.initials}</Text>
+                          <Text style={styles.sessionModalAvatarText}></Text>
                         )}
                       </View>
-                      <View style={styles.sessionModalSpeakerInfo}>
-                        <Text style={styles.sessionModalSpeakerName}>{speaker.name}</Text>
-                        <Text style={styles.sessionModalSpeakerRole}>{speaker.designation}</Text>
-                        <Text style={styles.sessionModalSpeakerCompany}>{speaker.company}</Text>
-                      </View>
-                      <Ionicons name="chevron-forward" size={18} color="#A9B6C6" />
+                    <View style={styles.sessionModalSpeakerInfo}>
+                      <Text style={styles.sessionModalSpeakerName}>
+                        {speaker.speaker_name}
+                      </Text>
+
+                      <Text style={styles.sessionModalSpeakerRole}>
+                        {speaker.speaker_designation}
+                      </Text>
+
+                      <Text style={styles.sessionModalSpeakerCompany}>
+                        {speaker.speaker_company}
+                      </Text>
                     </View>
-                  ))
+                  </View>
+                ))
                 ) : (
                   <Text style={styles.sessionModalEmpty}>No speakers assigned for this session.</Text>
                 )}
@@ -371,6 +521,8 @@ export function AgendaScreen({ navigation }: Props) {
                 placeholder="Search"
                 placeholderTextColor={theme.colors.muted}
                 style={styles.searchInput}
+                value={filterSearch}
+                onChangeText={handleFilterSearch}
               />
             </View>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
@@ -382,22 +534,25 @@ export function AgendaScreen({ navigation }: Props) {
               />
               {activeFilterPanel === 'tracks' ? (
                 <View style={styles.categoryList}>
-                  {['Main Conference Track'].map((label) => {
-                    const active = selectedTracks.includes(label);
-                    return (
-                      <FilterOption
-                        key={label}
-                        active={active}
-                        icon="git-branch-outline"
-                        label={label}
-                        onPress={() =>
-                          setSelectedTracks((current) =>
-                            active ? current.filter((item) => item !== label) : [...current, label]
-                          )
-                        }
-                      />
-                    );
-                  })}
+                  {filterData.tracks?.map((item,index) => {
+                    const active = selectedTracks.includes(item?.session_track);
+
+                        return (
+                          <FilterOption
+                            key={index}
+                            active={active}
+                            icon="git-branch-outline"
+                            label={item?.session_track}
+                            onPress={() =>
+                              setSelectedTracks((current) =>
+                                active
+                                  ? current.filter((track) => track !== item?.session_track)
+                                  : [...current, item?.session_track]
+                              )
+                            }
+                          />
+                        );
+                      })}
                 </View>
               ) : null}
               <FilterSection
@@ -408,30 +563,25 @@ export function AgendaScreen({ navigation }: Props) {
               />
               {activeFilterPanel === 'categories' ? (
                 <View style={styles.categoryList}>
-                  {[
-                    ['Presentation', 'easel-outline'],
-                    ['Break', 'refresh-outline'],
-                    ['Lunch', 'restaurant-outline'],
-                    ['Tea', 'cafe-outline'],
-                    ['Keynote', 'podium-outline'],
-                    ['Reception', 'people-outline'],
-                    ['Registration', 'list-outline']
-                  ].map(([label, icon]) => {
-                    const active = selectedCategories.includes(label);
-                    return (
-                      <FilterOption
-                        key={label}
-                        active={active}
-                        icon={icon as keyof typeof Ionicons.glyphMap}
-                        label={label}
-                        onPress={() =>
-                          setSelectedCategories((current) =>
-                            active ? current.filter((item) => item !== label) : [...current, label]
-                          )
-                        }
-                      />
-                    );
-                  })}
+                  {filterData.categories?.map((item,index) => {
+                      const active = selectedCategories.includes(item?.session_categories);
+
+                      return (
+                        <FilterOption
+                          key={index}
+                          active={active}
+                          icon="list-outline"
+                          label={item?.session_categories}
+                          onPress={() =>
+                            setSelectedCategories((current) =>
+                              active
+                                ? current.filter((category) => category !== item?.session_categories)
+                                : [...current, item?.session_categories]
+                            )
+                          }
+                        />
+                      );
+                    })}
                 </View>
               ) : null}
               <FilterSection
@@ -442,22 +592,33 @@ export function AgendaScreen({ navigation }: Props) {
               />
               {activeFilterPanel === 'speakers' ? (
                 <View style={styles.categoryList}>
-                  {['Dr. Ananya Rao', 'Vikram Mehta', 'Nisha Menon', 'Amitabh Sen', 'Farah Khan'].map((label) => {
-                    const active = selectedSpeakers.includes(label);
-                    return (
-                      <FilterOption
-                        key={label}
-                        active={active}
-                        icon="person-circle-outline"
-                        label={label}
-                        onPress={() =>
-                          setSelectedSpeakers((current) =>
-                            active ? current.filter((item) => item !== label) : [...current, label]
+                  {filterData.speakers?.map((speaker,index) => {
+              const active = selectedSpeakers.includes(
+                speaker?.speaker_name
+              );
+
+              return (
+                <FilterOption
+                  key={index}
+                  active={active}
+                  icon="person-circle-outline"
+                  label={speaker?.speaker_name}
+                  onPress={() =>
+                    setSelectedSpeakers((current) =>
+                      active
+                        ? current.filter(
+                            (item) =>
+                              item !== speaker?.speaker_name
                           )
-                        }
-                      />
-                    );
-                  })}
+                        : [
+                            ...current,
+                            speaker?.speaker_name
+                          ]
+                    )
+                  }
+                />
+              );
+            })}
                 </View>
               ) : null}
               <FilterSection
@@ -489,18 +650,13 @@ export function AgendaScreen({ navigation }: Props) {
             </ScrollView>
             <View style={styles.sheetActions}>
               <Pressable
-                onPress={() => {
-                  setSelectedCategories([]);
-                  setSelectedSpeakers([]);
-                  setSelectedHalls([]);
-                  setSelectedTracks([]);
-                }}
+                onPress={clearFilters}
                 style={[styles.sheetButton, styles.cancelButton]}
               >
                 <Text style={styles.cancelText}>Clear Filter</Text>
               </Pressable>
               <Pressable
-                onPress={() => setFilterSheetOpen(false)}
+                onPress={applyFilters}
                 style={[styles.sheetButton, styles.applyButton]}
               >
                 <Text style={styles.applyText}>Apply Filter</Text>
@@ -578,9 +734,9 @@ function AgendaTimelineItem({
       </View>
       <View style={styles.sessionPanel}>
         <View style={styles.sessionTopRow}>
-          <Text style={styles.trackTag}>{session.track}</Text>
+          <Text style={styles.trackTag}>{session.session_track}</Text>
         </View>
-        <Text style={styles.sessionTitle}>{session.title}</Text>
+        <Text style={styles.sessionTitle}>{session.session_categories}</Text>
         <View style={styles.metaRow}>
           <View style={styles.metaItem}>
             <Ionicons name="time-outline" size={14} color={theme.colors.orange} />
@@ -611,10 +767,10 @@ function AgendaTimelineItem({
   );
 }
 
-function getSessionTimeRange(time: string, duration: string) {
-  const endTime = addDuration(time, duration);
-  return endTime ? `${time} - ${endTime}` : time;
-}
+// function getSessionTimeRange(time: string, duration: string) {
+//   const endTime = addDuration(time, duration);
+//   return endTime ? `${time} - ${endTime}` : time;
+// }
 
 function addDuration(time: string, duration: string) {
   const timeMatch = time.match(/^(\d{1,2}):(\d{2})\s?(AM|PM)$/i);
