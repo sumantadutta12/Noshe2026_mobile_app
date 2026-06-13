@@ -28,7 +28,13 @@
       "bundler": "metro"
     },
     "plugins": [
-      "expo-font"
+      "expo-font",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow NOSHE 2026 to scan attendee QR codes for admin check-in."
+        }
+      ]
     ],
     "extra": {
       "eas": {

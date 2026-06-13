@@ -3,19 +3,16 @@ import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Image,
   LayoutAnimation,
   Modal,
-  Platform,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
-  UIManager,
   View
 } from 'react-native';
 import { AppHeader } from '../components/AppHeader';
@@ -23,7 +20,7 @@ import { Screen } from '../components/Screen';
 import { sessions } from '../data/sessions';
 import { speakers } from '../data/speakers';
 import { MainTabParamList, RootStackParamList } from '../navigation/types';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from '../theme/theme';
 import { Session, Track } from '../types';
 
@@ -67,12 +64,6 @@ export function AgendaScreen({ navigation }: Props) {
   const selectedSessionSpeakers = selectedSession
     ? speakers.filter((speaker) => selectedSession.speakerIds.includes(speaker.id))
     : [];
-
-  useEffect(() => {
-    if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
-      UIManager.setLayoutAnimationEnabledExperimental(true);
-    }
-  }, []);
 
   const toggleFilterPanel = (panel: FilterPanel) => {
     LayoutAnimation.configureNext({
@@ -170,20 +161,11 @@ export function AgendaScreen({ navigation }: Props) {
               contentContainerStyle={[
                 styles.sessionModalContent,
                 {
-                  paddingTop: Math.max(12, insets.top + 8),
+                  paddingTop: Math.max(6, insets.top + 2),
                   paddingBottom: theme.spacing.xl + Math.max(insets.bottom, theme.spacing.lg)
                 }
               ]}
             >
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Close session details"
-                onPress={() => setSelectedSession(null)}
-                style={({ pressed }) => [styles.sessionModalClose, pressed && styles.pressed]}
-              >
-                <Ionicons name="close" size={22} color={theme.colors.navy} />
-              </Pressable>
-
               <LinearGradient
                 colors={['#08244D', '#004EA8', '#1684D8']}
                 start={{ x: 0, y: 0 }}
@@ -191,6 +173,14 @@ export function AgendaScreen({ navigation }: Props) {
                 style={styles.sessionModalHero}
               >
                 <View style={styles.sessionHeroGlow} />
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Close session details"
+                  onPress={() => setSelectedSession(null)}
+                  style={({ pressed }) => [styles.sessionModalClose, pressed && styles.pressed]}
+                >
+                  <Ionicons name="close" size={22} color={theme.colors.navy} />
+                </Pressable>
                 <View style={styles.sessionHeroTopline}>
                   <View style={styles.sessionHeroRule} />
                   <Text style={styles.sessionHeroEyebrow}>Session Details</Text>
@@ -859,12 +849,15 @@ const styles = StyleSheet.create({
   },
   sessionModalContent: {
     paddingHorizontal: 14,
-    paddingTop: 14,
+    paddingTop: 8,
     paddingBottom: 38,
-    gap: 16
+    gap: 14
   },
   sessionModalClose: {
-    alignSelf: 'flex-end',
+    position: 'absolute',
+    right: 14,
+    top: 14,
+    zIndex: 5,
     width: 38,
     height: 38,
     borderRadius: 19,
@@ -872,14 +865,13 @@ const styles = StyleSheet.create({
     borderColor: '#D6E9FF',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: theme.colors.white,
-    marginBottom: 8
+    backgroundColor: theme.colors.white
   },
   sessionModalHero: {
-    minHeight: 198,
+    minHeight: 184,
     borderRadius: 28,
     padding: 20,
-    paddingTop: 24,
+    paddingTop: 54,
     justifyContent: 'flex-end',
     overflow: 'hidden',
     borderWidth: 1,

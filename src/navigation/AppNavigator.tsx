@@ -10,6 +10,7 @@ import { ForewordScreen } from '../screens/ForewordScreen';
 import { MyScheduleScreen } from '../screens/MyScheduleScreen';
 import { NotificationsScreen } from '../screens/NotificationsScreen';
 import { OrganisersScreen } from '../screens/OrganisersScreen';
+import { PrivacyPolicyScreen } from '../screens/PrivacyPolicyScreen';
 import { SessionDetailsScreen } from '../screens/SessionDetailsScreen';
 import { SpeakerDetailsScreen } from '../screens/SpeakerDetailsScreen';
 import { SponsorDetailsScreen } from '../screens/SponsorDetailsScreen';
@@ -59,6 +60,7 @@ export function AppNavigator() {
       <Stack.Screen name="MySchedule" component={MyScheduleScreen} options={{ title: 'My Schedule' }} />
       <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ title: 'Notifications' }} />
       <Stack.Screen name="Contact" component={ContactScreen} options={{ title: 'Contact Team' }} />
+      <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} options={{ title: 'Privacy Policy' }} />
     </Stack.Navigator>
   );
 }
