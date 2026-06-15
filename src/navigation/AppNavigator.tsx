@@ -43,7 +43,6 @@ export function AppNavigator() {
         component={AdminDashboardScreen}
         options={{
           title: 'Admin Dashboard',
-          headerBackVisible: false,
           gestureEnabled: false
         }}
       />

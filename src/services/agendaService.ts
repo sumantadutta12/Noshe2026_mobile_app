@@ -21,3 +21,28 @@ export const getFilterData = async (
 
   return response.data;
 };
+
+export const toggleFavorite = async (
+  session_id: number,
+  favorite: number
+) => {
+  const response = await api.post(
+    '/favorite',
+    {
+      session_id,
+      favorite
+    }
+  );
+
+  return response.data;
+};
+
+
+export const getFavoriteData = async (
+) => {
+  const response = await api.get(
+    `/favoriteDetail`
+  );
+
+  return response.data;
+};

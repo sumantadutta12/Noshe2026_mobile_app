@@ -4,6 +4,9 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useMemo, useState, useEffect } from 'react';
+import * as Print from 'expo-print';
+import RNHTMLtoPDF from 'react-native-html-to-pdf';
+import * as Sharing from 'expo-sharing';
 import {
   Image,
   LayoutAnimation,
@@ -24,7 +27,9 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { theme } from '../theme/theme';
 import { Session, Track } from '../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getAgendaData,getFilterData  } from '../services/agendaService';
+import { getAgendaData,getFilterData, toggleFavorite,getFavoriteData  } from '../services/agendaService';
+
+const defaultImage = require('../assets/default.jpg');
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<MainTabParamList, 'Agenda'>,
@@ -66,12 +71,18 @@ export function AgendaScreen({ navigation }: Props) {
   const selectedSessionSpeakers = selectedSession?.speakers || [];
   const [agendaData, setAgendaData] = useState<any>(null);
   const [filterSearch, setFilterSearch] = useState('');
+  
   const [filterData, setFilterData] = useState({
     tracks: [],
     categories: [],
     halls: [],
     speakers: []
   });
+  const [favoriteSessions, setFavoriteSessions] = useState([]);
+
+
+
+
   useEffect(() => {loadAgenda();}, []);
   const summary = "Formal opening of NOSHE-2026 with dignitaries, industry leaders, and occupational health and safery experts";
   const loadAgenda = async () => {
@@ -87,6 +98,23 @@ export function AgendaScreen({ navigation }: Props) {
     }
   };
 
+  const visibleSessions = useMemo(() => {
+  if (activeTab === 'Favorite Sessions') {
+    return favoriteSessions || [];
+  }
+
+  if (!agendaData) return [];
+
+  if (activeTab === 'Day 1') {
+    return agendaData.day1 || [];
+  }
+
+  if (activeTab === 'Day 2') {
+    return agendaData.day2 || [];
+  }
+
+  return [];
+}, [activeTab, agendaData, favoriteSessions]);
   const applyFilters = async () => {
     const token = await AsyncStorage.getItem('token');
 
@@ -99,6 +127,7 @@ export function AgendaScreen({ navigation }: Props) {
 
     if (response.success) {
       setAgendaData(response.data);
+      setFilterSearch('');
       setFilterSheetOpen(false);
     }
   };
@@ -123,6 +152,46 @@ export function AgendaScreen({ navigation }: Props) {
       setFilterData(response.data);
     }
   };
+
+
+const handleFavorite = async (session) => {
+  const favoriteValue = session.favorite ? 0 : 1;
+
+    const response = await toggleFavorite(
+      session.session_id,favoriteValue);
+
+    if (response.success) {
+      // setAgendaData((prev) => ({
+      //   ...prev,
+      //   day1: prev.day1?.map((item) =>
+      //     item.session_id === session.session_id
+      //       ? {
+      //           ...item,
+      //           is_favorite: !item.ifavorite
+      //         }
+      //       : item
+      //   ),
+      //   day2: prev.day2?.map((item) =>
+      //     item.session_id === session.session_id
+      //       ? {
+      //           ...item,
+      //           is_favorite: !item.favorite
+      //         }
+      //       : item
+      //   )
+      // }));
+   const response = await getAgendaData({
+      track: [],
+      categories: [],
+      halls: [],
+      speakers: []
+    });
+
+    if (response.success) {
+      setAgendaData(response.data);
+    }
+    }
+  };
   const toggleFilterPanel = (panel: FilterPanel) => {
     LayoutAnimation.configureNext({
       duration: 220,
@@ -145,7 +214,7 @@ export function AgendaScreen({ navigation }: Props) {
   setSelectedCategories([]);
   setSelectedHalls([]);
   setSelectedSpeakers([]);
-
+  
   const response = await getAgendaData({
     track: [],
     categories: [],
@@ -155,23 +224,41 @@ export function AgendaScreen({ navigation }: Props) {
 
   if (response.success) {
     setAgendaData(response.data);
+      setFilterSearch('');
     setFilterSheetOpen(false);
+    
   }
 };
 
-  const visibleSessions = useMemo(() => {
-  if (!agendaData) return [];
+//   const visibleSessions = useMemo(() => {
+//   if (!agendaData) return [];
 
-  if (activeTab === 'Day 1') {
-    return agendaData.day1 || [];
+//   if (activeTab === 'Day 1') {
+//     return agendaData.day1 || [];
+//   }
+
+//   if (activeTab === 'Day 2') {
+//     return agendaData.day2 || [];
+//   }
+//   return [];
+//   }, [activeTab, agendaData]);
+
+const closeFilterModal = () => {
+  setFilterSearch('');
+  setFilterSheetOpen(false);
+};
+
+const handleTabPress = async (tab: AgendaTab) => {
+  setActiveTab(tab);
+
+  if (tab === 'Favorite Sessions') {
+    const response = await getFavoriteData();
+
+    if (response.success) {
+      setFavoriteSessions(response.data);
+    }
   }
-
-  if (activeTab === 'Day 2') {
-    return agendaData.day2 || [];
-  }
-
-  return [];
-  }, [activeTab, agendaData]);
+};
 
   return (
     <Screen
@@ -188,26 +275,47 @@ export function AgendaScreen({ navigation }: Props) {
         </Pressable>
       }
     >
-      <View style={styles.notice}>
-        <Ionicons name="information-circle" size={18} color={theme.colors.orange} />
-        <Text style={styles.noticeText}>Date and time is shown in {selectedTimezone}.</Text>
-        <Pressable onPress={() => setTimezoneSheetOpen(true)} hitSlop={10}>
-          <Text style={styles.changeText}>Change</Text>
-        </Pressable>
-      </View>
+     <View style={styles.actionRow}>
+          <Pressable
+            style={styles.actionBtn}
+          >
+            <Text style={styles.actionText}>Print Agenda</Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.actionBtn}
+          >
+            <Text style={styles.actionText}>Download PDF</Text>
+          </Pressable>
+        </View>
 
       <View style={styles.tabCard}>
-        {(['Day 1', 'Day 2', 'Favorite Sessions'] as AgendaTab[]).map((item) => (
-          <Pressable
-            key={item}
-            onPress={() => setActiveTab(item)}
-            style={[styles.tab, activeTab === item && styles.activeTab]}
-          >
-            <Text style={[styles.tabTitle, activeTab === item && styles.activeTabTitle]}>{item}</Text>
-            <Text style={[styles.tabDate, activeTab === item && styles.activeTabDate]}>{tabMeta[item]}</Text>
-          </Pressable>
-        ))}
-      </View>
+  {(['Day 1', 'Day 2', 'Favorite Sessions'] as AgendaTab[]).map((item) => (
+    <Pressable
+      key={item}
+      onPress={() => handleTabPress(item)}
+      style={[styles.tab, activeTab === item && styles.activeTab]}
+    >
+      <Text
+        style={[
+          styles.tabTitle,
+          activeTab === item && styles.activeTabTitle,
+        ]}
+      >
+        {item}
+      </Text>
+
+      <Text
+        style={[
+          styles.tabDate,
+          activeTab === item && styles.activeTabDate,
+        ]}
+      >
+        {tabMeta[item]}
+      </Text>
+    </Pressable>
+  ))}
+</View>
 
       <View style={styles.filterHeader}>
         <View>
@@ -229,19 +337,32 @@ export function AgendaScreen({ navigation }: Props) {
               style={styles.timelineItem}
               onPress={() => setSelectedSession(session)}
             >
-              <View style={styles.iconColumn}>
-                <View style={styles.sessionIcon}>
-                  <Ionicons
-                    name="list-outline"
-                    size={18}
-                    color={theme.colors.white}
-                  />
-                </View>
-              </View>
-              <View style={styles.sessionPanel}>
+              
+              <View style={styles.sessionPanel} >
+                <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center"
+                }}
+              >
                 <Text style={styles.trackTag}>
                   {session.session_categories}
-                </Text>
+                   </Text>
+                   <Pressable
+                    hitSlop={10}
+                    onPress={() => {
+                      console.log("Favorite clicked");
+                      handleFavorite(session);
+                    }}
+                  >
+                    <Ionicons
+                      name={session.favorite ? "bookmark" : "bookmark-outline"}
+                      size={24}
+                      color={theme.colors.orange}
+                    />
+                  </Pressable>
+               </View>
 
                 <Text style={styles.sessionTitle}>
                   {session.session_details || session.session_categories}
@@ -283,7 +404,10 @@ export function AgendaScreen({ navigation }: Props) {
                       </View>
                     ))      
                   ) : (
-                    <Text style={styles.metaText}>No Speakers</Text>
+                    <Image
+                        source={defaultImage}
+                        style={styles.avatarImage}
+                      />
                   )}
                 </View>
               </View>
@@ -387,7 +511,10 @@ export function AgendaScreen({ navigation }: Props) {
                         {speaker.speaker_image ? (
                           <Image source={{ uri: speaker.speaker_image }} style={styles.sessionModalAvatarImage} />
                         ) : (
-                          <Text style={styles.sessionModalAvatarText}></Text>
+                          <Image
+                        source={defaultImage}
+                        style={styles.avatarImage}
+                      />
                         )}
                       </View>
                     <View style={styles.sessionModalSpeakerInfo}>
@@ -507,7 +634,7 @@ export function AgendaScreen({ navigation }: Props) {
             <View style={styles.sheetHeader}>
               <Text style={styles.sheetTitle}>Filter</Text>
               <Pressable
-                onPress={() => setFilterSheetOpen(false)}
+                onPress={closeFilterModal}
                 style={styles.closeButton}
                 accessibilityRole="button"
                 accessibilityLabel="Close filter"
@@ -528,7 +655,7 @@ export function AgendaScreen({ navigation }: Props) {
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
               <FilterSection
                 title="All Tracks"
-                count={1}
+                count={filterData.tracks?.length || 0}
                 collapsed={activeFilterPanel !== 'tracks'}
                 onPress={() => toggleFilterPanel('tracks')}
               />
@@ -557,7 +684,7 @@ export function AgendaScreen({ navigation }: Props) {
               ) : null}
               <FilterSection
                 title="Session Categories"
-                count={7}
+                 count={filterData.categories?.length || 0}
                 collapsed={activeFilterPanel !== 'categories'}
                 onPress={() => toggleFilterPanel('categories')}
               />
@@ -586,7 +713,7 @@ export function AgendaScreen({ navigation }: Props) {
               ) : null}
               <FilterSection
                 title="Speakers"
-                count={45}
+                count={filterData.speakers?.length || 0}
                 collapsed={activeFilterPanel !== 'speakers'}
                 onPress={() => toggleFilterPanel('speakers')}
               />
@@ -623,28 +750,31 @@ export function AgendaScreen({ navigation }: Props) {
               ) : null}
               <FilterSection
                 title="Halls"
-                count={3}
+                count={filterData.halls?.length || 0}
                 collapsed={activeFilterPanel !== 'halls'}
                 onPress={() => toggleFilterPanel('halls')}
               />
               {activeFilterPanel === 'halls' ? (
                 <View style={styles.categoryList}>
-                  {['Saraswati Auditorium', 'Innovation Forum', 'Registration Lobby'].map((label) => {
-                    const active = selectedHalls.includes(label);
-                    return (
-                      <FilterOption
-                        key={label}
-                        active={active}
-                        icon="location-outline"
-                        label={label}
-                        onPress={() =>
-                          setSelectedHalls((current) =>
-                            active ? current.filter((item) => item !== label) : [...current, label]
-                          )
-                        }
-                      />
-                    );
-                  })}
+                 {filterData.halls?.map((hall, index) => {
+                  const active = selectedHalls.includes(hall.session_halls);
+
+                  return (
+                    <FilterOption
+                      key={index}
+                      active={active}
+                      icon="location-outline"
+                      label={hall.session_halls}
+                      onPress={() =>
+                        setSelectedHalls((current) =>
+                          active
+                            ? current.filter((item) => item !== hall.session_halls)
+                            : [...current, hall.session_halls]
+                        )
+                      }
+                    />
+                  );
+                })}
                 </View>
               ) : null}
             </ScrollView>
