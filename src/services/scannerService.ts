@@ -1,6 +1,6 @@
 import api from '../api/axiosInstance';
 
-export const scanAttendee = async (uid) => {
+export const scanAttendee = async (uid: unknown) => {
   try {
     const response = await api.post('/attendance', {
       uid: uid

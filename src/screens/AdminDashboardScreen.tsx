@@ -14,6 +14,13 @@ import { getDashboardData ,logout} from '../services/adminService';
 import {scanAttendee } from '../services/scannerService';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AdminDashboard'>;
+type AttendanceType = 'participants' | 'checkedIn';
+type AttendanceStat = {
+  label: string;
+  value: string;
+  icon: keyof typeof Ionicons.glyphMap;
+  key: AttendanceType;
+};
 
 const attendanceStats = [
   { label: 'Total register', value: '186', icon: 'people-outline' },
@@ -30,14 +37,14 @@ const attendanceTimes = [
 export function AdminDashboardScreen({ navigation }: Props) {
   const [selectedTab, setSelectedTab] = useState('registered');
   const [selectedType, setSelectedType] =
-  useState('participants');
+  useState<AttendanceType>('participants');
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => { fetchDashboard();}, []);
   const [permission, requestPermission] = useCameraPermissions();
   const [scannerActive, setScannerActive] = useState(false);
   const [latestScan, setLatestScan] = useState<string | null>(null);
-  const attendanceStats = [
+  const attendanceStats: AttendanceStat[] = [
     {
       label: 'Total Register',
       value: dashboardData?.[0]?.participants?.length?.toString() || '0',
@@ -81,7 +88,7 @@ export function AdminDashboardScreen({ navigation }: Props) {
     setScannerActive(true);
   }, [hasCameraPermission, requestPermission]);
 
-  const handleBarcodeScanned = async ({ data }) => {
+  const handleBarcodeScanned = async ({ data }: BarcodeScanningResult) => {
      try {
         setScannerActive(false);
         console.log('Scanned Value:', data);

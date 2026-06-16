@@ -5,7 +5,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useMemo, useState, useEffect } from 'react';
 import * as Print from 'expo-print';
-import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import * as Sharing from 'expo-sharing';
 import {
   Image,
@@ -20,12 +19,10 @@ import {
 } from 'react-native';
 import { AppHeader } from '../components/AppHeader';
 import { Screen } from '../components/Screen';
-import { sessions } from '../data/sessions';
-import { speakers } from '../data/speakers';
 import { MainTabParamList, RootStackParamList } from '../navigation/types';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from '../theme/theme';
-import { Session, Track } from '../types';
+import { Track } from '../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getAgendaData,getFilterData, toggleFavorite,getFavoriteData  } from '../services/agendaService';
 
@@ -38,6 +35,44 @@ type Props = CompositeScreenProps<
 
 type AgendaTab = 'Day 1' | 'Day 2' | 'Favorite Sessions';
 type FilterPanel = 'tracks' | 'categories' | 'speakers' | 'halls';
+
+type AgendaSpeaker = {
+  id?: string | number;
+  speaker_name?: string;
+  speaker_designation?: string;
+  speaker_company?: string;
+  speaker_image?: string;
+  avatar?: string;
+  avatarUrl?: string;
+  initials?: string;
+};
+
+type AgendaSession = {
+  session_id: number | string;
+  session_details?: string;
+  session_categories?: string;
+  session_timeline?: string;
+  session_date?: string;
+  session_halls?: string;
+  session_track?: string;
+  time?: string;
+  duration?: string;
+  timeline?: string;
+  favorite?: boolean | number;
+  speakers?: AgendaSpeaker[];
+};
+
+type AgendaData = {
+  day1?: AgendaSession[];
+  day2?: AgendaSession[];
+};
+
+type FilterData = {
+  tracks: Array<{ session_track: string }>;
+  categories: Array<{ session_categories: string }>;
+  halls: Array<{ session_halls: string }>;
+  speakers: Array<{ speaker_name: string }>;
+};
 
 const tabMeta: Record<AgendaTab, string> = {
   'Day 1': 'Thu, Jun 25, 2026',
@@ -85,6 +120,10 @@ const iconForTrack: Record<Track, keyof typeof Ionicons.glyphMap> = {
   Break: 'cafe-outline'
 };
 
+function getTrackIcon(track?: string): keyof typeof Ionicons.glyphMap {
+  return track && track in iconForTrack ? iconForTrack[track as Track] : 'calendar-outline';
+}
+
 export function AgendaScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<AgendaTab>('Day 1');
@@ -95,21 +134,21 @@ export function AgendaScreen({ navigation }: Props) {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedSpeakers, setSelectedSpeakers] = useState<string[]>([]);
   const [selectedHalls, setSelectedHalls] = useState<string[]>([]);
-  const [selectedSession, setSelectedSession] = useState<Session | null>(null);
+  const [selectedSession, setSelectedSession] = useState<AgendaSession | null>(null);
   const [activeFilterPanel, setActiveFilterPanel] = useState<FilterPanel>('categories');
   const [selectedTracks, setSelectedTracks] = useState<string[]>([]);
   const selectedSessionSpeakers = selectedSession?.speakers || [];
-  const [agendaData, setAgendaData] = useState<any>(null);
+  const [agendaData, setAgendaData] = useState<AgendaData | null>(null);
   const [agendaLoading, setAgendaLoading] = useState(true);
   const [filterSearch, setFilterSearch] = useState('');
   
-  const [filterData, setFilterData] = useState({
+  const [filterData, setFilterData] = useState<FilterData>({
     tracks: [],
     categories: [],
     halls: [],
     speakers: []
   });
-  const [favoriteSessions, setFavoriteSessions] = useState([]);
+  const [favoriteSessions, setFavoriteSessions] = useState<AgendaSession[]>([]);
 
 
 
@@ -195,11 +234,11 @@ export function AgendaScreen({ navigation }: Props) {
   };
 
 
-const handleFavorite = async (session) => {
+const handleFavorite = async (session: AgendaSession) => {
   const favoriteValue = session.favorite ? 0 : 1;
 
     const response = await toggleFavorite(
-      session.session_id,favoriteValue);
+      Number(session.session_id),favoriteValue);
 
     if (response.success) {
       // setAgendaData((prev) => ({
@@ -525,7 +564,7 @@ const handleTabPress = async (tab: AgendaTab) => {
 
                 <View style={styles.sessionModalTrackPill}>
                   <Ionicons
-                    name={iconForTrack[selectedSession.session_track]}
+                    name={getTrackIcon(selectedSession.session_track)}
                     size={14}
                     color={theme.colors.orange}
                   />
@@ -543,7 +582,7 @@ const handleTabPress = async (tab: AgendaTab) => {
                     {selectedSession.session_date}, {(selectedSession.timeline)} (IST)
                   </Text>
                 </View>
-                {selectedSession.hall ? (
+                {selectedSession.session_halls ? (
                   <View style={styles.sessionModalInfoCard}>
                     <View style={styles.sessionModalInfoIcon}>
                       <Ionicons name="location-outline" size={18} color={theme.colors.orange} />
@@ -919,16 +958,16 @@ function AgendaTimelineItem({
   session,
   onPress
 }: {
-  session: Session;
+  session: AgendaSession;
   onPress: () => void;
 }) {
-  const linkedSpeakers = speakers.filter((speaker) => session.speakerIds.includes(speaker.id));
+  const linkedSpeakers = session.speakers ?? [];
 
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [styles.timelineItem, pressed && styles.pressed]}>
       <View style={styles.iconColumn}>
         <View style={styles.sessionIcon}>
-          <Ionicons name={iconForTrack[session.track]} size={18} color={theme.colors.white} />
+          <Ionicons name={getTrackIcon(session.session_track)} size={18} color={theme.colors.white} />
         </View>
       </View>
       <View style={styles.sessionPanel}>
@@ -941,10 +980,10 @@ function AgendaTimelineItem({
             <Ionicons name="time-outline" size={14} color={theme.colors.orange} />
             <Text style={styles.metaText}>{session.time} • {session.duration}</Text>
           </View>
-          {session.hall ? (
+          {session.session_halls ? (
             <View style={styles.metaItem}>
               <Ionicons name="location" size={14} color={theme.colors.muted} />
-              <Text style={styles.metaText}>{session.hall}</Text>
+              <Text style={styles.metaText}>{session.session_halls}</Text>
             </View>
           ) : null}
         </View>
