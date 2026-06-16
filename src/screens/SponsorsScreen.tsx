@@ -38,28 +38,34 @@ const patrons = [
 
 const steeringCommittee = [
   {
-    name: 'Shri. Vijay Goel',
-    role: 'Executive Director - Safety',
+    name: 'Shri. Kasina Chandramouli',
+    role: 'ED (Safety, Sustainability, Environment & Ash Management)',
     company: 'NTPC Ltd.',
-    image: require('../assets/Vijay-Goel.png')
-  },
-  {
-    name: 'Shri. T K Bandyopadhyay',
-    role: 'Executive Director - SEA (Sustainable, Environment, Ash Management)',
-    company: 'NTPC Ltd.',
-    image: require('../assets/T-K-Bandyopadhyay.png')
+    image: require('../assets/Shri-Kasina-Chandramouli.png')
   },
   {
     name: 'Ms. Rachana Singh Bhal',
-    role: 'Executive Director - PMI',
+    role: 'ED (HR-Strategic HR & Talent Management)',
     company: 'NTPC Ltd.',
-    image: require('../assets/Rachana-Singh-Bhal.jpg')
+    image: require('../assets/Ms. Rachana Singh Bhal.png')
   },
   {
     name: 'Dr. Basanta Kumar Behera',
     role: 'GM (Chief Medical Officer)',
     company: 'NTPC Ltd.',
-    image: require('../assets/Basanta-Kumar-Behera.jpg')
+    image: require('../assets/Dr. Basanta Kumar Behera.png')
+  },
+  {
+    name: 'Shri. Vinod Rattan',
+    role: 'GM (Environment)',
+    company: 'NTPC Ltd.',
+    image: require('../assets/Shri-Vinod-Rattan.png')
+  },
+  {
+    name: 'Shri. Chandan Shahi',
+    role: 'GM (Safety)',
+    company: 'NTPC Ltd.',
+    image: require('../assets/Shri-Chandan-Shahi.png')
   }
 ];
 
@@ -114,7 +120,7 @@ export function SponsorsScreen({ navigation }: Props) {
         <SectionHeader title="Steering Committee" />
         <View style={styles.grid}>
           {steeringCommittee.map((member) => (
-            <MemberCard key={member.name} member={member} compact />
+            <MemberCard key={member.name} member={member} />
           ))}
         </View>
       </View>

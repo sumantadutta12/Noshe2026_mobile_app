@@ -3,7 +3,7 @@ import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AppHeader } from '../components/AppHeader';
 import { Screen } from '../components/Screen';
 import { sessions } from '../data/sessions';
@@ -22,9 +22,16 @@ type Props = CompositeScreenProps<
 export function SpeakersScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const [selectedSpeaker, setSelectedSpeaker] = useState<Speaker | null>(null);
+  const [speakersLoading, setSpeakersLoading] = useState(true);
   const linkedSessions = selectedSpeaker
     ? sessions.filter((session) => session.speakerIds.includes(selectedSpeaker.id))
     : [];
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setSpeakersLoading(false), 450);
+
+    return () => clearTimeout(timeout);
+  }, []);
 
   return (
     <Screen refreshable header={<AppHeader onProfilePress={() => navigation.navigate('More')} />}>
@@ -45,7 +52,9 @@ export function SpeakersScreen({ navigation }: Props) {
       </LinearGradient>
 
       <View style={styles.speakerList}>
-        {speakers.map((speaker) => (
+        {speakersLoading ? (
+          <SpeakerSkeletonList />
+        ) : speakers.map((speaker) => (
           <SpeakerListCard
             key={speaker.id}
             speaker={speaker}
@@ -129,6 +138,24 @@ export function SpeakersScreen({ navigation }: Props) {
         ) : null}
       </Modal>
     </Screen>
+  );
+}
+
+function SpeakerSkeletonList() {
+  return (
+    <>
+      {[0, 1, 2, 3].map((item) => (
+        <View key={item} style={styles.speakerCard}>
+          <View style={[styles.skeletonBlock, styles.skeletonSpeakerAvatar]} />
+          <View style={styles.skeletonSpeakerInfo}>
+            <View style={[styles.skeletonBlock, styles.skeletonSpeakerName]} />
+            <View style={[styles.skeletonBlock, styles.skeletonSpeakerRole]} />
+            <View style={[styles.skeletonBlock, styles.skeletonSpeakerCompany]} />
+          </View>
+          <View style={[styles.skeletonBlock, styles.skeletonSpeakerArrow]} />
+        </View>
+      ))}
+    </>
   );
 }
 
@@ -299,6 +326,39 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F8FD',
     alignItems: 'center',
     justifyContent: 'center'
+  },
+  skeletonBlock: {
+    backgroundColor: '#E8F0F8'
+  },
+  skeletonSpeakerAvatar: {
+    width: 62,
+    height: 62,
+    borderRadius: 21
+  },
+  skeletonSpeakerInfo: {
+    flex: 1,
+    gap: 8,
+    minWidth: 0
+  },
+  skeletonSpeakerName: {
+    width: '72%',
+    height: 18,
+    borderRadius: 9
+  },
+  skeletonSpeakerRole: {
+    width: '94%',
+    height: 14,
+    borderRadius: 7
+  },
+  skeletonSpeakerCompany: {
+    width: '48%',
+    height: 14,
+    borderRadius: 7
+  },
+  skeletonSpeakerArrow: {
+    width: 34,
+    height: 34,
+    borderRadius: 17
   },
   modal: {
     flex: 1,

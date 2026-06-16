@@ -100,6 +100,7 @@ export function AgendaScreen({ navigation }: Props) {
   const [selectedTracks, setSelectedTracks] = useState<string[]>([]);
   const selectedSessionSpeakers = selectedSession?.speakers || [];
   const [agendaData, setAgendaData] = useState<any>(null);
+  const [agendaLoading, setAgendaLoading] = useState(true);
   const [filterSearch, setFilterSearch] = useState('');
   
   const [filterData, setFilterData] = useState({
@@ -116,15 +117,20 @@ export function AgendaScreen({ navigation }: Props) {
   useEffect(() => {loadAgenda();}, []);
   const summary = "Formal opening of NOSHE-2026 with dignitaries, industry leaders, and occupational health and safery experts";
   const loadAgenda = async () => {
-    const response = await getAgendaData({
-      track: [],
-      categories: [],
-      halls: [],
-      speakers: []
-    });
+    setAgendaLoading(true);
+    try {
+      const response = await getAgendaData({
+        track: [],
+        categories: [],
+        halls: [],
+        speakers: []
+      });
 
-    if (response.success) {
-      setAgendaData(response.data);
+      if (response.success) {
+        setAgendaData(response.data);
+      }
+    } finally {
+      setAgendaLoading(false);
     }
   };
 
@@ -147,18 +153,23 @@ export function AgendaScreen({ navigation }: Props) {
 }, [activeTab, agendaData, favoriteSessions]);
   const applyFilters = async () => {
     const token = await AsyncStorage.getItem('token');
+    setAgendaLoading(true);
 
-    const response = await getAgendaData({
-      track: selectedTracks,
-      categories: selectedCategories,
-      halls: selectedHalls,
-      speakers: selectedSpeakers
-    });
+    try {
+      const response = await getAgendaData({
+        track: selectedTracks,
+        categories: selectedCategories,
+        halls: selectedHalls,
+        speakers: selectedSpeakers
+      });
 
-    if (response.success) {
-      setAgendaData(response.data);
-      setFilterSearch('');
-      setFilterSheetOpen(false);
+      if (response.success) {
+        setAgendaData(response.data);
+        setFilterSearch('');
+        setFilterSheetOpen(false);
+      }
+    } finally {
+      setAgendaLoading(false);
     }
   };
 
@@ -239,24 +250,29 @@ const handleFavorite = async (session) => {
     });
     setActiveFilterPanel(panel);
   };
-  const clearFilters = async () => {
+const clearFilters = async () => {
   setSelectedTracks([]);
   setSelectedCategories([]);
   setSelectedHalls([]);
   setSelectedSpeakers([]);
+  setAgendaLoading(true);
   
-  const response = await getAgendaData({
-    track: [],
-    categories: [],
-    halls: [],
-    speakers: []
-  });
+  try {
+    const response = await getAgendaData({
+      track: [],
+      categories: [],
+      halls: [],
+      speakers: []
+    });
 
-  if (response.success) {
-    setAgendaData(response.data);
+    if (response.success) {
+      setAgendaData(response.data);
       setFilterSearch('');
-    setFilterSheetOpen(false);
+      setFilterSheetOpen(false);
     
+    }
+  } finally {
+    setAgendaLoading(false);
   }
 };
 
@@ -282,10 +298,15 @@ const handleTabPress = async (tab: AgendaTab) => {
   setActiveTab(tab);
 
   if (tab === 'Favorite Sessions') {
-    const response = await getFavoriteData();
+    setAgendaLoading(true);
+    try {
+      const response = await getFavoriteData();
 
-    if (response.success) {
-      setFavoriteSessions(response.data);
+      if (response.success) {
+        setFavoriteSessions(response.data);
+      }
+    } finally {
+      setAgendaLoading(false);
     }
   }
 };
@@ -360,7 +381,9 @@ const handleTabPress = async (tab: AgendaTab) => {
       </View>
 
       <View style={styles.timeline}>
-        {visibleSessions.length === 0 ? (
+        {agendaLoading ? (
+          <AgendaSkeletonList />
+        ) : visibleSessions.length === 0 ? (
           <View style={styles.emptyCard}>
             <View style={styles.emptyGlow} />
             <View style={[styles.emptyIconWrap, { borderColor: `${emptyState.accent}33` }]}>
@@ -943,6 +966,34 @@ function AgendaTimelineItem({
   );
 }
 
+function AgendaSkeletonList() {
+  return (
+    <>
+      {[0, 1, 2].map((item) => (
+        <View key={item} style={styles.timelineItem}>
+          <View style={styles.sessionPanel}>
+            <View style={styles.skeletonTopRow}>
+              <View style={[styles.skeletonBlock, styles.skeletonTag]} />
+              <View style={[styles.skeletonBlock, styles.skeletonBookmark]} />
+            </View>
+            <View style={[styles.skeletonBlock, styles.skeletonTitle]} />
+            <View style={[styles.skeletonBlock, styles.skeletonTitleShort]} />
+            <View style={styles.skeletonMetaRow}>
+              <View style={[styles.skeletonBlock, styles.skeletonMeta]} />
+              <View style={[styles.skeletonBlock, styles.skeletonMetaShort]} />
+            </View>
+            <View style={styles.skeletonAvatarRow}>
+              {[0, 1, 2].map((avatar) => (
+                <View key={avatar} style={[styles.skeletonBlock, styles.skeletonAvatar]} />
+              ))}
+            </View>
+          </View>
+        </View>
+      ))}
+    </>
+  );
+}
+
 // function getSessionTimeRange(time: string, duration: string) {
 //   const endTime = addDuration(time, duration);
 //   return endTime ? `${time} - ${endTime}` : time;
@@ -1131,6 +1182,63 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 8 },
     shadowRadius: 16,
     elevation: 3
+  },
+  skeletonTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10
+  },
+  skeletonMetaRow: {
+    flexDirection: 'row',
+    gap: 8
+  },
+  skeletonAvatarRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 3,
+    marginTop: 2
+  },
+  skeletonBlock: {
+    backgroundColor: '#E8F0F8'
+  },
+  skeletonTag: {
+    width: 118,
+    height: 24,
+    borderRadius: theme.radius.pill
+  },
+  skeletonBookmark: {
+    width: 24,
+    height: 24,
+    borderRadius: 12
+  },
+  skeletonTitle: {
+    width: '86%',
+    height: 18,
+    borderRadius: 9
+  },
+  skeletonTitleShort: {
+    width: '62%',
+    height: 18,
+    borderRadius: 9
+  },
+  skeletonMeta: {
+    width: 132,
+    height: 16,
+    borderRadius: 8
+  },
+  skeletonMetaShort: {
+    width: 88,
+    height: 16,
+    borderRadius: 8
+  },
+  skeletonAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: theme.colors.white,
+    marginLeft: -4
   },
   pressed: {
     opacity: 0.86

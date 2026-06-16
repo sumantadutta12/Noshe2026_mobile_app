@@ -174,7 +174,13 @@ export function HomeScreen({ navigation }: Props) {
             style={styles.premiumCountdown}
           >
             <View style={styles.countGlow} />
-            <Text style={styles.countHeading}>Event starts in</Text>
+            <View style={styles.countGlowSmall} />
+            <View style={styles.countTopRow}>
+              <View>
+                <Text style={styles.countEyebrow}>NOSHE 2026</Text>
+                <Text style={styles.countHeading}>Event starts in</Text>
+              </View>
+            </View>
             <View style={styles.countdownGrid}>
               {[
                 { label: 'Days', value: countdown.days },
@@ -398,39 +404,62 @@ const styles = StyleSheet.create({
     marginTop: 4
   },
   countdownShell: {
-    backgroundColor: theme.colors.white,
-    borderRadius: 28,
-    padding: 8,
+    backgroundColor: 'rgba(255,255,255,0.92)',
+    borderRadius: 30,
+    padding: 7,
     borderWidth: 1,
-    borderColor: '#E2EDF8',
+    borderColor: '#DCEAF8',
     shadowColor: '#0B356C',
-    shadowOpacity: 0.08,
-    shadowOffset: { width: 0, height: 12 },
-    shadowRadius: 22,
-    elevation: 4
+    shadowOpacity: 0.14,
+    shadowOffset: { width: 0, height: 16 },
+    shadowRadius: 26,
+    elevation: 7
   },
   premiumCountdown: {
-    borderRadius: 24,
-    padding: 16,
-    gap: 13,
+    borderRadius: 25,
+    padding: 17,
+    gap: 15,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.18)'
+    borderColor: 'rgba(255,255,255,0.26)'
   },
   countGlow: {
     position: 'absolute',
-    right: -18,
-    top: -54,
-    width: 142,
-    height: 142,
-    borderRadius: 71,
-    backgroundColor: 'rgba(255,255,255,0.2)'
+    right: -34,
+    top: -72,
+    width: 176,
+    height: 176,
+    borderRadius: 88,
+    backgroundColor: 'rgba(255,255,255,0.22)'
+  },
+  countGlowSmall: {
+    position: 'absolute',
+    left: -52,
+    bottom: -78,
+    width: 154,
+    height: 154,
+    borderRadius: 77,
+    backgroundColor: 'rgba(243,112,33,0.16)'
+  },
+  countTopRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12
+  },
+  countEyebrow: {
+    color: '#BFE4FF',
+    fontSize: 10,
+    lineHeight: 14,
+    fontWeight: '700',
+    letterSpacing: 1.3,
+    textTransform: 'uppercase'
   },
   countHeading: {
     color: theme.colors.white,
-    fontSize: 18,
-    lineHeight: 24,
-    fontWeight: '600'
+    fontSize: 20,
+    lineHeight: 26,
+    fontWeight: '800',
+    marginTop: 2
   },
   countdownGrid: {
     flexDirection: 'row',
@@ -438,36 +467,43 @@ const styles = StyleSheet.create({
   },
   countdownCard: {
     flex: 1,
-    minHeight: 82,
-    borderRadius: 8,
-    backgroundColor: '#F8FBFF',
+    minHeight: 80,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.94)',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 9,
+    paddingVertical: 10,
+    paddingHorizontal: 3,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.72)',
+    borderColor: 'rgba(255,255,255,0.82)',
     shadowColor: '#071326',
-    shadowOpacity: 0.09,
-    shadowOffset: { width: 0, height: 6 },
-    shadowRadius: 12,
-    elevation: 3
+    shadowOpacity: 0.12,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 14,
+    elevation: 4
   },
   countdownValue: {
-    color: '#C8A58E',
-    fontSize: 29,
-    lineHeight: 35,
+    color: theme.colors.orange,
+    fontSize: 28,
+    lineHeight: 34,
     fontWeight: '800'
   },
   countdownLabel: {
-    color: theme.colors.text,
+    color: theme.colors.navy,
     fontSize: 10,
     lineHeight: 14,
-    fontWeight: '700'
+    fontWeight: '800',
+    marginTop: 2
   },
   countRegister: {
-    minHeight: 46,
-    borderRadius: 16,
-    marginTop: 1
+    minHeight: 48,
+    borderRadius: 18,
+    marginTop: 2,
+    shadowColor: theme.colors.orange,
+    shadowOpacity: 0.32,
+    shadowOffset: { width: 0, height: 10 },
+    shadowRadius: 16,
+    elevation: 5
   },
   topicSection: {
     backgroundColor: '#F8FAFF',
