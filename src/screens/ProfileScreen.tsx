@@ -11,7 +11,8 @@ import { MainTabParamList, RootStackParamList } from '../navigation/types';
 import { theme } from '../theme/theme';
 import { logoutUser } from '../services/authServices';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<MainTabParamList, 'More'>,
@@ -54,8 +55,11 @@ const primaryItems = [
 export function ProfileScreen({ navigation }: Props) {
   const { attendee } = useAttendeeAuth();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  useEffect(() => {checkLogin();}, []);
-
+    useFocusEffect(
+      useCallback(() => {
+        checkLogin();
+      }, [])
+);
   const checkLogin = async () => {
     const token = await AsyncStorage.getItem('token');
     const name = await AsyncStorage.getItem('name');

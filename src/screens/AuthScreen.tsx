@@ -35,6 +35,8 @@ export function AuthScreen({ navigation, route }: Props) {
   const [focusedOtpIndex, setFocusedOtpIndex] = useState<number | null>(null);
   const [resendSeconds, setResendSeconds] = useState(resendDuration);
   const otpRefs = useRef<Array<TextInput | null>>([]);
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+
 
   const isEmailValid = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(email);  const isOtpComplete = otp.every(Boolean);
 
@@ -51,6 +53,7 @@ export function AuthScreen({ navigation, route }: Props) {
   }, [otpVisible, resendSeconds]);
 
   const handleSendOtp = async () => {
+    setIsSendingOtp(true);
     try {
       if (!isEmailValid) {
         return;
@@ -83,7 +86,9 @@ export function AuthScreen({ navigation, route }: Props) {
       );
 
       console.log(error);
-    }
+    } finally {
+    setIsSendingOtp(false); // Re-enable button if something goes wrong
+  }
   };
     // setOtp(Array(otpLength).fill(''));
     // setResendSeconds(resendDuration);
@@ -256,8 +261,8 @@ export function AuthScreen({ navigation, route }: Props) {
 
         {!otpVisible ? (
           <GradientButton
-            title="Send OTP"
-            disabled={!isEmailValid}
+            title={isSendingOtp ? "Sending OTP..." : "Send OTP"}
+            disabled={!isEmailValid || isSendingOtp}
             onPress={handleSendOtp}
           />
         ) : (

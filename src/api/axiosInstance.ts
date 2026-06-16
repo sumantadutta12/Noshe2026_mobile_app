@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://innovision360.com/api/event',
+  baseURL: 'http://localhost:3001/api/event',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
