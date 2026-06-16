@@ -145,7 +145,7 @@ export function AdminDashboardScreen({ navigation }: Props) {
     if (adminid) {
       await logout( adminid);
     }
-    await AsyncStorage.removeMany(['adminToken','adminuid']);
+    await AsyncStorage.multiRemove(['adminToken','adminuid']);
 
     Alert.alert(
       'Success',

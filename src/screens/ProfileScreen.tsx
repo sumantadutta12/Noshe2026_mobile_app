@@ -99,7 +99,7 @@ export function ProfileScreen({ navigation }: Props) {
     if (uid && token) {
       await logoutUser(uid, token);
     }
-    await AsyncStorage.removeMany([
+    await AsyncStorage.multiRemove([
       'uid',
       'token',
     ]);
