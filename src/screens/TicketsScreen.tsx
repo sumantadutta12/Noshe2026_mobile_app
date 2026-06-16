@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { CTAButton } from '../components/CTAButton';
 import { Screen } from '../components/Screen';
+import { event } from '../data/events';
 import { theme } from '../theme/theme';
 import { Alert } from 'react-native';
 import { submitRegistration } from '../services/registrationService';
@@ -229,7 +230,7 @@ export function TicketsScreen() {
             <View style={styles.panelIcon}>
               <Ionicons name="location-outline" size={18} color={theme.colors.white} />
             </View>
-            <Text style={styles.panelText}>NTPC PMI, Noida</Text>
+            <Text style={styles.panelText}>{event.venue}, {event.address}</Text>
           </View>
           <View style={styles.panelItem}>
             <View style={styles.panelIcon}>

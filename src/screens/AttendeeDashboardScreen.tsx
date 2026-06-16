@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '../components/Screen';
+import { event } from '../data/events';
 import { theme } from '../theme/theme';
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -65,7 +66,7 @@ export function AttendeeDashboardScreen() {
         <View style={styles.infoList}>
           <InfoRow icon="call-outline" label="Mobile" value={`+91 ${dashboardData?.mobile_no ?? '----------'}`} />
           <InfoRow icon="calendar-outline" label="Event" value="NOSHE 2026, 3rd - 4th July 2026" />
-          <InfoRow icon="location-outline" label="Venue" value="NTPC PMI, Noida" />
+          <InfoRow icon="location-outline" label="Venue" value={`${event.venue}, ${event.address}`} />
         </View>
       </View>
 
