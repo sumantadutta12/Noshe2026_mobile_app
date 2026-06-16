@@ -27,10 +27,7 @@ export function TicketsScreen() {
     fullName: '',
     phone: '',
     email: '',
-    organisation: '',
-    designation: '',
-    city: '',
-    delegateType:''
+    organisation: ''
   });
   const cycleOption = (options: string[], current: string, setter: (value: string) => void) => {
     const currentIndex = options.indexOf(current);
@@ -45,10 +42,7 @@ export function TicketsScreen() {
       fullName: '',
       phone: '',
       email: '',
-      organisation: '',
-      designation: '',
-      city: '',
-      delegateType:''
+      organisation: ''
     };
 
     if (!fullName.trim()) {
@@ -82,21 +76,6 @@ export function TicketsScreen() {
       valid = false;
     }
 
-    if (!designation.trim()) {
-      newErrors.designation = 'Designation is required';
-      valid = false;
-    }
-
-    if (!city.trim()) {
-      newErrors.city = 'City is required';
-      valid = false;
-    }
-
-    if (!delegateType) {
-      newErrors.delegateType =
-        'Please select a delegate type';
-      valid = false;
-    }
     setErrors(newErrors);
     return valid;
   };
@@ -119,10 +98,7 @@ export function TicketsScreen() {
       fullName: '',
       phone: '',
       email: '',
-      organisation: '',
-      designation: '',
-      city: '',
-      delegateType: '',
+      organisation: ''
     });
   };
 
@@ -272,24 +248,21 @@ export function TicketsScreen() {
         </View>
 
         <View style={styles.fieldGroup}>
-          <Text style={styles.fieldLabel}>Designation *</Text>
+          <Text style={styles.fieldLabel}>Designation</Text>
           <TextInput value={designation} onChangeText={setDesignation} placeholder="Enter designation" style={styles.input} placeholderTextColor={theme.colors.muted} />
-          {errors.designation ? (<Text style={styles.errorText}>{errors.designation}</Text>) : null}
         </View>
 
         <View style={styles.fieldGroup}>
-          <Text style={styles.fieldLabel}>Delegate Type *</Text>
+          <Text style={styles.fieldLabel}>Delegate Type</Text>
           <Pressable style={styles.selectInput} onPress={() => cycleOption(delegateTypes, delegateType, setDelegateType)}>
-            {errors.delegateType ? (<Text style={styles.errorText}>{errors.delegateType}</Text>) : null}
             <Text style={styles.selectText}>{delegateType}</Text>
             <Ionicons name="chevron-down" size={18} color={theme.colors.muted} />
           </Pressable>
         </View>
 
         <View style={styles.fieldGroup}>
-          <Text style={styles.fieldLabel}>City *</Text>
+          <Text style={styles.fieldLabel}>City</Text>
           <TextInput value={city} onChangeText={setCity} placeholder="Enter city" style={styles.input} placeholderTextColor={theme.colors.muted} />
-            {errors.city ? (<Text style={styles.errorText}>{errors.city}</Text>) : null}
         </View>
 
         <View style={styles.fieldGroup}>
