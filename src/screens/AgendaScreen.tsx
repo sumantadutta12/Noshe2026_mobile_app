@@ -573,7 +573,7 @@ const handleTabPress = async (tab: AgendaTab) => {
                 </View>
               </View>
               <View style={styles.sessionModalSpeakerList}>
-                {selectedSessionSpeakers.length > 0 ? (
+                {Array.isArray(selectedSessionSpeakers) && selectedSessionSpeakers.length > 0 ? (
                   selectedSession?.speakers?.map((speaker, index) => (
                   <View key={index} style={styles.sessionModalSpeaker}>
                     <View style={styles.sessionModalAvatar}>

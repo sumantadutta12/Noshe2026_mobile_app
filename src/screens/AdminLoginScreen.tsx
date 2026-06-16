@@ -106,7 +106,7 @@ export function AdminLoginScreen({ navigation }: Props) {
             pressed && canContinue && styles.pressed
           ]}
         >
-          {loading ? 'Please wait...' : 'Open Dashboard'}
+          <Text style={styles.buttonText}>{loading ? 'Please wait...' : 'Open Dashboard'}</Text>
           <Ionicons name="arrow-forward" size={19} color={theme.colors.white} />
         </Pressable>
       </View>

@@ -294,7 +294,7 @@ export function AdminDashboardScreen({ navigation }: Props) {
       </View>
 
       <View style={styles.attendanceList}>
-        {dashboardData?.[0]?.[selectedType]?.map(
+       {Array.isArray(dashboardData?.[0]?.[selectedType]) && dashboardData?.[0]?.[selectedType]?.map(
           (item: any, index: number) => (
             <View key={index} style={styles.attendanceCard}>
               <View style={styles.timeBadge}>
