@@ -17,10 +17,16 @@ type Objective = {
 
 const objectives: Objective[] = [
   {
-    title: 'Promote a Culture of Prevention',
+    title: 'Drive a Culture of Prevention',
     subtitle:
-      'Encourage organizations to foster a proactive, "Zero Harm" safety culture, establishing a deep-rooted value system for operational protection.',
+      'Champion a proactive "Zero Harm" culture across organizations, establishing total safety, health and employee well-being as fundamental, deep-rooted values.',
     icon: 'heart-outline'
+  },
+  {
+    title: 'Drive Environmental Stewardship',
+    subtitle:
+      'Map out actionable climate response pathways, evaluating green innovations, circular economy mechanics, and "Source-to-Sink" protection models.',
+    icon: 'leaf-outline'
   },
   {
     title: 'Advance ESG Integration',
@@ -35,10 +41,10 @@ const objectives: Objective[] = [
     icon: 'hardware-chip-outline'
   },
   {
-    title: 'Drive Environmental Stewardship',
+    title: 'Enhancing Knowledge Sharing',
     subtitle:
-      'Map out actionable climate response pathways, evaluating green innovations, circular economy mechanics, and source-to-sink protection models.',
-    icon: 'leaf-outline'
+      'Provide a forum for industry leaders, policymakers, researchers, and practitioners to exchange insights, innovations, and success stories in Occupational, Safety, Health and Environment.',
+    icon: 'people-outline'
   }
 ];
 
@@ -48,32 +54,14 @@ export function AboutEventScreen({ navigation }: Props) {
       <Header eyebrow="About NOSHE 2026" title={event.name} subtitle={event.tagline} />
     
 
-      <View style={styles.section}>
-        <Text style={styles.sectionEyebrow}>About the Organiser</Text>
-        <Text style={styles.sectionTitle}>NTPC Limited</Text>
-        <Text style={styles.body}>
-          NTPC Limited, India\'s largest integrated energy company, has been a cornerstone of the nation\'s economic growth since its establishment in 1975. With an installed capacity of over 80 GW, NTPC generates approximately 25% of India\'s total electricity, powering every fourth bulb in the country.
-        </Text>
-        <Text style={styles.body}>
-          The company focuses on delivering power that is economical, efficient and environmentally sustainable, offering a diversified energy mix that includes solar, wind, hydro, floating solar, gas, and coal.
-        </Text>
-        <Text style={styles.body}>
-          NTPC is leading India's energy transition with a target to increase non-fossil fuel-based capacity to 45-50% of its total portfolio by 2032, including 60 GW of renewable energy. Its efforts in renewable energy are evident with over 7 GW of operational renewable capacity and 20 GW in the pipeline.
-        </Text>
-        <Text style={styles.body}>
-          The company has also pioneered green hydrogen initiatives, including the green hydrogen-PNG blending project at Kawas and a hydrogen fuel cell EV trial in Ladakh. Furthermore, NTPC is investing in carbon capture, green ammonia and pumped storage projects to reduce its carbon footprint.
-        </Text>
-        <Text style={styles.body}>
-          Globally, NTPC has expanded its presence with power projects in Bangladesh and Sri Lanka and advises several countries through the International Solar Alliance. Recognized for its excellence, NTPC ranks among the top Indian PSUs and global energy companies, continuing its commitment to national development, sustainability and social responsibility.
-        </Text>
-      </View>
+
 
       <View style={styles.section}>
         <Text style={styles.sectionEyebrow}>Conference Focus</Text>
         <Text style={styles.sectionTitle}>Key Objectives</Text>
         <Text style={styles.sectionSubtitle}>
-          NOSHE 2026 focuses on practical, future-ready approaches that strengthen safety culture, ESG integration,
-          digital transformation, and environmental responsibility.
+          NOSHE 2026 focuses on prevention, environmental stewardship, ESG integration,
+          digital innovation, and knowledge sharing across the SHE ecosystem.
         </Text>
       </View>
 

@@ -3,13 +3,14 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Screen } from '../components/Screen';
 import { theme } from '../theme/theme';
 
+const organiserOverview = [
+  'NTPC Limited is India\'s largest integrated power utility, driving the nation\'s growth with clean, reliable, and affordable energy for over five decades. Established in 1975, NTPC has evolved from a thermal power generator into a diversified energy major with a presence across the entire value chain from conventional and renewable generation to coal mining, power trading, e-mobility, and green hydrogen.',
+  'With an installed capacity ~90 GW, NTPC powers every fourth light in India while advancing the country\'s clean energy ambitions. The company is leading the charge toward a sustainable future, targeting 60 GW of renewable energy capacity by 2032 and investing in emerging technologies such as nuclear power, battery energy storage, carbon capture, and green chemicals.',
+  'As a Maharatna company under the Ministry of Power, Government of India, NTPC stands for excellence in engineering, safety, and sustainability. Our operations consistently deliver higher reliability and plant loading than national averages, reflecting our unwavering focus on performance and environmental stewardship.',
+  'Beyond power generation, NTPC is committed to empowering communities, nurturing innovation, and building a resilient energy ecosystem that supports India\'s rapid economic growth. With people at its core and sustainability at its heart, NTPC continues to energize India\'s progress responsibly and relentlessly.'
+];
+
 const organisers = [
-  {
-    title: 'Organised By',
-    name: 'NTPC Limited',
-    description:
-      'NTPC Limited, India\'s largest integrated energy company, has been a cornerstone of the nation\'s economic growth since its establishment in 1975. With an installed capacity of over 80 GW, NTPC generates approximately 25% of India\'s total electricity, powering every fourth bulb in the country.\n\nThe company focuses on delivering power that is economical, efficient and environmentally sustainable, offering a diversified energy mix that includes solar, wind, hydro, floating solar, gas, and coal.\n\nNTPC is leading India\'s energy transition with a target to increase non-fossil fuel-based capacity to 45-50% of its total portfolio by 2032, including 60 GW of renewable energy. Its efforts in renewable energy are evident with over 7 GW of operational renewable capacity and 20 GW in the pipeline.\n\nThe company has also pioneered green hydrogen initiatives, including the green hydrogen-PNG blending project at Kawas and a hydrogen fuel cell EV trial in Ladakh. Furthermore, NTPC is investing in carbon capture, green ammonia and pumped storage projects to reduce its carbon footprint.\n\nGlobally, NTPC has expanded its presence with power projects in Bangladesh and Sri Lanka and advises several countries through the International Solar Alliance. Recognized for its excellence, NTPC ranks among the top Indian PSUs and global energy companies, continuing its commitment to national development, sustainability and social responsibility.'
-  },
   {
     title: 'Knowledge & Industry Partners',
     name: 'Occupational Health and Safety Community',
@@ -24,6 +25,25 @@ export function OrganisersScreen() {
         <Text style={styles.eyebrow}>NOSHE 2026</Text>
         <Text style={styles.title}>About the Organiser</Text>
         <Text style={styles.subtitle}>NTPC Limited and its partnership network for the event.</Text>
+      </View>
+      <View style={styles.overviewCard}>
+        <View style={styles.overviewHeader}>
+          <View style={styles.overviewIcon}>
+            <Ionicons name="flash-outline" size={22} color={theme.colors.orange} />
+          </View>
+          <View style={styles.overviewTitleWrap}>
+            <Text style={styles.cardEyebrow}>Organised By</Text>
+            <Text style={styles.overviewTitle}>NTPC Limited</Text>
+          </View>
+        </View>
+        <View style={styles.overviewDivider} />
+        <View style={styles.overviewBody}>
+          {organiserOverview.map((paragraph) => (
+            <Text key={paragraph} style={styles.overviewText}>
+              {paragraph}
+            </Text>
+          ))}
+        </View>
       </View>
       {organisers.map((item) => (
         <View key={item.title} style={styles.card}>
@@ -69,6 +89,56 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginTop: 6,
     fontWeight: '500'
+  },
+  overviewCard: {
+    backgroundColor: theme.colors.white,
+    borderRadius: 24,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E5EEF7',
+    overflow: 'hidden',
+    ...theme.shadow
+  },
+  overviewHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12
+  },
+  overviewIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 18,
+    backgroundColor: '#FFF2E8',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#FFE0C7'
+  },
+  overviewTitleWrap: {
+    flex: 1,
+    minWidth: 0
+  },
+  overviewTitle: {
+    color: theme.colors.text,
+    fontSize: 22,
+    lineHeight: 28,
+    fontWeight: '800',
+    marginTop: 3
+  },
+  overviewDivider: {
+    height: 1,
+    backgroundColor: '#E7EEF7',
+    marginVertical: 14
+  },
+  overviewBody: {
+    gap: 13
+  },
+  overviewText: {
+    color: '#173B63',
+    fontSize: 14,
+    lineHeight: 23,
+    fontWeight: '400',
+    textAlign: 'justify'
   },
   card: {
     backgroundColor: theme.colors.white,

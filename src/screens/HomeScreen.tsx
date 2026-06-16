@@ -28,28 +28,48 @@ const conferenceDays = [
     sessions: [
       {
         time: '10:00 - 11:30',
-        label: 'INAUGURAL SESSION',
-        title: 'Opening remarks and conference inauguration'
+        label: 'Inaugural Session',
+        title: ''
+      },
+      {
+        time: '11:30 - 12:00',
+        label: 'Refreshments Break',
+        title: ''
       },
       {
         time: '12:00 - 13:00',
-        label: 'PLENARY 1: OPENING PLENARY',
+        label: 'Plenary Session 1:',
         title: 'Strategies for integrating ESG framework with SHE for sustainable workplace'
       },
       {
+        time: '13:00 - 14:00',
+        label: 'Networking Lunch',
+        title: ''
+      },
+      {
         time: '14:00 - 15:15',
-        label: 'TECHNICAL SESSION 1: ENVIRONMENT',
-        title: 'Environmental protection and management from source to sink approach'
+        label: 'Plenary Session 2:',
+        title: 'Environmental Protection and Management-Source to Sink approach'
+      },
+      {
+        time: '15:15 - 15:45',
+        label: 'Refreshments Break',
+        title: ''
       },
       {
         time: '15:45 - 17:00',
-        label: 'PLENARY 2: INDUSTRY PLENARY (SAFETY)',
-        title: 'Zero Harm: shaping workplace safety through culture and values'
+        label: 'Plenary Session 3:',
+        title: 'Beyond Compliance: Building a Resilient Safety Culture Powered by Values'
       },
       {
         time: '17:00 - 18:15',
-        label: 'PLENARY 3: HEALTH',
-        title: 'Occupational health and safety: a strategic approach to workplace wellness'
+        label: 'Plenary Session 4:',
+        title: 'Occupational Health & Safety: A strategic approach to workplace wellness'
+      },
+      {
+        time: '18:15 - 19:00',
+        label: 'High Tea',
+        title: ''
       }
     ]
   },
@@ -59,24 +79,49 @@ const conferenceDays = [
     colors: ['#1F5A84', '#1978B7'],
     sessions: [
       {
-        time: '09:00 - 09:30',
-        label: 'MEDITATION & SELF REALISATION SESSION',
-        title: 'Focused morning session for reflection and readiness'
+        time: '09:00 - 10:00',
+        label: 'Mental Health: Practice of Meditation and Self Realisation',
+        title: ''
       },
       {
-        time: '09:30 - 10:30',
-        label: 'TECHNICAL SESSION 2: TECHNICAL SAFETY',
-        title: 'Sustainability, climate action, circular economy and green innovations'
+        time: '10:00 - 11:00',
+        label: 'Technical Session 1:',
+        title: 'Navigating the New Risk Frontier: Mastering Safety Portfolios in a Technology Transition regime in Power Sector'
       },
       {
-        time: '10:30 - 11:30',
-        label: 'TECHNICAL SESSION 3: AI (HEALTH & SAFETY)',
-        title: 'Transforming workplace occupational health and safety through AI and digital innovation'
+        time: '11:00 - 12:00',
+        label: 'Technical Session 2:',
+        title: 'Credible ESG Systems: Data, Assurance, and Digital Compliance Platforms'
       },
       {
-        time: '11:50 - 13:00',
-        label: 'PLENARY 4: SAFETY',
-        title: 'Emergency preparedness: amalgamation of experience, framework and technology'
+        time: '12:00 - 12:20',
+        label: 'Refreshments Break',
+        title: ''
+      },
+      {
+        time: '12:20 - 13:30',
+        label: 'Plenary Session 5:',
+        title: 'Emergency Preparedness: Amalgamation of Experience, Framework & Technology'
+      },
+      {
+        time: '13:30 - 14:30',
+        label: 'Networking Lunch',
+        title: ''
+      },
+      {
+        time: '14:30 - 15:30',
+        label: 'Technical Session 3:',
+        title: 'Transforming workplace Occupational health & Safety through AI & Digital Innovation'
+      },
+      {
+        time: '15:30 - 15:50',
+        label: 'Refreshments Break',
+        title: ''
+      },
+      {
+        time: '15:50 - 17:15',
+        label: 'Closing Plenary & Valedictory Session',
+        title: 'Reflections: Pathway to organisational sustainability - SHE context'
       }
     ]
   }
@@ -97,7 +142,6 @@ const specialAttractions = [
 
 const specialAttractionsImage = require('../assets/slide-2.jpeg');
 const eventStartTime = new Date('2026-07-03T10:00:00+05:30').getTime();
-const eventTimeLabel = '10:00 AM onwards';
 
 export function HomeScreen({ navigation }: Props) {
   const [countdown, setCountdown] = useState(() => getCountdownParts());
@@ -144,21 +188,6 @@ export function HomeScreen({ navigation }: Props) {
                 </View>
               ))}
             </View>
-            <View style={styles.timeChipRow}>
-              <View style={styles.timeChip}>
-                <View style={styles.timeIconCircle}>
-                  <Ionicons name="time-outline" size={12} color={theme.colors.white} />
-                </View>
-                <Text style={styles.timeChipText}>{eventTimeLabel}</Text>
-              </View>
-              <View style={styles.timeChip}>
-                <View style={styles.timeIconCircle}>
-                  <Ionicons name="location-outline" size={12} color={theme.colors.white} />
-                </View>
-                <Text style={styles.timeChipText}>PMI Noida</Text>
-              </View>
-            </View>
-
             <CTAButton title="Register Now" style={styles.countRegister} onPress={() => navigation.navigate('Tickets')} />
           </LinearGradient>
         </View>
@@ -246,7 +275,7 @@ export function HomeScreen({ navigation }: Props) {
                     </View>
                     <View style={styles.sessionContent}>
                       <Text style={styles.sessionLabel}>{session.label}</Text>
-                      <Text style={styles.sessionTitle}>{session.title}</Text>
+                      {session.title ? <Text style={styles.sessionTitle}>{session.title}</Text> : null}
                     </View>
                   </View>
                 ))}
@@ -434,39 +463,6 @@ const styles = StyleSheet.create({
     fontSize: 10,
     lineHeight: 14,
     fontWeight: '700'
-  },
-  timeChipRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 10
-  },
-  timeChip: {
-    borderRadius: theme.radius.pill,
-    backgroundColor: 'rgba(255,255,255,0.14)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.24)',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 7
-  },
-  timeIconCircle: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    backgroundColor: 'rgba(255,255,255,0.12)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.18)'
-  },
-  timeChipText: {
-    color: theme.colors.white,
-    fontSize: 10,
-    lineHeight: 15,
-    fontWeight: '800'
   },
   countRegister: {
     minHeight: 46,

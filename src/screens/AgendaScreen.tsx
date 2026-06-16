@@ -45,6 +45,35 @@ const tabMeta: Record<AgendaTab, string> = {
   'Favorite Sessions': 'No Sessions'
 };
 
+const emptyAgendaMeta: Record<
+  AgendaTab,
+  {
+    icon: keyof typeof Ionicons.glyphMap;
+    accent: string;
+    title: string;
+    body: string;
+  }
+> = {
+  'Day 1': {
+    icon: 'calendar-clear-outline',
+    accent: '#F37021',
+    title: 'Day 1 agenda coming soon',
+    body: 'Sessions for the opening day will appear here once the agenda is published.'
+  },
+  'Day 2': {
+    icon: 'calendar-clear-outline',
+    accent: '#0A63BB',
+    title: 'Day 2 sessions not available yet',
+    body: 'The second day schedule will be listed here after it is finalized.'
+  },
+  'Favorite Sessions': {
+    icon: 'bookmark-outline',
+    accent: '#F37021',
+    title: 'No favorite sessions',
+    body: 'Bookmark sessions from the agenda to build your personal schedule.'
+  }
+};
+
 const iconForTrack: Record<Track, keyof typeof Ionicons.glyphMap> = {
   Registration: 'list-outline',
   Leadership: 'podium-outline',
@@ -59,6 +88,7 @@ const iconForTrack: Record<Track, keyof typeof Ionicons.glyphMap> = {
 export function AgendaScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<AgendaTab>('Day 1');
+  const emptyState = emptyAgendaMeta[activeTab];
   const [timezoneSheetOpen, setTimezoneSheetOpen] = useState(false);
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
   const [selectedTimezone, setSelectedTimezone] = useState('(UTC +05:30) Asia/Calcutta');
@@ -277,15 +307,21 @@ const handleTabPress = async (tab: AgendaTab) => {
     >
      <View style={styles.actionRow}>
           <Pressable
-            style={styles.actionBtn}
+            style={({ pressed }) => [styles.actionBtn, pressed && styles.pressed]}
           >
+            <View style={styles.actionIcon}>
+              <Ionicons name="print-outline" size={18} color={theme.colors.navy} />
+            </View>
             <Text style={styles.actionText}>Print Agenda</Text>
           </Pressable>
 
           <Pressable
-            style={styles.actionBtn}
+            style={({ pressed }) => [styles.actionBtn, styles.actionBtnPrimary, pressed && styles.pressed]}
           >
-            <Text style={styles.actionText}>Download PDF</Text>
+            <View style={styles.actionIconPrimary}>
+              <Ionicons name="download-outline" size={18} color={theme.colors.white} />
+            </View>
+            <Text style={styles.actionTextPrimary}>Download Brochure</Text>
           </Pressable>
         </View>
 
@@ -326,9 +362,19 @@ const handleTabPress = async (tab: AgendaTab) => {
       <View style={styles.timeline}>
         {visibleSessions.length === 0 ? (
           <View style={styles.emptyCard}>
-            <Ionicons name="bookmark-outline" size={26} color={theme.colors.orange} />
-            <Text style={styles.emptyTitle}>No favorite sessions</Text>
-            <Text style={styles.emptyText}>Bookmark sessions from the agenda to build your personal schedule.</Text>
+            <View style={styles.emptyGlow} />
+            <View style={[styles.emptyIconWrap, { borderColor: `${emptyState.accent}33` }]}>
+              <LinearGradient
+                colors={['#FFFFFF', `${emptyState.accent}14`]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.emptyIconGradient}
+              >
+                <Ionicons name={emptyState.icon} size={30} color={emptyState.accent} />
+              </LinearGradient>
+            </View>
+            <Text style={styles.emptyTitle}>{emptyState.title}</Text>
+            <Text style={styles.emptyText}>{emptyState.body}</Text>
           </View>
         ) : (
           visibleSessions.map((session) => (
@@ -951,6 +997,66 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600'
   },
+  actionRow: {
+    flexDirection: 'row',
+    gap: 10
+  },
+  actionBtn: {
+    flex: 1,
+    minHeight: 52,
+    borderRadius: 18,
+    backgroundColor: theme.colors.white,
+    borderWidth: 1,
+    borderColor: '#DCEAF7',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingHorizontal: 10,
+    shadowColor: '#0F4070',
+    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 14,
+    elevation: 2
+  },
+  actionBtnPrimary: {
+    backgroundColor: theme.colors.orange,
+    borderColor: theme.colors.orange,
+    shadowColor: theme.colors.orange,
+    shadowOpacity: 0.22
+  },
+  actionIcon: {
+    width: 30,
+    height: 30,
+    borderRadius: 12,
+    backgroundColor: '#EEF6FF',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  actionIconPrimary: {
+    width: 30,
+    height: 30,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  actionText: {
+    flexShrink: 1,
+    color: theme.colors.navy,
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: '600',
+    textAlign: 'center'
+  },
+  actionTextPrimary: {
+    flexShrink: 1,
+    color: theme.colors.white,
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: '600',
+    textAlign: 'center'
+  },
   tabCard: {
     flexDirection: 'row',
     backgroundColor: theme.colors.white,
@@ -1113,21 +1219,65 @@ const styles = StyleSheet.create({
     fontWeight: '600'
   },
   emptyCard: {
-    minHeight: 180,
+    position: 'relative',
+    minHeight: 252,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: theme.spacing.lg,
-    gap: 8
+    padding: 22,
+    gap: 10,
+    backgroundColor: theme.colors.white,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: '#E5EEF7',
+    overflow: 'hidden',
+    shadowColor: '#0F4070',
+    shadowOpacity: 0.07,
+    shadowOffset: { width: 0, height: 10 },
+    shadowRadius: 18,
+    elevation: 3
+  },
+  emptyGlow: {
+    position: 'absolute',
+    top: -56,
+    right: -42,
+    width: 156,
+    height: 156,
+    borderRadius: 78,
+    backgroundColor: '#EAF5FF'
+  },
+  emptyIconWrap: {
+    width: 68,
+    height: 68,
+    borderRadius: 24,
+    borderWidth: 1,
+    padding: 6,
+    backgroundColor: theme.colors.white,
+    shadowColor: '#0F4070',
+    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 14,
+    elevation: 2
+  },
+  emptyIconGradient: {
+    flex: 1,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   emptyTitle: {
     color: theme.colors.text,
-    fontSize: 17,
-    fontWeight: '600'
+    fontSize: 18,
+    lineHeight: 24,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginTop: 4
   },
   emptyText: {
     color: theme.colors.muted,
     textAlign: 'center',
-    lineHeight: 20
+    fontSize: 14,
+    lineHeight: 21,
+    maxWidth: 282
   },
   sessionModal: {
     flex: 1,

@@ -9,8 +9,8 @@ export const event: EventInfo = {
   date: '3rd - 4th July 2026',
   startDate: '3 July 2026',
   endDate: '4 July 2026',
-  venue: 'NTPC Power Management Institute (PMI), Noida',
-  address: 'NTPC Power Management Institute, Sector 16A, Noida, Uttar Pradesh',
+  venue: 'NTPC Power Management Institute (PMI)',
+  address: '5-14, Film City, Sector 16A, Noida, Uttar Pradesh 201301',
   description:
     'NOSHE 2026 brings together leaders, practitioners, regulators, researchers, and innovators across industries to advance occupational health, safety culture, emergency readiness, and sustainable workplaces.',
   stats: [
