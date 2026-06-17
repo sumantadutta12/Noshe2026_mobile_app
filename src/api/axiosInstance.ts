@@ -2,7 +2,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios, { AxiosHeaders } from 'axios';
 
-export const API_BASE_URL = 'http://innovision360.com:3001/api/event';
+export const API_BASE_URL = 'https://noshe-event-backend2026-1.onrender.com/api/event';
 
 const api = axios.create({
   baseURL: API_BASE_URL,

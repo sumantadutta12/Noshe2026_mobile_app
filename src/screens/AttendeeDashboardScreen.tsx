@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getAttendeeDashboard } from '../services/attendeeService';
 
-const qrCodeImage = require('../assets/qr-pe.webp');
+// const qrCodeImage = require('../assets/qr-pe.webp');
 
 export function AttendeeDashboardScreen() {
   const [dashboardData,setDashboardData] = useState<any>(null);

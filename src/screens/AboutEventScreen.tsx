@@ -111,7 +111,7 @@ const sectoralParticipation: Sector[] = [
   }
 ];
 
-const ntpcLogo = require('../assets/NTPC-logo.png');
+const ntpcLogo = require('../assets/ntpc-logo-1.png');
 
 export function AboutEventScreen({ navigation }: Props) {
   return (
