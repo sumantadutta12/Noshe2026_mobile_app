@@ -9,6 +9,7 @@ import { theme } from '../theme/theme';
 import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { adminLogin } from '../services/adminService';
+import { getApiErrorMessage } from '../api/axiosInstance';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AdminLogin'>;
 
@@ -43,7 +44,7 @@ export function AdminLoginScreen({ navigation }: Props) {
       }
     } catch (error: any) {
       console.log(error);
-      Alert.alert('Login Failed', error?.response?.data?.message || 'Something went wrong');
+      Alert.alert('Login Failed', getApiErrorMessage(error));
     } finally {
       setLoading(false);
     }

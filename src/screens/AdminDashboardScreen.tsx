@@ -92,9 +92,7 @@ export function AdminDashboardScreen({ navigation }: Props) {
      try {
         setScannerActive(false);
         console.log('Scanned Value:', data);
-        const response = await scanAttendee({
-          qr_code: data
-        });
+        const response = await scanAttendee(data);
 
       if (response.success) {
           // setLatestScan(response.data);
