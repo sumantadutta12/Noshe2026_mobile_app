@@ -14,11 +14,27 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSExceptionDomains": {
+            "innovision360.com": {
+              "NSIncludesSubdomains": true,
+              "NSTemporaryExceptionAllowsInsecureHTTPLoads": true,
+              "NSTemporaryExceptionMinimumTLSVersion": "TLSv1.2"
+            }
+          }
+        }
+      }
     },
     "android": {
       "package": "com.noshe2026.app",
-      "versionCode": 1,
+      "versionCode": 3,
+      "permissions": [
+        "INTERNET",
+        "CAMERA"
+      ],
+      "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/logo-1.png",
         "backgroundColor": "#004EA8"
@@ -33,6 +49,7 @@
     },
     "plugins": [
       "expo-font",
+      "./plugins/withAndroidCleartext",
       [
         "expo-camera",
         {

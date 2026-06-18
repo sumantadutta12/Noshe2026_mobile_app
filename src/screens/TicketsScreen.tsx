@@ -7,6 +7,7 @@ import { event } from '../data/events';
 import { theme } from '../theme/theme';
 import { Alert } from 'react-native';
 import { submitRegistration } from '../services/registrationService';
+import { getApiErrorMessage } from '../api/axiosInstance';
 
 const delegateTypes = ['Individual Delegate', 'Corporate Group Pass', 'Student / Research Pass'];
 const dietaryOptions = ['No preference', 'Vegetarian', 'Non-Vegetarian', 'Vegan'];
@@ -176,8 +177,7 @@ export function TicketsScreen() {
 
       Alert.alert(
         'Error',
-        error?.response?.data?.message ||
-          'Something went wrong',
+        getApiErrorMessage(error),
       );
       
     } finally {

@@ -6,6 +6,7 @@ export type RootStackParamList = {
   AttendeeDashboard: undefined;
   AdminLogin: undefined;
   AdminDashboard: undefined;
+  ApprovalRequests: undefined;
   MainTabs: NavigatorScreenParams<MainTabParamList>;
   About: undefined;
   SessionDetails: { sessionId: string };

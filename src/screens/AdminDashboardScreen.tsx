@@ -92,9 +92,7 @@ export function AdminDashboardScreen({ navigation }: Props) {
      try {
         setScannerActive(false);
         console.log('Scanned Value:', data);
-        const response = await scanAttendee({
-          qr_code: data
-        });
+        const response = await scanAttendee(data);
 
       if (response.success) {
           // setLatestScan(response.data);
@@ -138,7 +136,7 @@ export function AdminDashboardScreen({ navigation }: Props) {
     }
   };
 
-   const handleLogout = async() => {
+   const confirmLogout = async() => {
     try {
 
     const adminid = await AsyncStorage.getItem('adminuid');
@@ -162,6 +160,24 @@ export function AdminDashboardScreen({ navigation }: Props) {
 
   }
    }
+
+   const handleLogout = () => {
+    Alert.alert(
+      'Are you sure?',
+      'Do you want to logout from the admin dashboard?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel'
+        },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: confirmLogout
+        }
+      ]
+    );
+   };
   
   if (loading) {
   return (
@@ -171,8 +187,41 @@ export function AdminDashboardScreen({ navigation }: Props) {
   );
 }
 
+  const selectedAttendance = Array.isArray(dashboardData?.[0]?.[selectedType])
+    ? dashboardData[0][selectedType]
+    : [];
+  const attendancePlaceholder =
+    selectedType === 'participants'
+      ? 'Registered attendees will appear here once data is available.'
+      : 'Checked-in attendees will appear here after QR scans are completed.';
+  const approvalRequests =
+    dashboardData?.[0]?.waitingForApproval ||
+    dashboardData?.[0]?.approvalRequests ||
+    dashboardData?.[0]?.pendingApprovals ||
+    [];
+  const approvalCount = Array.isArray(approvalRequests) ? approvalRequests.length : 0;
+
   return (
-    <Screen refreshable>
+    <Screen
+      refreshable
+      floating={
+        <SafeAreaView edges={['bottom', 'left', 'right']} style={styles.logoutFooter}>
+          <Pressable
+            onPress={handleLogout}
+            style={({ pressed }) => [styles.logoutButton, pressed && styles.pressed]}
+          >
+            <View style={styles.logoutIcon}>
+              <Ionicons name="log-out-outline" size={19} color="#DC2626" />
+            </View>
+            <View style={styles.logoutCopy}>
+              <Text style={styles.logoutTitle}>Logout</Text>
+              <Text style={styles.logoutText}>Exit admin dashboard</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={theme.colors.muted} />
+          </Pressable>
+        </SafeAreaView>
+      }
+    >
       <LinearGradient
         colors={['#08244D', '#004EA8', '#1684D8']}
         start={{ x: 0, y: 0 }}
@@ -186,17 +235,20 @@ export function AdminDashboardScreen({ navigation }: Props) {
       </LinearGradient>
 
       <Pressable
-        onPress={handleLogout}
-        style={({ pressed }) => [styles.logoutButton, pressed && styles.pressed]}
+        onPress={() => navigation.navigate('ApprovalRequests')}
+        style={({ pressed }) => [styles.approvalCard, pressed && styles.pressed]}
       >
-        <View style={styles.logoutIcon}>
-          <Ionicons name="log-out-outline" size={19} color="#DC2626" />
+        <View style={styles.approvalIcon}>
+          <Ionicons name="time-outline" size={24} color={theme.colors.orange} />
         </View>
-        <View style={styles.logoutCopy}>
-          <Text style={styles.logoutTitle}>Logout</Text>
-          <Text style={styles.logoutText}>Exit admin dashboard</Text>
+        <View style={styles.approvalCopy}>
+          <Text style={styles.approvalEyebrow}>Registration Requests</Text>
+          <Text style={styles.approvalTitle}>Waiting for approval</Text>
         </View>
-        <Ionicons name="chevron-forward" size={18} color={theme.colors.muted} />
+        <View style={styles.approvalMeta}>
+          {/* <Text style={styles.approvalCount}>{approvalCount}</Text> */}
+          <Ionicons name="chevron-forward" size={18} color={theme.colors.muted} />
+        </View>
       </Pressable>
 
       <View style={styles.statsGrid}>
@@ -301,8 +353,8 @@ export function AdminDashboardScreen({ navigation }: Props) {
       </View>
 
       <View style={styles.attendanceList}>
-       {Array.isArray(dashboardData?.[0]?.[selectedType]) && dashboardData?.[0]?.[selectedType]?.map(
-          (item: any, index: number) => (
+        {selectedAttendance.length > 0 ? (
+          selectedAttendance.map((item: any, index: number) => (
             <View key={index} style={styles.attendanceCard}>
               <View style={styles.timeBadge}>
               <Text style={styles.timeText}>{item.registered_date ? (((item.registered_date.split(" ")[0]).split('-')).reverse()).join('-') : "N/A"}</Text>
@@ -311,8 +363,18 @@ export function AdminDashboardScreen({ navigation }: Props) {
               <Text style={styles.attendeeName}>{item.name}</Text>
               <Text style={styles.attendeeRole}>{item.email_id}</Text>
             </View>
-          </View>))}
+          </View>))
+        ) : (
+          <View style={styles.attendancePlaceholder}>
+            <View style={styles.attendancePlaceholderIcon}>
+              <Ionicons name="calendar-clear-outline" size={24} color={theme.colors.orange} />
+            </View>
+            <Text style={styles.attendancePlaceholderTitle}>No attendance data</Text>
+            <Text style={styles.attendancePlaceholderText}>{attendancePlaceholder}</Text>
+          </View>
+        )}
       </View>
+      <View style={styles.footerSpacer} />
     </Screen>
   );
 }
@@ -362,6 +424,66 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     marginTop: 8
   },
+  approvalCard: {
+    backgroundColor: theme.colors.white,
+    borderRadius: 22,
+    padding: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    borderWidth: 1,
+    borderColor: '#E8F0F8',
+    shadowColor: '#0F4070',
+    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 16,
+    elevation: 3
+  },
+  approvalIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 18,
+    backgroundColor: '#FFF6EF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#FFE2CF'
+  },
+  approvalCopy: {
+    flex: 1,
+    minWidth: 0
+  },
+  approvalEyebrow: {
+    color: theme.colors.orange,
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '600',
+    textTransform: 'uppercase'
+  },
+  approvalTitle: {
+    color: theme.colors.text,
+    fontSize: 18,
+    lineHeight: 24,
+    fontWeight: '700',
+    marginTop: 2
+  },
+  approvalMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8
+  },
+  approvalCount: {
+    minWidth: 32,
+    minHeight: 32,
+    borderRadius: 16,
+    overflow: 'hidden',
+    backgroundColor: '#F3F8FD',
+    color: theme.colors.navy,
+    fontSize: 14,
+    lineHeight: 32,
+    fontWeight: '800',
+    textAlign: 'center'
+  },
   logoutButton: {
     backgroundColor: theme.colors.white,
     borderRadius: 22,
@@ -376,6 +498,18 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 8 },
     shadowRadius: 16,
     elevation: 3
+  },
+  logoutFooter: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: theme.spacing.md,
+    paddingTop: 10,
+    paddingBottom: 10,
+    backgroundColor: 'rgba(244,250,255,0.96)',
+    borderTopWidth: 1,
+    borderTopColor: '#DCEAF5'
   },
   logoutIcon: {
     width: 46,
@@ -689,6 +823,47 @@ const styles = StyleSheet.create({
   attendanceList: {
     gap: 12
   },
+  attendancePlaceholder: {
+    minHeight: 166,
+    backgroundColor: theme.colors.white,
+    borderRadius: 19,
+    padding: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#E8F0F8',
+    shadowColor: '#0F4070',
+    shadowOpacity: 0.06,
+    shadowOffset: { width: 0, height: 8 },
+    shadowRadius: 16,
+    elevation: 3
+  },
+  attendancePlaceholderIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 17,
+    backgroundColor: '#FFF6EF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#FFE2CF',
+    marginBottom: 10
+  },
+  attendancePlaceholderTitle: {
+    color: theme.colors.text,
+    fontSize: 16,
+    lineHeight: 22,
+    fontWeight: '700',
+    textAlign: 'center'
+  },
+  attendancePlaceholderText: {
+    color: theme.colors.muted,
+    fontSize: 13,
+    lineHeight: 19,
+    fontWeight: '400',
+    textAlign: 'center',
+    marginTop: 5
+  },
   attendanceCard: {
     backgroundColor: theme.colors.white,
     borderRadius: 19,
@@ -757,5 +932,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 16,
     fontWeight: '500'
+  },
+  footerSpacer: {
+    height: 102
   }
 });

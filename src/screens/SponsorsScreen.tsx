@@ -97,7 +97,7 @@ export function SponsorsScreen({ navigation }: Props) {
             end={{ x: 1, y: 1 }}
             style={styles.featuredImageRing}
           >
-            <Image source={chiefMember.image} style={styles.featuredImage} />
+            <Image source={chiefMember.image} style={styles.featuredImage} resizeMode="contain" />
           </LinearGradient>
           <View style={styles.featuredCopy}>
             <Text style={styles.featuredName}>{chiefMember.name}</Text>
@@ -148,7 +148,11 @@ function MemberCard({
   return (
     <View style={[styles.memberCard, compact && styles.compactCard]}>
       <View style={[styles.memberImageWrap, compact && styles.compactImageWrap]}>
-        <Image source={member.image} style={[styles.memberImage, compact && styles.compactImage]} />
+        <Image
+          source={member.image}
+          style={[styles.memberImage, compact && styles.compactImage]}
+          resizeMode="contain"
+        />
       </View>
       <Text style={styles.memberName}>{member.name}</Text>
       <Text style={styles.memberRole}>{member.role}</Text>
@@ -239,13 +243,14 @@ const styles = StyleSheet.create({
     borderRadius: 79,
     padding: 5,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    overflow: 'hidden'
   },
   featuredImage: {
     width: 148,
     height: 148,
     borderRadius: 74,
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.colors.white,
     borderWidth: 3,
     borderColor: theme.colors.white
   },
@@ -307,7 +312,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#E2ECF6'
+    borderColor: '#E2ECF6',
+    overflow: 'hidden'
   },
   compactImageWrap: {
     width: 94,
@@ -318,7 +324,7 @@ const styles = StyleSheet.create({
     width: 108,
     height: 108,
     borderRadius: 54,
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.colors.white,
     borderWidth: 2,
     borderColor: theme.colors.white
   },

@@ -17,6 +17,7 @@ import { theme } from '../theme/theme';
 import { Alert } from 'react-native';
 import { sendOtp,verifyLogin } from '../services/authServices';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getApiErrorMessage } from '../api/axiosInstance';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Auth'>;
 
@@ -81,8 +82,7 @@ export function AuthScreen({ navigation, route }: Props) {
     }catch (error: any) {
       Alert.alert(
         'Error',
-        error?.response?.data?.message ||
-        'Failed to send OTP'
+        getApiErrorMessage(error, 'Failed to send OTP')
       );
 
       console.log(error);
@@ -141,8 +141,7 @@ export function AuthScreen({ navigation, route }: Props) {
       } catch (error: any) {
         Alert.alert(
           'Error',
-          error?.response?.data?.message ||
-          'Failed to resend OTP'
+          getApiErrorMessage(error, 'Failed to resend OTP')
         );
 
         console.log(error);
@@ -179,7 +178,7 @@ export function AuthScreen({ navigation, route }: Props) {
         Alert.alert('Invalid OTP', response.message || 'OTP verification failed');
       }
     } catch (error: any) {
-      Alert.alert('Error', error?.response?.message || 'Verification failed');
+      Alert.alert('Error', getApiErrorMessage(error, 'Verification failed'));
       console.log(error);
   }
 };
