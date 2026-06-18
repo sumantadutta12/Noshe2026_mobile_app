@@ -7,6 +7,7 @@ import { useMemo, useState, useEffect } from 'react';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import {
+  Alert,
   Image,
   LayoutAnimation,
   Modal,
@@ -168,6 +169,9 @@ export function AgendaScreen({ navigation }: Props) {
       if (response.success) {
         setAgendaData(response.data);
       }
+    }
+    catch(error){
+      Alert.alert(error instanceof Error ? error.message : String(error));
     } finally {
       setAgendaLoading(false);
     }

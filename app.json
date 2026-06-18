@@ -22,7 +22,11 @@
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/logo-1.png",
         "backgroundColor": "#004EA8"
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "bundler": "metro"
@@ -38,8 +42,9 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "33aa4120-a431-43e4-8b2b-cc0e0ccd8b3d"
+        "projectId": "c34ff0e2-773f-41f2-af19-83558e9f8ee9"
       }
-    }
+    },
+    "owner": "expoevent"
   }
 }
