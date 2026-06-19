@@ -10,7 +10,7 @@ import { Screen } from '../components/Screen';
 import { RootStackParamList } from '../navigation/types';
 import { theme } from '../theme/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getDashboardData ,logout} from '../services/adminService';
+import { getDashboardData ,logout, getWaitingList} from '../services/adminService';
 import {scanAttendee } from '../services/scannerService';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AdminDashboard'>;
@@ -39,6 +39,7 @@ export function AdminDashboardScreen({ navigation }: Props) {
   const [selectedType, setSelectedType] =
   useState<AttendanceType>('participants');
   const [dashboardData, setDashboardData] = useState<any>(null);
+  
   const [loading, setLoading] = useState(true);
   useEffect(() => { fetchDashboard();}, []);
   const [permission, requestPermission] = useCameraPermissions();
@@ -129,13 +130,22 @@ export function AdminDashboardScreen({ navigation }: Props) {
       if (response.success) {
         setDashboardData(response.data);
       }
-    } catch (error) {
+      else if(response?.code && response?.code =="TOKEN_EXPIRED"){
+           await confirmLogout();
+      }
+    } catch (error:any) {
+      if (
+        error?.response &&
+        error.response.data?.code === "TOKEN_EXPIRED"
+    ) {
+      await confirmLogout();
+    }
       console.log(error);
     } finally {
       setLoading(false);
     }
   };
-
+  
    const confirmLogout = async() => {
     try {
 

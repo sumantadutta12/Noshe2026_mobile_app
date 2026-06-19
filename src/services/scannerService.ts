@@ -1,9 +1,9 @@
 import api, { getApiErrorMessage } from '../api/axiosInstance';
 
-export const scanAttendee = async (qrCode: string) => {
+export const scanAttendee = async (uid: string) => {
   try {
     const response = await api.post('/attendance', {
-      qr_code: qrCode
+      uid: uid
     });
 
     return response.data;

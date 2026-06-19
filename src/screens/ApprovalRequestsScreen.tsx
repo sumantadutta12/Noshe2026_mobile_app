@@ -3,6 +3,9 @@ import { useEffect, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '../components/Screen';
 import { theme } from '../theme/theme';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getWaitingList,updateDelegateStatus,sendEmail} from '../services/adminService';
+
 
 type ApprovalRequest = {
   id: string;
@@ -35,18 +38,75 @@ const initialRequests: ApprovalRequest[] = [
 export function ApprovalRequestsScreen() {
   const [requests, setRequests] = useState(initialRequests);
   const [loading, setLoading] = useState(true);
+    const [waitingData, setWaitingData] = useState<any>(null);
+
 
   useEffect(() => {
-    const timeout = setTimeout(() => setLoading(false), 700);
-    return () => clearTimeout(timeout);
-  }, []);
+    fetchWaitingList();
 
-  const handleDecision = (id: string, decision: 'approved' | 'declined') => {
-    setRequests((currentRequests) => currentRequests.filter((request) => request.id !== id));
+    const timeout = setTimeout(() => {
+      setLoading(false);
+    }, 700);
+
+    return () => clearTimeout(timeout);
+  }, []); 
+
+  const handleDecision = async (register_id: number, register_status: number,name: string,email: string) => {
+  const token = await AsyncStorage.getItem('adminToken');
+    if ( !token) {
+      return;
+    }
+  const response = await updateDelegateStatus(
+    register_id,
+    register_status,
+    name,
+    email,
+    token
+  );
+ console.log(response)
+  if(response.success == true){
     Alert.alert(
-      decision === 'approved' ? 'Approved' : 'Declined',
-      `Registration request ${decision}.`
+      `Registration request ${ register_status === 1 ? 'Approved' : 'Declined'}.`
     );
+    const res = await getWaitingList(token);
+      if (res.success) {
+        setWaitingData(res.data);
+      }
+    handlesendEmail(token,register_id,register_status,name,email)
+   
+  }
+}; 
+  
+
+ const handlesendEmail = async (token:string, register_id: number, register_status: number,name: string,email: string) => {
+  await sendEmail(
+    register_id,
+    register_status,
+    name,
+    email,
+    token
+  );
+}; 
+  
+
+
+  const fetchWaitingList = async () => {
+    try {
+      setLoading(true);
+      const token = await AsyncStorage.getItem('adminToken');
+      if ( !token) {
+        return;
+      }
+      const response = await getWaitingList( token);
+      console.log('Waiting List', response);
+      if (response.success) {
+        setWaitingData(response.data);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -57,71 +117,72 @@ export function ApprovalRequestsScreen() {
       </View>
 
       {loading ? (
-        <>
-          <ApprovalRequestSkeleton />
-          <ApprovalRequestSkeleton />
-          <ApprovalRequestSkeleton />
-        </>
-      ) : requests.length > 0 ? (
-        requests.map((request) => (
-          <View key={request.id} style={styles.requestCard}>
-            <View style={styles.detailList}>
-              <View style={styles.detailRow}>
-                <View style={styles.detailIcon}>
-                  <Ionicons name="person-outline" size={18} color={theme.colors.orange} />
+  <>
+    <ApprovalRequestSkeleton />
+    <ApprovalRequestSkeleton />
+    <ApprovalRequestSkeleton />
+  </>
+        ) : waitingData?.length > 0 ? (
+          waitingData.map((request: any) => (
+            <View key={request.id} style={styles.requestCard}>
+              <View style={styles.detailList}>
+                <View style={styles.detailRow}>
+                  <View style={styles.detailIcon}>
+                    <Ionicons name="person-outline" size={18} color={theme.colors.orange} />
+                  </View>
+                  <View style={styles.detailCopy}>
+                    <Text style={styles.detailLabel}>Name</Text>
+                    <Text style={styles.detailValue}>{request.name}</Text>
+                  </View>
                 </View>
-                <View style={styles.detailCopy}>
-                  <Text style={styles.detailLabel}>Name</Text>
-                  <Text style={styles.detailValue}>{request.name}</Text>
-                </View>
-              </View>
-              <View style={styles.detailRow}>
-                <View style={styles.detailIcon}>
-                  <Ionicons name="mail-outline" size={18} color={theme.colors.orange} />
-                </View>
-                <View style={styles.detailCopy}>
-                  <Text style={styles.detailLabel}>Email</Text>
-                  <Text style={styles.detailValue}>{request.email}</Text>
-                </View>
-              </View>
-              <View style={styles.detailRow}>
-                <View style={styles.detailIcon}>
-                  <Ionicons name="time-outline" size={18} color={theme.colors.orange} />
-                </View>
-                <View style={styles.detailCopy}>
-                  <Text style={styles.detailLabel}>Time</Text>
-                  <Text style={styles.detailValue}>{request.time}</Text>
-                </View>
-              </View>
-            </View>
 
-            <View style={styles.actions}>
-              <Pressable
-                onPress={() => handleDecision(request.id, 'approved')}
-                style={({ pressed }) => [styles.approveButton, pressed && styles.pressed]}
-              >
-                <Ionicons name="checkmark-circle-outline" size={18} color={theme.colors.white} />
-                <Text style={styles.primaryButtonText}>Approve</Text>
-              </Pressable>
-              <Pressable
-                onPress={() => handleDecision(request.id, 'declined')}
-                style={({ pressed }) => [styles.declineButton, pressed && styles.pressed]}
-              >
-                <Ionicons name="close-circle-outline" size={18} color="#DC2626" />
-                <Text style={styles.declineButtonText}>Decline</Text>
-              </Pressable>
+                <View style={styles.detailRow}>
+                  <View style={styles.detailIcon}>
+                    <Ionicons name="mail-outline" size={18} color={theme.colors.orange} />
+                  </View>
+                  <View style={styles.detailCopy}>
+                    <Text style={styles.detailLabel}>Email</Text>
+                    <Text style={styles.detailValue}>{request.email_id}</Text>
+                  </View>
+                </View>
+
+                <View style={styles.detailRow}>
+                  <View style={styles.detailIcon}>
+                    <Ionicons name="time-outline" size={18} color={theme.colors.orange} />
+                  </View>
+                  <View style={styles.detailCopy}>
+                    <Text style={styles.detailLabel}>Time</Text>
+                    <Text style={styles.detailValue}>{request.creation_date ? request.creation_date.split('T')[0] : ''}</Text>
+                  </View>
+                </View>
+              </View>
+              <View style={styles.actions}>
+                  <Pressable
+                    onPress={() => handleDecision(request.register_id, 1,request.name,request.email_id)}
+                    style={({ pressed }) => [styles.approveButton, pressed && styles.pressed]}
+                  >
+                    <Ionicons name="checkmark-circle-outline" size={18} color={theme.colors.white} />
+                    <Text style={styles.primaryButtonText}>Approve</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => handleDecision(request.register_id, 2,request.name,request.email_id)}
+                    style={({ pressed }) => [styles.declineButton, pressed && styles.pressed]}
+                  >
+                    <Ionicons name="close-circle-outline" size={18} color="#DC2626" />
+                    <Text style={styles.declineButtonText}>Decline</Text>
+                  </Pressable>
+                </View>
+              </View>
+            ))
+          ) : (
+            <View style={styles.emptyCard}>
+              <View style={styles.emptyIcon}>
+                <Ionicons name="checkmark-done-outline" size={28} color={theme.colors.success} />
+              </View>
+              <Text style={styles.emptyTitle}>No pending approvals</Text>
+              <Text style={styles.emptyText}>New registration requests will appear here.</Text>
             </View>
-          </View>
-        ))
-      ) : (
-        <View style={styles.emptyCard}>
-          <View style={styles.emptyIcon}>
-            <Ionicons name="checkmark-done-outline" size={28} color={theme.colors.success} />
-          </View>
-          <Text style={styles.emptyTitle}>No pending approvals</Text>
-          <Text style={styles.emptyText}>New registration requests will appear here.</Text>
-        </View>
-      )}
+        )}
     </Screen>
   );
 }
