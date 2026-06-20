@@ -26,7 +26,7 @@ import { theme } from '../theme/theme';
 import { Track } from '../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getAgendaData,getFilterData, toggleFavorite,getFavoriteData  } from '../services/agendaService';
-
+import Toast from 'react-native-toast-message'; 
 const defaultImage = require('../assets/default.jpg');
 
 type Props = CompositeScreenProps<
@@ -216,11 +216,18 @@ export function AgendaScreen({ navigation }: Props) {
     }
   };
 
+   const showToast = async(message:any) => {
+    Toast.show({
+      type: 'success', 
+      text1: message,
+      position: 'top', 
+      visibilityTime: 4000, 
+    });
+  };
+
   const openFilterModal = async () => {
     setFilterSheetOpen(true);
-
     const response = await getFilterData( '');
-
     if (response.success) {
       setFilterData(response.data);
     }
@@ -228,10 +235,7 @@ export function AgendaScreen({ navigation }: Props) {
 
   const handleFilterSearch = async (text: string) => {
     setFilterSearch(text);
-
-
     const response = await getFilterData(text);
-
     if (response.success) {
       setFilterData(response.data);
     }
@@ -239,42 +243,32 @@ export function AgendaScreen({ navigation }: Props) {
 
 
 const handleFavorite = async (session: AgendaSession) => {
+  try{
   const favoriteValue = session.favorite ? 0 : 1;
-
     const response = await toggleFavorite(
       Number(session.session_id),favoriteValue);
 
     if (response.success) {
-      // setAgendaData((prev) => ({
-      //   ...prev,
-      //   day1: prev.day1?.map((item) =>
-      //     item.session_id === session.session_id
-      //       ? {
-      //           ...item,
-      //           is_favorite: !item.ifavorite
-      //         }
-      //       : item
-      //   ),
-      //   day2: prev.day2?.map((item) =>
-      //     item.session_id === session.session_id
-      //       ? {
-      //           ...item,
-      //           is_favorite: !item.favorite
-      //         }
-      //       : item
-      //   )
-      // }));
-   const response = await getAgendaData({
-      track: [],
-      categories: [],
-      halls: [],
-      speakers: []
-    });
+      await showToast(response.message)
+      const res = await getAgendaData({
+          track: [],
+          categories: [],
+          halls: [],
+          speakers: []
+        });
 
-    if (response.success) {
-      setAgendaData(response.data);
+      if (res.success) {
+        setAgendaData(res.data);
+      }
+      await handleTabPress('Favorite Sessions');
     }
+    else {
+            await showToast(response.message)
     }
+  }catch(error){
+      await showToast(error)
+  }
+
   };
   const toggleFilterPanel = (panel: FilterPanel) => {
     LayoutAnimation.configureNext({
@@ -370,7 +364,7 @@ const handleTabPress = async (tab: AgendaTab) => {
       }
     >
      <View style={styles.actionRow}>
-          <Pressable
+          {/* <Pressable
             style={({ pressed }) => [styles.actionBtn, pressed && styles.pressed]}
           >
             <View style={styles.actionIcon}>
@@ -386,7 +380,7 @@ const handleTabPress = async (tab: AgendaTab) => {
               <Ionicons name="download-outline" size={18} color={theme.colors.white} />
             </View>
             <Text style={styles.actionTextPrimary}>Download Brochure</Text>
-          </Pressable>
+          </Pressable> */}
         </View>
 
       <View style={styles.tabCard}>

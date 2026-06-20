@@ -11,6 +11,16 @@ export const sendOtp = async (email: string) => {
   return response.data;
 };
 
+export const otpMail = async (email: string) => {
+  await api.post(
+    '/otp',
+    {
+      email,
+    }
+  );
+
+};
+
 export const verifyLogin = async (
   email: string,
   otp: string

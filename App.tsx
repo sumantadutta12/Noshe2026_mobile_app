@@ -16,6 +16,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AttendeeAuthProvider } from './src/context/AttendeeAuthContext';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { theme } from './src/theme/theme';
+import Toast from 'react-native-toast-message'; 
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -58,6 +59,7 @@ export default function App() {
           <AppNavigator />
         </NavigationContainer>
       </AttendeeAuthProvider>
+      <Toast />
     </SafeAreaProvider>
   );
 }

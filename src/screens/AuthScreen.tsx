@@ -15,7 +15,7 @@ import { useAttendeeAuth } from '../context/AttendeeAuthContext';
 import { RootStackParamList } from '../navigation/types';
 import { theme } from '../theme/theme';
 import { Alert } from 'react-native';
-import { sendOtp,verifyLogin } from '../services/authServices';
+import { sendOtp,verifyLogin,otpMail } from '../services/authServices';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getApiErrorMessage } from '../api/axiosInstance';
 
@@ -55,7 +55,7 @@ export function AuthScreen({ navigation, route }: Props) {
 
   const handleSendOtp = async () => {
     setIsSendingOtp(true);
-    try {
+    // try {
       if (!isEmailValid) {
         return;
       }
@@ -68,27 +68,27 @@ export function AuthScreen({ navigation, route }: Props) {
         setOtpVisible(true);
         setOtp(Array(otpLength).fill(''));
         setResendSeconds(resendDuration);
-
         setTimeout(() => {
           otpRefs.current[0]?.focus();
         }, 120);
         Alert.alert('Success',response.message);
+          await otpMail(email);
       }
       else
       {
         Alert.alert('Error',response.message);
       }
       
-    }catch (error: any) {
-      Alert.alert(
-        'Error',
-        getApiErrorMessage(error, 'Failed to send OTP')
-      );
+  //   }catch (error: any) {
+  //     Alert.alert(
+  //       'Error',
+  //       getApiErrorMessage(error, 'Failed to send OTP')
+  //     );
 
-      console.log(error);
-    } finally {
-    setIsSendingOtp(false); // Re-enable button if something goes wrong
-  }
+  //     console.log(error);
+  //   } finally {
+  //   setIsSendingOtp(false); // Re-enable button if something goes wrong
+  // }
   };
     // setOtp(Array(otpLength).fill(''));
     // setResendSeconds(resendDuration);
