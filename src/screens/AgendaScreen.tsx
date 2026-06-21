@@ -243,33 +243,33 @@ export function AgendaScreen({ navigation }: Props) {
 
 
 const handleFavorite = async (session: AgendaSession) => {
-  try{
-  const favoriteValue = session.favorite ? 0 : 1;
-    const response = await toggleFavorite(
-      Number(session.session_id),favoriteValue);
+    try{
+    const favoriteValue = session.favorite ? 0 : 1;
+      const response = await toggleFavorite(
+        Number(session.session_id),favoriteValue);
 
-    if (response.success) {
-      await showToast(response.message)
-      const res = await getAgendaData({
-          track: [],
-          categories: [],
-          halls: [],
-          speakers: []
-        });
+      if (response.success) {
+        await showToast(response.message)
+        const res = await getAgendaData({
+            track: [],
+            categories: [],
+            halls: [],
+            speakers: []
+          });
 
-      if (res.success) {
-        setAgendaData(res.data);
+        if (res.success) {
+          setAgendaData(res.data);
+        }
+        await handleTabPress('Favorite Sessions');
       }
-      await handleTabPress('Favorite Sessions');
+      else {
+              await showToast(response.message)
+      }
+    }catch(error){
+        await showToast(error)
     }
-    else {
-            await showToast(response.message)
-    }
-  }catch(error){
-      await showToast(error)
-  }
-
   };
+
   const toggleFilterPanel = (panel: FilterPanel) => {
     LayoutAnimation.configureNext({
       duration: 220,
@@ -287,31 +287,32 @@ const handleFavorite = async (session: AgendaSession) => {
     });
     setActiveFilterPanel(panel);
   };
-const clearFilters = async () => {
-  setSelectedTracks([]);
-  setSelectedCategories([]);
-  setSelectedHalls([]);
-  setSelectedSpeakers([]);
-  setAgendaLoading(true);
-  
-  try {
-    const response = await getAgendaData({
-      track: [],
-      categories: [],
-      halls: [],
-      speakers: []
-    });
 
-    if (response.success) {
-      setAgendaData(response.data);
-      setFilterSearch('');
-      setFilterSheetOpen(false);
+  const clearFilters = async () => {
+    setSelectedTracks([]);
+    setSelectedCategories([]);
+    setSelectedHalls([]);
+    setSelectedSpeakers([]);
+    setAgendaLoading(true);
     
+    try {
+      const response = await getAgendaData({
+        track: [],
+        categories: [],
+        halls: [],
+        speakers: []
+      });
+
+      if (response.success) {
+        setAgendaData(response.data);
+        setFilterSearch('');
+        setFilterSheetOpen(false);
+      
+      }
+    } finally {
+      setAgendaLoading(false);
     }
-  } finally {
-    setAgendaLoading(false);
-  }
-};
+  };
 
 //   const visibleSessions = useMemo(() => {
 //   if (!agendaData) return [];

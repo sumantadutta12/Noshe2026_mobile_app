@@ -117,11 +117,11 @@ export function ApprovalRequestsScreen() {
       </View>
 
       {loading ? (
-  <>
-    <ApprovalRequestSkeleton />
-    <ApprovalRequestSkeleton />
-    <ApprovalRequestSkeleton />
-  </>
+        <>
+          <ApprovalRequestSkeleton />
+          <ApprovalRequestSkeleton />
+          <ApprovalRequestSkeleton />
+        </>
         ) : waitingData?.length > 0 ? (
           waitingData.map((request: any) => (
             <View key={request.id} style={styles.requestCard}>

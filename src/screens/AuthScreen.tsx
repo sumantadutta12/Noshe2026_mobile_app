@@ -132,6 +132,8 @@ export function AuthScreen({ navigation, route }: Props) {
           setTimeout(() => {
             otpRefs.current[0]?.focus();
           }, 120);
+            await otpMail(email);
+
         } else {
           Alert.alert(
             'Error',
