@@ -64,7 +64,7 @@ export function AttendeeDashboardScreen() {
         {/* <Text style={styles.passId}>{attendee?.registrationId ?? 'NOSHE26-0000'}</Text> */}
 
         <View style={styles.infoList}>
-          <InfoRow icon="call-outline" label="Mobile" value={`+91 ${dashboardData?.mobile_no ?? '----------'}`} />
+          <InfoRow icon="call-outline" label="Mobile" value={`+91 ${dashboardData?.mobile_no || '----------'}`} />
           <InfoRow icon="calendar-outline" label="Event" value="NOSHE 2026, 3rd - 4th July 2026" />
           <InfoRow icon="location-outline" label="Venue" value={`${event.venue}, ${event.address}`} />
         </View>

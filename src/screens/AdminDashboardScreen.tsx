@@ -62,6 +62,7 @@ export function AdminDashboardScreen({ navigation }: Props) {
 
   useFocusEffect(
     useCallback(() => {
+      fetchDashboard()
       const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
         if (scannerActive) {
           setScannerActive(false);
