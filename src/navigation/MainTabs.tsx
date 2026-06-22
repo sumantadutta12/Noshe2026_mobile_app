@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AgendaScreen } from '../screens/AgendaScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
-import { SpeakersScreen } from '../screens/SpeakersScreen';
+// import { SpeakersScreen } from '../screens/SpeakersScreen';
 import { SponsorsScreen } from '../screens/SponsorsScreen';
 import { theme } from '../theme/theme';
 import { MainTabParamList } from './types';
@@ -147,7 +147,7 @@ export function MainTabs() {
     >
       <Tabs.Screen name="Home" component={HomeScreen} />
       <Tabs.Screen name="Agenda" component={AgendaScreen} />
-      <Tabs.Screen name="Speakers" component={SpeakersScreen} />
+      {/* <Tabs.Screen name="Speakers" component={SpeakersScreen} /> */}
       <Tabs.Screen name="Members" component={SponsorsScreen} />
       <Tabs.Screen name="More" component={ProfileScreen} />
     </Tabs.Navigator>

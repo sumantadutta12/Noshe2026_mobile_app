@@ -4,8 +4,6 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useMemo, useRef, useState, useEffect } from 'react';
-import * as Print from 'expo-print';
-import * as Sharing from 'expo-sharing';
 import {
   Alert,
   Animated,
@@ -28,6 +26,7 @@ import { Track } from '../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getAgendaData,getFilterData, toggleFavorite,getFavoriteData  } from '../services/agendaService';
 import Toast from 'react-native-toast-message'; 
+import { downloadBrochure } from '../utils/downloadBrochure';
 const defaultImage = require('../assets/default.jpg');
 
 type Props = CompositeScreenProps<
@@ -351,6 +350,14 @@ const handleTabPress = async (tab: AgendaTab) => {
   }
 };
 
+const handleDownloadBrochure = async () => {
+  try {
+    await downloadBrochure();
+  } catch {
+    Alert.alert('Download failed', 'Unable to open the brochure. Please try again.');
+  }
+};
+
   return (
     <Screen
       refreshable
@@ -367,23 +374,29 @@ const handleTabPress = async (tab: AgendaTab) => {
       }
     >
      <View style={styles.actionRow}>
-          {/* <Pressable
-            style={({ pressed }) => [styles.actionBtn, pressed && styles.pressed]}
+          <Pressable
+            onPress={() => navigation.navigate('Tickets')}
+            style={({ pressed }) => [styles.actionBtn, styles.actionBtnPrimary, pressed && styles.pressed]}
+            accessibilityRole="button"
+            accessibilityLabel="Register now"
           >
-            <View style={styles.actionIcon}>
-              <Ionicons name="print-outline" size={18} color={theme.colors.navy} />
+            <View style={styles.actionIconPrimary}>
+              <Ionicons name="person-add-outline" size={18} color={theme.colors.white} />
             </View>
-            <Text style={styles.actionText}>Print Agenda</Text>
+            <Text style={styles.actionTextPrimary}>Register Now</Text>
           </Pressable>
 
           <Pressable
-            style={({ pressed }) => [styles.actionBtn, styles.actionBtnPrimary, pressed && styles.pressed]}
+            onPress={handleDownloadBrochure}
+            style={({ pressed }) => [styles.actionBtn, pressed && styles.pressed]}
+            accessibilityRole="button"
+            accessibilityLabel="Download brochure"
           >
-            <View style={styles.actionIconPrimary}>
-              <Ionicons name="download-outline" size={18} color={theme.colors.white} />
+            <View style={styles.actionIcon}>
+              <Ionicons name="download-outline" size={18} color={theme.colors.navy} />
             </View>
-            <Text style={styles.actionTextPrimary}>Download Brochure</Text>
-          </Pressable> */}
+            <Text style={styles.actionText}>Download Brochure</Text>
+          </Pressable>
         </View>
 
       <View style={styles.tabCard}>

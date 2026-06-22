@@ -4,7 +4,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useRef, useState } from 'react';
-import { Animated, ImageBackground, StyleSheet, Text, View } from 'react-native';
+import { Alert, Animated, StyleSheet, Text, View } from 'react-native';
 import { AppHeader } from '../components/AppHeader';
 import { CTAButton } from '../components/CTAButton';
 import { EventCard } from '../components/EventCard';
@@ -13,6 +13,7 @@ import { Screen } from '../components/Screen';
 import { event } from '../data/events';
 import { MainTabParamList, RootStackParamList } from '../navigation/types';
 import { theme } from '../theme/theme';
+import { downloadBrochure } from '../utils/downloadBrochure';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Props = CompositeScreenProps<
@@ -29,42 +30,27 @@ const conferenceDays = [
       {
         time: '10:00 - 11:30',
         label: 'Inaugural Session',
-        title: ''
-      },
-      {
-        time: '11:30 - 12:00',
-        label: 'Refreshments Break',
-        title: ''
+        title: 'Opening remarks and conference inauguration'
       },
       {
         time: '12:00 - 13:00',
-        label: 'Plenary Session 1:',
+        label: 'Opening Plenary Session',
         title: 'Strategies for integrating ESG framework with SHE for sustainable workplace'
       },
       {
-        time: '13:00 - 14:00',
-        label: 'Networking Lunch',
-        title: ''
-      },
-      {
         time: '14:00 - 15:15',
-        label: 'Plenary Session 2:',
-        title: 'Environmental Protection and Management-Source to Sink approach'
-      },
-      {
-        time: '15:15 - 15:45',
-        label: 'Refreshments Break',
-        title: ''
+        label: 'Plenary Session 2',
+        title: 'Environmental protection and management from source to sink approach'
       },
       {
         time: '15:45 - 17:00',
-        label: 'Plenary Session 3:',
-        title: 'Beyond Compliance: Building a Resilient Safety Culture Powered by Values'
+        label: 'Plenary Session 3: Safety',
+        title: 'Beyond Compliance: Building a Resilient Safety Culture Powered by Values.'
       },
       {
         time: '17:00 - 18:15',
-        label: 'Plenary Session 4:',
-        title: 'Occupational Health & Safety: A strategic approach to workplace wellness'
+        label: 'Plenary Session 4: Health',
+        title: 'Occupational health and safety: a strategic approach to workplace wellness'
       },
       {
         time: '18:15 - 19:00',
@@ -80,43 +66,28 @@ const conferenceDays = [
     sessions: [
       {
         time: '09:00 - 10:00',
-        label: 'Mental Health: Practice of Meditation and Self Realisation',
-        title: ''
+        label: 'Mental Health :Practice of Meditation & Self Realisation.',
+        title: 'Focused morning session for reflection and readiness'
       },
       {
         time: '10:00 - 11:00',
-        label: 'Technical Session 1:',
-        title: 'Navigating the New Risk Frontier: Mastering Safety Portfolios in a Technology Transition regime in Power Sector'
+        label: 'Plenary Session 5: Safety',
+        title: "Navigating the new risk frontier : Mastering Safety portfolio's in a technology transition regime in Power Sector"
       },
       {
         time: '11:00 - 12:00',
-        label: 'Technical Session 2:',
-        title: 'Credible ESG Systems: Data, Assurance, and Digital Compliance Platforms'
-      },
-      {
-        time: '12:00 - 12:20',
-        label: 'Refreshments Break',
-        title: ''
+        label: 'Technical Session 1: Environment',
+        title: 'Credible ESG systems : Data, Assurance, and Digital compliance platforms'
       },
       {
         time: '12:20 - 13:30',
-        label: 'Plenary Session 5:',
-        title: 'Emergency Preparedness: Amalgamation of Experience, Framework & Technology'
-      },
-      {
-        time: '13:30 - 14:30',
-        label: 'Networking Lunch',
-        title: ''
+        label: 'Technical Session 2: Safety',
+        title: 'Emergency preparedness: Amalgamation of Experience, Framework and Technology'
       },
       {
         time: '14:30 - 15:30',
-        label: 'Technical Session 3:',
+        label: 'Technical Session 3 : Safety & Health',
         title: 'Transforming workplace Occupational health & Safety through AI & Digital Innovation'
-      },
-      {
-        time: '15:30 - 15:50',
-        label: 'Refreshments Break',
-        title: ''
       },
       {
         time: '15:50 - 17:15',
@@ -127,20 +98,31 @@ const conferenceDays = [
   }
 ] as const;
 
-const specialAttractions = [
+const pastEvents = [
   {
-    icon: 'podium',
-    title: 'High-Level Conference',
-    body: 'Focused on cutting-edge ESG frameworks, AI-driven workplace safety, and global green compliance.'
+    title: 'Heads of Project Construction Meet - 2024',
+    description:
+      'Addressing paradigm shift in Power Industry - Proactive & Adaptive approach to project management',
+    dateVenue: '27th May, 2024 - Hotel Sitara, Hyderabad',
+    colors: ['#0D9FEA', '#0878D8'],
+    icon: 'construct-outline'
   },
   {
-    icon: 'people-outline',
-    title: 'Networking & B2B Engagement',
-    body: 'Structured opportunities to collaborate with decision-makers from top-tier energy, manufacturing, and technology sectors.'
+    title: 'National Workshop on',
+    description: 'Standardization of Technical Specification for Pumped Storage Projects',
+    dateVenue: '06th & 07th June, 2024 - NTPC PMI, Noida',
+    colors: ['#F600CF', '#D800F0'],
+    icon: 'water-outline'
+  },
+  {
+    title: 'International Nuclear Hydrogen Conference - 2024',
+    description: 'Integration of Nuclear & Hydrogen for Energy Transition',
+    dateVenue: '19th & 20th August, 2024 - NTPC PMI, Noida',
+    colors: ['#08D7E7', '#05BFD8'],
+    icon: 'flash-outline'
   }
 ] as const;
 
-const specialAttractionsImage = require('../assets/slide-2.jpeg');
 const eventStartTime = new Date('2026-07-03T10:00:00+05:30').getTime();
 
 export function HomeScreen({ navigation }: Props) {
@@ -158,6 +140,14 @@ export function HomeScreen({ navigation }: Props) {
       }
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const handleDownloadBrochure = async () => {
+    try {
+      await downloadBrochure();
+    } catch {
+      Alert.alert('Download failed', 'Unable to open the brochure. Please try again.');
     }
   };
   
@@ -194,10 +184,94 @@ export function HomeScreen({ navigation }: Props) {
                 </View>
               ))}
             </View>
-            <CTAButton title="Register Now" style={styles.countRegister} onPress={() => navigation.navigate('Tickets')} />
+            <CTAButton
+              title="Register Now"
+              style={styles.countRegister}
+              textStyle={styles.homeButtonText}
+              onPress={() => navigation.navigate('Tickets')}
+            />
+            <CTAButton
+              title="Download Brochure"
+              variant="ghost"
+              icon={<Ionicons name="download-outline" size={18} color={theme.colors.navy} />}
+              style={styles.countBrochure}
+              textStyle={styles.homeButtonText}
+              onPress={handleDownloadBrochure}
+            />
           </LinearGradient>
         </View>
       ) : null}
+      <View style={styles.upcomingSection}>
+        <View style={styles.upcomingHeader}>
+          <Text style={styles.upcomingEyebrow}>Upcoming Events</Text>
+          <Text style={styles.upcomingTitle}>
+            Explore NOSHE 2026 conference updates and key participation details
+          </Text>
+        </View>
+        <LinearGradient
+          colors={['#F5ECFF', '#D9C4F2', '#B49ADD']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.upcomingCard}
+        >
+          <View style={styles.upcomingGlow} />
+          <View style={styles.upcomingIcon}>
+            <Ionicons name="calendar-clear-outline" size={24} color={theme.colors.navy} />
+          </View>
+          <Text style={styles.upcomingCardTitle}>
+            National Conference on Occupational Safety, Health & Environment (NOSHE-2026)
+          </Text>
+          <Text style={styles.upcomingTheme}>
+            Stronger SHE for building a brighter tomorrow.
+          </Text>
+          <Text style={styles.upcomingTagline}>Safe Today, Sustainable Tomorrow</Text>
+          <View style={styles.upcomingMetaRow}>
+            <View style={styles.upcomingMetaPill}>
+              <Ionicons name="calendar-outline" size={15} color={theme.colors.navy} />
+              <Text style={styles.upcomingMetaText}>3rd & 4th July, 2026</Text>
+            </View>
+            <View style={styles.upcomingMetaPill}>
+              <Ionicons name="location-outline" size={15} color={theme.colors.navy} />
+              <Text style={styles.upcomingMetaText}>NTPC PMI, Noida</Text>
+            </View>
+          </View>
+        </LinearGradient>
+      </View>
+      <View style={styles.pastSection}>
+        <View style={styles.pastHeader}>
+          <Text style={styles.pastEyebrow}>Past Events</Text>
+          <Text style={styles.pastTitle}>Highlights from recent NTPC knowledge forums</Text>
+        </View>
+        <View style={styles.pastGrid}>
+          {pastEvents.map((item) => (
+            <LinearGradient
+              key={item.title}
+              colors={item.colors}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.pastCard}
+            >
+              <View style={styles.pastCardGlow} />
+              <View style={styles.pastTopRow}>
+                <View style={styles.pastIcon}>
+                  <Ionicons
+                    name={item.icon as keyof typeof Ionicons.glyphMap}
+                    size={22}
+                    color={theme.colors.white}
+                  />
+                </View>
+                <Text style={styles.pastYear}>2024</Text>
+              </View>
+              <Text style={styles.pastCardTitle}>{item.title}</Text>
+              <Text style={styles.pastCardText}>{item.description}</Text>
+              <View style={styles.pastMeta}>
+                <Ionicons name="calendar-outline" size={15} color="rgba(255,255,255,0.9)" />
+                <Text style={styles.pastMetaText}>{item.dateVenue}</Text>
+              </View>
+            </LinearGradient>
+          ))}
+        </View>
+      </View>
       <Text style={styles.sectionLabel}>Event Snapshot</Text>
       <View style={styles.statsGrid}>
         {[
@@ -290,63 +364,6 @@ export function HomeScreen({ navigation }: Props) {
           ))}
         </View>
       </View>
-      <LinearGradient
-        colors={['#10233F', '#0A1A31']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.specialSection}
-      >
-        <ImageBackground
-          source={specialAttractionsImage}
-          resizeMode="cover"
-          imageStyle={styles.specialImage}
-          style={styles.specialVisual}
-        >
-          <LinearGradient
-            colors={['rgba(7, 16, 31, 0.08)', 'rgba(7, 16, 31, 0.72)']}
-            style={styles.specialImageOverlay}
-          />
-          <View style={styles.visualTagRow}>
-            {['Insight-led safety', 'ESG integration', 'Industry collaboration'].map((item) => (
-              <View key={item} style={styles.visualTag}>
-                <Text style={styles.visualTagText}>{item}</Text>
-              </View>
-            ))}
-          </View>
-        </ImageBackground>
-        <View style={styles.specialCopy}>
-          <Text style={styles.specialEyebrow}>Special Attractions</Text>
-          <Text style={styles.specialTitle}>
-            Insight-led safety, ESG, and industry collaboration.
-          </Text>
-          <Text style={styles.specialText}>
-            A focused conference experience shaped around practical knowledge, live technology
-            discovery, and meaningful business conversations.
-          </Text>
-        </View>
-        <View style={styles.specialCards}>
-          {specialAttractions.map((item) => (
-            <View key={item.title} style={styles.specialCard}>
-              <LinearGradient
-                colors={['#F47A3D', '#5B6FE8']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.specialIcon}
-              >
-                <Ionicons
-                  name={item.icon as keyof typeof Ionicons.glyphMap}
-                  size={22}
-                  color={theme.colors.white}
-                />
-              </LinearGradient>
-              <View style={styles.specialCardCopy}>
-                <Text style={styles.specialCardTitle}>{item.title}</Text>
-                <Text style={styles.specialCardText}>{item.body}</Text>
-              </View>
-            </View>
-          ))}
-        </View>
-      </LinearGradient>
     </Screen>
   );
 }
@@ -403,6 +420,204 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: 4
   },
+  upcomingSection: {
+    gap: 14,
+    marginTop: 4
+  },
+  upcomingHeader: {
+    gap: 6
+  },
+  upcomingEyebrow: {
+    color: theme.colors.orange,
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: '600',
+    letterSpacing: 1,
+    textTransform: 'uppercase'
+  },
+  upcomingTitle: {
+    color: theme.colors.navy,
+    fontSize: 22,
+    lineHeight: 28,
+    fontWeight: '700'
+  },
+  upcomingCard: {
+    minHeight: 238,
+    borderRadius: 24,
+    padding: 20,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#E8DAFF',
+    shadowColor: '#39216B',
+    shadowOpacity: 0.12,
+    shadowOffset: { width: 0, height: 14 },
+    shadowRadius: 24,
+    elevation: 6
+  },
+  upcomingGlow: {
+    position: 'absolute',
+    right: -45,
+    top: -55,
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: 'rgba(255,255,255,0.32)'
+  },
+  upcomingIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.42)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.56)',
+    marginBottom: 16
+  },
+  upcomingCardTitle: {
+    color: theme.colors.navy,
+    fontSize: 22,
+    lineHeight: 28,
+    fontWeight: '700',
+    maxWidth: 560
+  },
+  upcomingTheme: {
+    color: '#1A2445',
+    fontSize: 15,
+    lineHeight: 22,
+    fontWeight: '500',
+    marginTop: 18
+  },
+  upcomingTagline: {
+    color: '#101A38',
+    fontSize: 15,
+    lineHeight: 22,
+    fontWeight: '600',
+    marginTop: 2
+  },
+  upcomingMetaRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginTop: 24
+  },
+  upcomingMetaPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    borderRadius: theme.radius.pill,
+    backgroundColor: 'rgba(255,255,255,0.48)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.58)',
+    paddingHorizontal: 12,
+    paddingVertical: 8
+  },
+  upcomingMetaText: {
+    color: theme.colors.navy,
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: '600'
+  },
+  pastSection: {
+    gap: 14,
+    marginTop: 4
+  },
+  pastHeader: {
+    gap: 5
+  },
+  pastEyebrow: {
+    color: theme.colors.orange,
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: '600',
+    letterSpacing: 1,
+    textTransform: 'uppercase'
+  },
+  pastTitle: {
+    color: theme.colors.navy,
+    fontSize: 22,
+    lineHeight: 28,
+    fontWeight: '700'
+  },
+  pastGrid: {
+    gap: 14
+  },
+  pastCard: {
+    minHeight: 220,
+    borderRadius: 24,
+    padding: 20,
+    overflow: 'hidden',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.34)',
+    shadowColor: '#0F2440',
+    shadowOpacity: 0.16,
+    shadowOffset: { width: 0, height: 14 },
+    shadowRadius: 24,
+    elevation: 6
+  },
+  pastCardGlow: {
+    position: 'absolute',
+    right: -42,
+    top: -58,
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: 'rgba(255,255,255,0.22)'
+  },
+  pastTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 18
+  },
+  pastIcon: {
+    width: 46,
+    height: 46,
+    borderRadius: 15,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.28)'
+  },
+  pastYear: {
+    color: 'rgba(255,255,255,0.78)',
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: '700',
+    letterSpacing: 1
+  },
+  pastCardTitle: {
+    color: theme.colors.white,
+    fontSize: 22,
+    lineHeight: 28,
+    fontWeight: '700'
+  },
+  pastCardText: {
+    color: theme.colors.white,
+    fontSize: 15,
+    lineHeight: 23,
+    fontWeight: '600',
+    marginTop: 16
+  },
+  pastMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 26,
+    borderRadius: theme.radius.pill,
+    backgroundColor: 'rgba(255,255,255,0.16)',
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    alignSelf: 'flex-start'
+  },
+  pastMetaText: {
+    color: theme.colors.white,
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: '600'
+  },
   countdownShell: {
     backgroundColor: 'rgba(255,255,255,0.92)',
     borderRadius: 30,
@@ -450,7 +665,7 @@ const styles = StyleSheet.create({
     color: '#BFE4FF',
     fontSize: 10,
     lineHeight: 14,
-    fontWeight: '700',
+    fontWeight: '600',
     letterSpacing: 1.3,
     textTransform: 'uppercase'
   },
@@ -458,7 +673,7 @@ const styles = StyleSheet.create({
     color: theme.colors.white,
     fontSize: 20,
     lineHeight: 26,
-    fontWeight: '800',
+    fontWeight: '700',
     marginTop: 2
   },
   countdownGrid: {
@@ -486,13 +701,13 @@ const styles = StyleSheet.create({
     color: theme.colors.orange,
     fontSize: 28,
     lineHeight: 34,
-    fontWeight: '800'
+    fontWeight: '700'
   },
   countdownLabel: {
     color: theme.colors.navy,
     fontSize: 10,
     lineHeight: 14,
-    fontWeight: '800',
+    fontWeight: '700',
     marginTop: 2
   },
   countRegister: {
@@ -504,6 +719,16 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 10 },
     shadowRadius: 16,
     elevation: 5
+  },
+  countBrochure: {
+    minHeight: 48,
+    borderRadius: 18,
+    marginTop: -7,
+    backgroundColor: 'rgba(255,255,255,0.94)',
+    borderColor: 'rgba(255,255,255,0.82)'
+  },
+  homeButtonText: {
+    fontWeight: '600'
   },
   topicSection: {
     backgroundColor: '#F8FAFF',
@@ -663,115 +888,6 @@ const styles = StyleSheet.create({
     lineHeight: 21,
     fontWeight: '400',
     marginTop: 8
-  },
-  specialSection: {
-    borderRadius: 24,
-    padding: 16,
-    gap: 16,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    shadowColor: '#071326',
-    shadowOpacity: 0.16,
-    shadowOffset: { width: 0, height: 14 },
-    shadowRadius: 24,
-    elevation: 6
-  },
-  specialVisual: {
-    minHeight: 210,
-    borderRadius: 18,
-    overflow: 'hidden',
-    justifyContent: 'space-between',
-    padding: 14,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)'
-  },
-  specialImage: {
-    borderRadius: 18
-  },
-  specialImageOverlay: {
-    ...StyleSheet.absoluteFillObject
-  },
-  visualTagRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginTop: 'auto'
-  },
-  visualTag: {
-    borderRadius: theme.radius.pill,
-    backgroundColor: 'rgba(9, 20, 38, 0.64)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.18)',
-    paddingHorizontal: 10,
-    paddingVertical: 6
-  },
-  visualTagText: {
-    color: theme.colors.white,
-    fontSize: 10,
-    lineHeight: 14,
-    fontWeight: '500'
-  },
-  specialCopy: {
-    gap: 10
-  },
-  specialEyebrow: {
-    color: '#FFC229',
-    fontSize: 12,
-    lineHeight: 16,
-    fontWeight: '600',
-    letterSpacing: 1.4,
-    textTransform: 'uppercase'
-  },
-  specialTitle: {
-    color: theme.colors.white,
-    fontSize: 30,
-    lineHeight: 36,
-    fontWeight: '600',
-    letterSpacing: 0
-  },
-  specialText: {
-    color: '#DDE8F8',
-    fontSize: 14,
-    lineHeight: 23,
-    fontWeight: '400'
-  },
-  specialCards: {
-    gap: 12
-  },
-  specialCard: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 14,
-    borderRadius: 18,
-    padding: 16,
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.14)'
-  },
-  specialIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  specialCardCopy: {
-    flex: 1,
-    minWidth: 0,
-    gap: 6
-  },
-  specialCardTitle: {
-    color: theme.colors.white,
-    fontSize: 17,
-    lineHeight: 22,
-    fontWeight: '600'
-  },
-  specialCardText: {
-    color: '#DDE8F8',
-    fontSize: 13,
-    lineHeight: 20,
-    fontWeight: '400'
   },
   statsGrid: {
     flexDirection: 'row',

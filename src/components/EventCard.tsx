@@ -12,6 +12,7 @@ const slideImages = [
 ];
 
 const eventTime = '10:00 AM - 7:00 PM';
+const eventTheme = 'Stronger SHE for Building a Brighter Tomorrow';
 
 export function EventCard({ event }: { event: EventInfo }) {
   const [activeSlide, setActiveSlide] = useState(0);
@@ -45,14 +46,18 @@ export function EventCard({ event }: { event: EventInfo }) {
       <View style={styles.accentGlowSoft} />
 
       <View style={styles.cardContent}>
-        <View style={styles.heroTopline}>
+        {/* <View style={styles.heroTopline}>
           <View style={styles.toplineRule} />
           <Text style={styles.toplineText}>National Conference</Text>
-        </View>
+        </View> */}
 
         <View style={styles.titleBlock}>
           <Text style={styles.name}>{event.name}</Text>
           <Text style={styles.tagline}>{event.tagline}</Text>
+          <View style={styles.themeBlock}>
+            <Text style={styles.themeLabel}>Theme</Text>
+            <Text style={styles.themeText}>{eventTheme}</Text>
+          </View>
         </View>
 
         <View style={styles.infoPanel}>
@@ -166,8 +171,8 @@ const styles = StyleSheet.create({
   },
   name: {
     color: theme.colors.white,
-    fontSize: 38,
-    lineHeight: 42,
+    fontSize: 32,
+    lineHeight: 37,
     fontWeight: '700',
     letterSpacing: 0
   },
@@ -177,6 +182,28 @@ const styles = StyleSheet.create({
     lineHeight: 19,
     fontWeight: '700',
     maxWidth: 292
+  },
+  themeBlock: {
+    marginTop: 5,
+    borderLeftWidth: 3,
+    borderLeftColor: theme.colors.orange,
+    paddingLeft: 10,
+    gap: 3
+  },
+  themeLabel: {
+    color: '#FFC229',
+    fontSize: 10,
+    lineHeight: 13,
+    fontWeight: '800',
+    letterSpacing: 1.1,
+    textTransform: 'uppercase'
+  },
+  themeText: {
+    color: theme.colors.white,
+    fontSize: 18,
+    lineHeight: 23,
+    fontWeight: '600',
+    maxWidth: 296
   },
   infoPanel: {
     marginTop: 6,

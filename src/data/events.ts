@@ -5,7 +5,7 @@ import { EventInfo } from '../types';
 export const event: EventInfo = {
   id: 'noshe-2026',
   name: 'NOSHE 2026',
-  tagline: 'National Conference on Occupational Safety, Health & Environment',
+  tagline: 'NTPC Conference on Occupational Safety, Health & Environment',
   date: '3rd - 4th July 2026',
   startDate: '3 July 2026',
   endDate: '4 July 2026',

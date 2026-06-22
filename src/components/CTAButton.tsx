@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, ViewStyle } from 'react-native';
+import { Pressable, StyleProp, StyleSheet, Text, TextStyle, ViewStyle } from 'react-native';
 import { theme } from '../theme/theme';
 
 type Props = {
@@ -8,9 +8,10 @@ type Props = {
   variant?: 'primary' | 'secondary' | 'ghost';
   icon?: ReactNode;
   style?: ViewStyle;
+  textStyle?: StyleProp<TextStyle>;
 };
 
-export function CTAButton({ title, onPress, variant = 'primary', icon, style }: Props) {
+export function CTAButton({ title, onPress, variant = 'primary', icon, style, textStyle }: Props) {
   return (
     <Pressable
       onPress={onPress}
@@ -22,7 +23,7 @@ export function CTAButton({ title, onPress, variant = 'primary', icon, style }: 
       ]}
     >
       {icon}
-      <Text style={[styles.text, variant !== 'primary' && styles.secondaryText]}>
+      <Text style={[styles.text, variant !== 'primary' && styles.secondaryText, textStyle]}>
         {title}
       </Text>
     </Pressable>
