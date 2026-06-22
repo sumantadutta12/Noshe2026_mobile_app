@@ -70,7 +70,9 @@ export function ForewordScreen() {
                 <Text style={[styles.messageKicker, { color: item.accent }]}>Patron Message</Text>
                 <Text style={styles.messageTitle}>{item.title}</Text>
               </View>
-              <Image source={item.image} style={styles.portrait} resizeMode="cover" />
+              <View style={styles.portraitFrame}>
+                <Image source={item.image} style={styles.portrait} resizeMode="contain" />
+              </View>
             </View>
 
             <View style={[styles.introBox, { borderLeftColor: item.accent }]}>
@@ -179,13 +181,18 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     marginTop: 6
   },
-  portrait: {
+  portraitFrame: {
     width: 104,
     height: 124,
     borderRadius: 16,
     borderWidth: 3,
     borderColor: theme.colors.white,
-    backgroundColor: '#E7EEF6'
+    backgroundColor: '#E7EEF6',
+    overflow: 'hidden'
+  },
+  portrait: {
+    width: '100%',
+    height: '100%'
   },
   introBox: {
     borderLeftWidth: 4,

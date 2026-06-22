@@ -4,6 +4,7 @@
     "slug": "noshe-2026",
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./src/assets/app-icon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./src/assets/logo-1.png",
@@ -29,15 +30,16 @@
     },
     "android": {
       "package": "com.noshe2026.app",
-      "versionCode": 3,
+      "versionCode": 4,
+      "icon": "./src/assets/app-icon.png",
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
       ],
       "usesCleartextTraffic": true,
       "adaptiveIcon": {
-        "foregroundImage": "./src/assets/logo-1.png",
-        "backgroundColor": "#004EA8"
+        "foregroundImage": "./src/assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
       }
     },
     "web": {

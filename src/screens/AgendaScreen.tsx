@@ -3,11 +3,12 @@ import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useRef, useState, useEffect } from 'react';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import {
   Alert,
+  Animated,
   Image,
   LayoutAnimation,
   Modal,
@@ -216,12 +217,13 @@ export function AgendaScreen({ navigation }: Props) {
     }
   };
 
-   const showToast = async(message:any) => {
+  const showToast = async(message:any) => {
     Toast.show({
       type: 'success', 
       text1: message,
-      position: 'top', 
-      visibilityTime: 4000, 
+      position: 'bottom', 
+      visibilityTime: 2200,
+      bottomOffset: 92
     });
   };
 
@@ -456,19 +458,13 @@ const handleTabPress = async (tab: AgendaTab) => {
                 <Text style={styles.trackTag}>
                   {session.session_categories}
                    </Text>
-                   <Pressable
-                    hitSlop={10}
+                   <BookmarkButton
+                    active={Boolean(session.favorite)}
                     onPress={() => {
                       console.log("Favorite clicked");
                       handleFavorite(session);
                     }}
-                  >
-                    <Ionicons
-                      name={session.favorite ? "bookmark" : "bookmark-outline"}
-                      size={24}
-                      color={theme.colors.orange}
-                    />
-                  </Pressable>
+                  />
                </View>
 
                 <Text style={styles.sessionTitle}>
@@ -953,6 +949,51 @@ function FilterOption({
   );
 }
 
+function BookmarkButton({ active, onPress }: { active: boolean; onPress: () => void }) {
+  const scale = useRef(new Animated.Value(1)).current;
+
+  const handlePress = () => {
+    Animated.sequence([
+      Animated.spring(scale, {
+        toValue: 1.18,
+        friction: 4,
+        tension: 160,
+        useNativeDriver: true
+      }),
+      Animated.spring(scale, {
+        toValue: 1,
+        friction: 5,
+        tension: 140,
+        useNativeDriver: true
+      })
+    ]).start();
+
+    onPress();
+  };
+
+  return (
+    <Pressable
+      hitSlop={10}
+      onPress={handlePress}
+      style={({ pressed }) => [
+        styles.bookmarkButton,
+        active && styles.bookmarkButtonActive,
+        pressed && styles.bookmarkButtonPressed
+      ]}
+      accessibilityRole="button"
+      accessibilityLabel={active ? 'Remove bookmark' : 'Bookmark session'}
+    >
+      <Animated.View style={{ transform: [{ scale }] }}>
+        <Ionicons
+          name={active ? 'bookmark' : 'bookmark-outline'}
+          size={24}
+          color={theme.colors.orange}
+        />
+      </Animated.View>
+    </Pressable>
+  );
+}
+
 function AgendaTimelineItem({
   session,
   onPress
@@ -1303,6 +1344,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: 10
+  },
+  bookmarkButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFF6EF'
+  },
+  bookmarkButtonActive: {
+    backgroundColor: '#FFE8D8'
+  },
+  bookmarkButtonPressed: {
+    opacity: 0.78
   },
   trackTag: {
     color: theme.colors.navy,

@@ -3,7 +3,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useRef, useState } from 'react';
 import {
   Image,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -23,7 +26,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Auth'>;
 
 const eventLogo = require('../assets/NTPC-logo.png');
 const otpLength = 6;
-const resendDuration = 30;
+const resendDuration = 60;
 
 export function AuthScreen({ navigation, route }: Props) {
   const { login } = useAttendeeAuth();
@@ -35,6 +38,7 @@ export function AuthScreen({ navigation, route }: Props) {
   const [emailFocused, setEmailFocused] = useState(false);
   const [focusedOtpIndex, setFocusedOtpIndex] = useState<number | null>(null);
   const [resendSeconds, setResendSeconds] = useState(resendDuration);
+  const scrollRef = useRef<ScrollView>(null);
   const otpRefs = useRef<Array<TextInput | null>>([]);
   const [isSendingOtp, setIsSendingOtp] = useState(false);
 
@@ -69,6 +73,7 @@ export function AuthScreen({ navigation, route }: Props) {
         setOtp(Array(otpLength).fill(''));
         setResendSeconds(resendDuration);
         setTimeout(() => {
+          scrollRef.current?.scrollTo({ y: 300, animated: true });
           otpRefs.current[0]?.focus();
         }, 120);
         Alert.alert('Success',response.message);
@@ -130,6 +135,7 @@ export function AuthScreen({ navigation, route }: Props) {
           );
 
           setTimeout(() => {
+            scrollRef.current?.scrollTo({ y: 300, animated: true });
             otpRefs.current[0]?.focus();
           }, 120);
             await otpMail(email);
@@ -186,144 +192,162 @@ export function AuthScreen({ navigation, route }: Props) {
 };
 
   return (
-    <Screen style={styles.screen}>
-      <LinearGradient
-        colors={['#F8FBFF', '#EEF6FF', '#FFFFFF']}
-        locations={[0, 0.52, 1]}
-        style={styles.hero}
+    <Screen style={styles.screen} scroll={false}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardView}
       >
-        <View style={styles.logoShell}>
-          <Image
-            source={eventLogo}
-            style={styles.logoImage}
-            resizeMode="contain"
-            accessible
-            accessibilityLabel="NOSHE 2026 logo"
-          />
-        </View>
-        <View style={styles.heroCopy}>
-          <View style={styles.eyebrowRow}>
-            <View style={[styles.eyebrowDot, isAdminLogin && styles.adminEyebrowDot]} />
-            <Text style={styles.heroEyebrow}>{isAdminLogin ? 'NOSHE 2026 Admin' : 'NOSHE 2026'}</Text>
-          </View>
-          <Text style={styles.heroTitle}>{isAdminLogin ? 'Admin Login' : 'Attendee Login'}</Text>
-          <Text style={styles.heroText}>
-            {isAdminLogin
-              ? 'Use your authorised admin mobile number to continue with OTP verification.'
-              : 'Use your registered email id to continue with OTP verification.'}
-          </Text>
-        </View>
-      </LinearGradient>
-
-      <View style={styles.loginCard}>
-        <LinearGradient
-          colors={['#8B3DFF', '#2878D8', '#28A36A']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={styles.cardAccent}
-        />
-        <View style={styles.cardTop}>
-          <View style={styles.cardTitleBlock}>
-            <Text style={styles.cardTitle}>Email Id</Text>
-            <Text style={styles.cardHint}>
-              Enter your registered email id to receive the OTP.
-            </Text>
-          </View>
-          <View style={styles.lockBadge}>
-            <Ionicons name={isAdminLogin ? 'shield-checkmark' : 'lock-closed'} size={14} color="#7C3AED" />
-          </View>
-        </View>
-
-        <View style={styles.mobileRow}>
-          {/* <View style={styles.countryBox}>
-            <Text style={styles.countryText}>+91</Text>
-          </View> */}
-          <TextInput value={email}
-            onChangeText={(value) => {
-              setEmail(value);
-              if (otpVisible) {
-                setOtpVisible(false);
-                setOtp(Array(otpLength).fill(''));
-              }
-            }}
-            placeholder="Enter Email ID"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            onBlur={() => setEmailFocused(false)}
-            onFocus={() => setEmailFocused(true)}
-
-            style={[
-              styles.emailInput,
-              emailFocused && styles.inputFocused,
-            ]}
-          />
-        </View>
-
-        {!otpVisible ? (
-          <GradientButton
-            title={isSendingOtp ? "Sending OTP..." : "Send OTP"}
-            disabled={!isEmailValid || isSendingOtp}
-            onPress={handleSendOtp}
-          />
-        ) : (
-          <View style={styles.otpSection}>
-            <Text style={styles.otpLabel}>OTP</Text>
-            <View style={styles.otpRow}>
-              {otp.map((digit, index) => (
-                <TextInput
-                  key={index}
-                  ref={(input) => {
-                    otpRefs.current[index] = input;
-                  }}
-                  value={digit}
-                  onChangeText={(value) => handleOtpChange(value, index)}
-                  onKeyPress={({ nativeEvent }) => handleOtpKeyPress(nativeEvent.key, index)}
-                  onBlur={() => setFocusedOtpIndex(null)}
-                  onFocus={() => setFocusedOtpIndex(index)}
-                  keyboardType="number-pad"
-                  maxLength={1}
-                  selectTextOnFocus
-                  style={[
-                    styles.otpInput,
-                    focusedOtpIndex === index && styles.otpInputFocused,
-                    Boolean(digit) && styles.otpInputFilled
-                  ]}
-                  textAlign="center"
-                  textAlignVertical="center"
-                />
-              ))}
+        <ScrollView
+          ref={scrollRef}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={styles.content}
+        >
+          <LinearGradient
+            colors={['#F8FBFF', '#EEF6FF', '#FFFFFF']}
+            locations={[0, 0.52, 1]}
+            style={styles.hero}
+          >
+            <View style={styles.logoShell}>
+              <Image
+                source={eventLogo}
+                style={styles.logoImage}
+                resizeMode="contain"
+                accessible
+                accessibilityLabel="NOSHE 2026 logo"
+              />
             </View>
-            <Pressable
-              disabled={resendSeconds > 0}
-              onPress={handleResendOtp}
-              style={styles.resendButton}
-            >
-              <Text style={[styles.resendText, resendSeconds === 0 && styles.resendReady]}>
-                {resendSeconds > 0
-                  ? `Resend OTP in ${resendSeconds} seconds`
-                  : 'Resend OTP'}
+            <View style={styles.heroCopy}>
+              <View style={styles.eyebrowRow}>
+                <View style={[styles.eyebrowDot, isAdminLogin && styles.adminEyebrowDot]} />
+                <Text style={styles.heroEyebrow}>{isAdminLogin ? 'NOSHE 2026 Admin' : 'NOSHE 2026'}</Text>
+              </View>
+              <Text style={styles.heroTitle}>{isAdminLogin ? 'Admin Login' : 'Attendee Login'}</Text>
+              <Text style={styles.heroText}>
+                {isAdminLogin
+                  ? 'Use your authorised admin mobile number to continue with OTP verification.'
+                  : 'Use your registered email id to continue with OTP verification.'}
               </Text>
-            </Pressable>
-            <GradientButton
-              title="Verify & Continue"
-              disabled={!isOtpComplete}
-              iconName="arrow-forward"
-              onPress={handleVerify}
-            />
-          </View>
-        )}
-      </View>
+            </View>
+          </LinearGradient>
 
-      <Pressable
-        onPress={() => navigation.goBack()}
-        style={({ pressed }) => [styles.backLink, pressed && styles.buttonPressed]}
-        accessibilityRole="button"
-        accessibilityLabel="Go back"
-      >
-        <Ionicons name="arrow-back" size={18} color={theme.colors.navy} />
-        <Text style={styles.backLinkText}>Back</Text>
-      </Pressable>
+          <View style={styles.loginCard}>
+            <LinearGradient
+              colors={['#8B3DFF', '#2878D8', '#28A36A']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.cardAccent}
+            />
+            <View style={styles.cardTop}>
+              <View style={styles.cardTitleBlock}>
+                <Text style={styles.cardTitle}>Email Id</Text>
+                <Text style={styles.cardHint}>
+                  Enter your registered email id to receive the OTP.
+                </Text>
+              </View>
+              <View style={styles.lockBadge}>
+                <Ionicons name={isAdminLogin ? 'shield-checkmark' : 'lock-closed'} size={14} color="#7C3AED" />
+              </View>
+            </View>
+
+            <View style={styles.mobileRow}>
+              {/* <View style={styles.countryBox}>
+                <Text style={styles.countryText}>+91</Text>
+              </View> */}
+              <TextInput value={email}
+                onChangeText={(value) => {
+                  setEmail(value);
+                  if (otpVisible) {
+                    setOtpVisible(false);
+                    setOtp(Array(otpLength).fill(''));
+                  }
+                }}
+                placeholder="Enter Email ID"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                onBlur={() => setEmailFocused(false)}
+                onFocus={() => {
+                  setEmailFocused(true);
+                  scrollRef.current?.scrollTo({ y: 0, animated: true });
+                }}
+
+                style={[
+                  styles.emailInput,
+                  emailFocused && styles.inputFocused,
+                ]}
+              />
+            </View>
+
+            {!otpVisible ? (
+              <GradientButton
+                title={isSendingOtp ? "Sending OTP..." : "Send OTP"}
+                disabled={!isEmailValid || isSendingOtp}
+                onPress={handleSendOtp}
+              />
+            ) : (
+              <View style={styles.otpSection}>
+                <Text style={styles.otpLabel}>OTP</Text>
+                <View style={styles.otpRow}>
+                  {otp.map((digit, index) => (
+                    <TextInput
+                      key={index}
+                      ref={(input) => {
+                        otpRefs.current[index] = input;
+                      }}
+                      value={digit}
+                      onChangeText={(value) => handleOtpChange(value, index)}
+                      onKeyPress={({ nativeEvent }) => handleOtpKeyPress(nativeEvent.key, index)}
+                      onBlur={() => setFocusedOtpIndex(null)}
+                      onFocus={() => {
+                        setFocusedOtpIndex(index);
+                        scrollRef.current?.scrollTo({ y: 300, animated: true });
+                      }}
+                      keyboardType="number-pad"
+                      maxLength={1}
+                      selectTextOnFocus
+                      style={[
+                        styles.otpInput,
+                        focusedOtpIndex === index && styles.otpInputFocused,
+                        Boolean(digit) && styles.otpInputFilled
+                      ]}
+                      textAlign="center"
+                      textAlignVertical="center"
+                    />
+                  ))}
+                </View>
+                <Pressable
+                  disabled={resendSeconds > 0}
+                  onPress={handleResendOtp}
+                  style={styles.resendButton}
+                >
+                  <Text style={[styles.resendText, resendSeconds === 0 && styles.resendReady]}>
+                    {resendSeconds > 0
+                      ? `Resend OTP in ${resendSeconds} seconds`
+                      : 'Resend OTP'}
+                  </Text>
+                </Pressable>
+                <GradientButton
+                  title="Verify & Continue"
+                  disabled={!isOtpComplete}
+                  iconName="arrow-forward"
+                  onPress={handleVerify}
+                />
+              </View>
+            )}
+          </View>
+
+          <Pressable
+            onPress={() => navigation.goBack()}
+            style={({ pressed }) => [styles.backLink, pressed && styles.buttonPressed]}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+          >
+            <Ionicons name="arrow-back" size={18} color={theme.colors.navy} />
+            <Text style={styles.backLinkText}>Back</Text>
+          </Pressable>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </Screen>
   );
 }
@@ -365,6 +389,14 @@ function GradientButton({
 const styles = StyleSheet.create({
   screen: {
     backgroundColor: '#FFFFFF'
+  },
+  keyboardView: {
+    flex: 1
+  },
+  content: {
+    padding: theme.spacing.md,
+    paddingBottom: 120,
+    gap: theme.spacing.md
   },
   hero: {
     marginHorizontal: -theme.spacing.md,

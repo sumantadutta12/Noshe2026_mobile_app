@@ -12,10 +12,12 @@ import { getAttendeeDashboard } from '../services/attendeeService';
 
 export function AttendeeDashboardScreen() {
   const [dashboardData,setDashboardData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {fetchDashboard();},[]);
 
   const fetchDashboard = async () => {
   try{
+        setLoading(true);
         const token =
           await AsyncStorage.getItem('token');
         const uid =
@@ -31,8 +33,14 @@ export function AttendeeDashboardScreen() {
       }
       catch(error){
         console.log(error);
+      } finally {
+        setLoading(false);
       }
   };
+
+  if (loading) {
+    return <AttendeeDashboardSkeleton />;
+  }
 
   return (
     <Screen>
@@ -75,6 +83,45 @@ export function AttendeeDashboardScreen() {
         <Text style={styles.noticeText}>
           Show this QR pass at the attendee desk for badge verification and event support.
         </Text>
+      </View>
+    </Screen>
+  );
+}
+
+function AttendeeDashboardSkeleton() {
+  return (
+    <Screen>
+      <View style={styles.skeletonHero}>
+        <View style={[styles.skeletonBlock, styles.skeletonHeroIcon]} />
+        <View style={[styles.skeletonBlock, styles.skeletonEyebrow]} />
+        <View style={[styles.skeletonBlock, styles.skeletonTitle]} />
+        <View style={[styles.skeletonBlock, styles.skeletonSubtitle]} />
+      </View>
+
+      <View style={styles.passCard}>
+        <View style={[styles.skeletonBlock, styles.skeletonQr]} />
+        <View style={[styles.skeletonBlock, styles.skeletonPassLabel]} />
+        <View style={[styles.skeletonBlock, styles.skeletonPassName]} />
+
+        <View style={styles.infoList}>
+          {[0, 1, 2].map((item) => (
+            <View key={item} style={styles.infoRow}>
+              <View style={[styles.skeletonBlock, styles.skeletonInfoIcon]} />
+              <View style={styles.skeletonInfoCopy}>
+                <View style={[styles.skeletonBlock, styles.skeletonInfoLabel]} />
+                <View style={[styles.skeletonBlock, item === 2 ? styles.skeletonInfoValueWide : styles.skeletonInfoValue]} />
+              </View>
+            </View>
+          ))}
+        </View>
+      </View>
+
+      <View style={styles.notice}>
+        <View style={[styles.skeletonBlock, styles.skeletonNoticeIcon]} />
+        <View style={styles.skeletonNoticeCopy}>
+          <View style={[styles.skeletonBlock, styles.skeletonNoticeLine]} />
+          <View style={[styles.skeletonBlock, styles.skeletonNoticeLineShort]} />
+        </View>
       </View>
     </Screen>
   );
@@ -241,5 +288,90 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: 13,
     lineHeight: 20
+  },
+  skeletonBlock: {
+    backgroundColor: '#DFEAF4',
+    borderRadius: 999
+  },
+  skeletonHero: {
+    borderRadius: 26,
+    padding: 18,
+    gap: 8,
+    backgroundColor: '#DDECF8',
+    overflow: 'hidden',
+    ...theme.shadow
+  },
+  skeletonHeroIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 18,
+    marginBottom: 4
+  },
+  skeletonEyebrow: {
+    width: 142,
+    height: 14
+  },
+  skeletonTitle: {
+    width: '78%',
+    height: 29
+  },
+  skeletonSubtitle: {
+    width: '92%',
+    height: 16
+  },
+  skeletonQr: {
+    width: 190,
+    height: 190,
+    borderRadius: 24
+  },
+  skeletonPassLabel: {
+    width: 148,
+    height: 14,
+    marginTop: 18
+  },
+  skeletonPassName: {
+    width: '66%',
+    height: 28,
+    marginTop: 6
+  },
+  skeletonInfoIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 14
+  },
+  skeletonInfoCopy: {
+    flex: 1,
+    minWidth: 0,
+    gap: 7
+  },
+  skeletonInfoLabel: {
+    width: 72,
+    height: 11
+  },
+  skeletonInfoValue: {
+    width: '52%',
+    height: 14
+  },
+  skeletonInfoValueWide: {
+    width: '88%',
+    height: 14
+  },
+  skeletonNoticeIcon: {
+    width: 20,
+    height: 20,
+    borderRadius: 10
+  },
+  skeletonNoticeCopy: {
+    flex: 1,
+    minWidth: 0,
+    gap: 7
+  },
+  skeletonNoticeLine: {
+    width: '94%',
+    height: 13
+  },
+  skeletonNoticeLineShort: {
+    width: '64%',
+    height: 13
   }
 });

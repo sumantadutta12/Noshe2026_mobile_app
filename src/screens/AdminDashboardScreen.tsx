@@ -22,17 +22,24 @@ type AttendanceStat = {
   key: AttendanceType;
 };
 
-const attendanceStats = [
-  { label: 'Total register', value: '186', icon: 'people-outline' },
-  { label: 'Total Checked-in', value: '124', icon: 'sunny-outline' }
-] as const;
+function getNameInitial(name?: string) {
+  return name?.trim().charAt(0).toUpperCase() || 'N';
+}
 
-const attendanceTimes = [
-  { name: 'Dr. Ananya Rao', role: 'Speaker', time: '10:02 AM', status: 'Checked in' },
-  { name: 'Vikram Mehta', role: 'Delegate', time: '10:18 AM', status: 'Checked in' },
-  { name: 'Nisha Menon', role: 'Speaker', time: '11:05 AM', status: 'Checked in' },
-  { name: 'Amitabh Sen', role: 'Delegate', time: '12:12 PM', status: 'Checked in' }
-] as const;
+function formatRegisteredDate(date?: string) {
+  if (!date) {
+    return 'N/A';
+  }
+
+  const datePart = date.split(' ')[0];
+  const parts = datePart.split('-');
+
+  if (parts.length !== 3) {
+    return datePart;
+  }
+
+  return parts.reverse().join('-');
+}
 
 export function AdminDashboardScreen({ navigation }: Props) {
   const [selectedTab, setSelectedTab] = useState('registered');
@@ -192,9 +199,7 @@ export function AdminDashboardScreen({ navigation }: Props) {
   
   if (loading) {
   return (
-    <Screen>
-      <Text>Loading...</Text>
-    </Screen>
+    <AdminDashboardSkeleton />
   );
 }
 
@@ -367,12 +372,13 @@ export function AdminDashboardScreen({ navigation }: Props) {
         {selectedAttendance.length > 0 ? (
           selectedAttendance.map((item: any, index: number) => (
             <View key={index} style={styles.attendanceCard}>
-              <View style={styles.timeBadge}>
-              <Text style={styles.timeText}>{item.registered_date ? (((item.registered_date.split(" ")[0]).split('-')).reverse()).join('-') : "N/A"}</Text>
+              <View style={styles.initialBadge}>
+              <Text style={styles.initialText}>{getNameInitial(item.name)}</Text>
             </View>
             <View style={styles.attendanceCopy}>
               <Text style={styles.attendeeName}>{item.name}</Text>
               <Text style={styles.attendeeRole}>{item.email_id}</Text>
+              <Text style={styles.attendeeDate}>{formatRegisteredDate(item.registered_date)}</Text>
             </View>
           </View>))
         ) : (
@@ -386,6 +392,66 @@ export function AdminDashboardScreen({ navigation }: Props) {
         )}
       </View>
       <View style={styles.footerSpacer} />
+    </Screen>
+  );
+}
+
+function AdminDashboardSkeleton() {
+  return (
+    <Screen>
+      <View style={styles.skeletonHero}>
+        <View style={[styles.skeletonBlock, styles.skeletonEyebrow]} />
+        <View style={[styles.skeletonBlock, styles.skeletonHeroTitle]} />
+        <View style={[styles.skeletonBlock, styles.skeletonHeroLine]} />
+      </View>
+
+      <View style={styles.skeletonApprovalCard}>
+        <View style={[styles.skeletonBlock, styles.skeletonRoundIcon]} />
+        <View style={styles.skeletonCopy}>
+          <View style={[styles.skeletonBlock, styles.skeletonLineShort]} />
+          <View style={[styles.skeletonBlock, styles.skeletonLine]} />
+        </View>
+      </View>
+
+      <View style={styles.statsGrid}>
+        {[0, 1].map((item) => (
+          <View key={item} style={styles.statCard}>
+            <View style={[styles.skeletonBlock, styles.skeletonStatIcon]} />
+            <View style={[styles.skeletonBlock, styles.skeletonStatValue]} />
+            <View style={[styles.skeletonBlock, styles.skeletonStatLabel]} />
+          </View>
+        ))}
+      </View>
+
+      <View style={styles.skeletonScannerCard}>
+        <View style={styles.skeletonApprovalCardInner}>
+          <View style={[styles.skeletonBlock, styles.skeletonRoundIcon]} />
+          <View style={styles.skeletonCopy}>
+            <View style={[styles.skeletonBlock, styles.skeletonLineShort]} />
+            <View style={[styles.skeletonBlock, styles.skeletonLineWide]} />
+          </View>
+        </View>
+        <View style={[styles.skeletonBlock, styles.skeletonScannerBox]} />
+        <View style={[styles.skeletonBlock, styles.skeletonButton]} />
+      </View>
+
+      <View style={styles.sectionHeader}>
+        <View style={[styles.skeletonBlock, styles.skeletonSectionEyebrow]} />
+        <View style={[styles.skeletonBlock, styles.skeletonSectionTitle]} />
+      </View>
+
+      <View style={styles.attendanceList}>
+        {[0, 1, 2].map((item) => (
+          <View key={item} style={styles.attendanceCard}>
+            <View style={[styles.skeletonBlock, styles.skeletonInitial]} />
+            <View style={styles.skeletonCopy}>
+              <View style={[styles.skeletonBlock, styles.skeletonLine]} />
+              <View style={[styles.skeletonBlock, styles.skeletonLineWide]} />
+              <View style={[styles.skeletonBlock, styles.skeletonLineShort]} />
+            </View>
+          </View>
+        ))}
+      </View>
     </Screen>
   );
 }
@@ -890,21 +956,21 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     elevation: 3
   },
-  timeBadge: {
+  initialBadge: {
     width: 76,
     minHeight: 54,
     borderRadius: 16,
-    backgroundColor: '#F3F8FD',
+    backgroundColor: '#FFF6EF',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#E2ECF6'
+    borderColor: '#FFE2CF'
   },
-  timeText: {
+  initialText: {
     color: theme.colors.navy,
-    fontSize: 13,
-    lineHeight: 18,
-    fontWeight: '600'
+    fontSize: 24,
+    lineHeight: 30,
+    fontWeight: '800'
   },
   attendanceCopy: {
     flex: 1,
@@ -922,6 +988,13 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     fontWeight: '400',
     marginTop: 2
+  },
+  attendeeDate: {
+    color: theme.colors.orange,
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '600',
+    marginTop: 4
   },
   statusPill: {
     flexDirection: 'row',
@@ -946,5 +1019,115 @@ const styles = StyleSheet.create({
   },
   footerSpacer: {
     height: 102
+  },
+  skeletonBlock: {
+    backgroundColor: '#DFEAF4',
+    borderRadius: 999
+  },
+  skeletonHero: {
+    borderRadius: 28,
+    padding: 18,
+    minHeight: 170,
+    justifyContent: 'flex-end',
+    gap: 10,
+    backgroundColor: '#DDECF8'
+  },
+  skeletonEyebrow: {
+    width: 118,
+    height: 14,
+    backgroundColor: '#C6DBEE'
+  },
+  skeletonHeroTitle: {
+    width: '76%',
+    height: 32,
+    backgroundColor: '#BFD6EA'
+  },
+  skeletonHeroLine: {
+    width: '92%',
+    height: 16,
+    backgroundColor: '#C6DBEE'
+  },
+  skeletonApprovalCard: {
+    backgroundColor: theme.colors.white,
+    borderRadius: 22,
+    padding: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    borderWidth: 1,
+    borderColor: '#E8F0F8'
+  },
+  skeletonApprovalCardInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12
+  },
+  skeletonRoundIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 18
+  },
+  skeletonCopy: {
+    flex: 1,
+    minWidth: 0,
+    gap: 8
+  },
+  skeletonLineShort: {
+    width: '42%',
+    height: 12
+  },
+  skeletonLine: {
+    width: '64%',
+    height: 16
+  },
+  skeletonLineWide: {
+    width: '82%',
+    height: 14
+  },
+  skeletonStatIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 15
+  },
+  skeletonStatValue: {
+    width: 58,
+    height: 30
+  },
+  skeletonStatLabel: {
+    width: 86,
+    height: 13
+  },
+  skeletonScannerCard: {
+    backgroundColor: theme.colors.white,
+    borderRadius: 22,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#E8F0F8',
+    gap: 13
+  },
+  skeletonScannerBox: {
+    height: 150,
+    borderRadius: 18,
+    alignSelf: 'stretch'
+  },
+  skeletonButton: {
+    width: 132,
+    height: 46,
+    borderRadius: 23,
+    alignSelf: 'flex-end'
+  },
+  skeletonSectionEyebrow: {
+    width: 98,
+    height: 12,
+    marginBottom: 8
+  },
+  skeletonSectionTitle: {
+    width: 184,
+    height: 26
+  },
+  skeletonInitial: {
+    width: 76,
+    height: 54,
+    borderRadius: 16
   }
 });

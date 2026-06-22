@@ -15,7 +15,7 @@ type Props = CompositeScreenProps<
 >;
 
 const chiefMember = {
-  name: 'Shri. Gurdeep Singh',
+  name: 'Shri Gurdeep Singh',
   role: 'Chairman & Managing Director',
   company: 'NTPC Ltd.',
   image: require('../assets/Gurdeep.jpg')
@@ -23,13 +23,13 @@ const chiefMember = {
 
 const patrons = [
   {
-    name: 'Shri. Ravindra Kumar',
+    name: 'Shri Ravindra Kumar',
     role: 'Director (Operations)',
     company: 'NTPC Ltd.',
     image: require('../assets/Ravindra.jpg')
   },
   {
-    name: 'Shri. Anil Kumar Jadli',
+    name: 'Shri Anil Kumar Jadli',
     role: 'Director (HR)',
     company: 'NTPC Ltd.',
     image: require('../assets/Anil-Kumar.png')
@@ -38,13 +38,13 @@ const patrons = [
 
 const steeringCommittee = [
   {
-    name: 'Shri. Kasina Chandramouli',
+    name: 'Shri Chandramouli Kasina',
     role: 'ED (Safety, Sustainability, Environment & Ash Management)',
     company: 'NTPC Ltd.',
     image: require('../assets/Shri-Kasina-Chandramouli.png')
   },
   {
-    name: 'Ms. Rachana Singh Bhal',
+    name: 'Smt. Rachana Singh Bhal',
     role: 'ED (HR-Strategic HR & Talent Management)',
     company: 'NTPC Ltd.',
     image: require('../assets/Ms. Rachana Singh Bhal.png')
@@ -56,13 +56,13 @@ const steeringCommittee = [
     image: require('../assets/Dr. Basanta Kumar Behera.png')
   },
   {
-    name: 'Shri. Vinod Rattan',
+    name: 'Shri Vinod Rattan',
     role: 'GM (Environment)',
     company: 'NTPC Ltd.',
     image: require('../assets/Shri-Vinod-Rattan.png')
   },
   {
-    name: 'Shri. Chandan Shahi',
+    name: 'Shri Chandan Shahi',
     role: 'GM (Safety)',
     company: 'NTPC Ltd.',
     image: require('../assets/Shri-Chandan-Shahi.png')

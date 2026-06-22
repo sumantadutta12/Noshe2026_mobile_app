@@ -1,8 +1,18 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View
+} from 'react-native';
 import { Screen } from '../components/Screen';
 import { RootStackParamList } from '../navigation/types';
 import { theme } from '../theme/theme';
@@ -16,8 +26,10 @@ type Props = NativeStackScreenProps<RootStackParamList, 'AdminLogin'>;
 const adminLogo = require('../assets/NTPC-logo.png');
 
 export function AdminLoginScreen({ navigation }: Props) {
+  const scrollRef = useRef<ScrollView>(null);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const canContinue = username.trim().length > 0 && password.trim().length > 0;
   const [loading, setLoading] = useState(false);
 
@@ -51,76 +63,105 @@ export function AdminLoginScreen({ navigation }: Props) {
   };
 
   return (
-    <Screen style={styles.screen}>
-      <LinearGradient
-        colors={['#F8FBFF', '#EEF6FF', '#FFFFFF']}
-        locations={[0, 0.55, 1]}
-        style={styles.hero}
+    <Screen style={styles.screen} scroll={false}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardView}
       >
-        <View style={styles.logoShell}>
-          <Image
-            source={adminLogo}
-            style={styles.logoImage}
-            resizeMode="contain"
-            accessible
-            accessibilityLabel="NTPC logo"
-          />
-        </View>
-        <Text style={styles.eyebrow}>NOSHE 2026 Admin</Text>
-        <Text style={styles.title}>Admin Login</Text>
-        <Text style={styles.subtitle}>
-          Enter admin credentials to view attendance and check-in insights.
-        </Text>
-      </LinearGradient>
-
-      <View style={styles.card}>
-        <View style={styles.fieldGroup}>
-          <Text style={styles.label}>User name</Text>
-          <TextInput
-            value={username}
-            onChangeText={setUsername}
-            placeholder="Enter user name"
-            placeholderTextColor="#99A7B8"
-            autoCapitalize="none"
-            style={styles.input}
-          />
-        </View>
-
-        <View style={styles.fieldGroup}>
-          <Text style={styles.label}>Password</Text>
-          <TextInput
-            value={password}
-            onChangeText={setPassword}
-            placeholder="Enter password"
-            placeholderTextColor="#99A7B8"
-            secureTextEntry
-            style={styles.input}
-          />
-        </View>
-
-        <Pressable
-          disabled={!canContinue}
-          onPress={handleAdminLogin}
-          style={({ pressed }) => [
-            styles.button,
-            !canContinue && styles.buttonDisabled,
-            pressed && canContinue && styles.pressed
-          ]}
+        <ScrollView
+          ref={scrollRef}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={styles.content}
         >
-          <Text style={styles.buttonText}>{loading ? 'Please wait...' : 'Open Dashboard'}</Text>
-          <Ionicons name="arrow-forward" size={19} color={theme.colors.white} />
-        </Pressable>
-      </View>
+          <LinearGradient
+            colors={['#F8FBFF', '#EEF6FF', '#FFFFFF']}
+            locations={[0, 0.55, 1]}
+            style={styles.hero}
+          >
+            <View style={styles.logoShell}>
+              <Image
+                source={adminLogo}
+                style={styles.logoImage}
+                resizeMode="contain"
+                accessible
+                accessibilityLabel="NTPC logo"
+              />
+            </View>
+            <Text style={styles.eyebrow}>NOSHE 2026 Admin</Text>
+            <Text style={styles.title}>Admin Login</Text>
+            <Text style={styles.subtitle}>
+              Enter admin credentials to view attendance and check-in insights.
+            </Text>
+          </LinearGradient>
 
-      <Pressable
-        onPress={() => navigation.goBack()}
-        style={({ pressed }) => [styles.backLink, pressed && styles.pressed]}
-        accessibilityRole="button"
-        accessibilityLabel="Go back"
-      >
-        <Ionicons name="arrow-back" size={18} color={theme.colors.navy} />
-        <Text style={styles.backLinkText}>Back</Text>
-      </Pressable>
+          <View style={styles.card}>
+            <View style={styles.fieldGroup}>
+              <Text style={styles.label}>User name</Text>
+              <TextInput
+                value={username}
+                onChangeText={setUsername}
+                placeholder="Enter user name"
+                placeholderTextColor="#99A7B8"
+                autoCapitalize="none"
+                style={styles.input}
+              />
+            </View>
+
+            <View style={styles.fieldGroup}>
+              <Text style={styles.label}>Password</Text>
+              <View style={styles.passwordField}>
+                <TextInput
+                  value={password}
+                  onChangeText={setPassword}
+                  onFocus={() => {
+                    setTimeout(() => scrollRef.current?.scrollTo({ y: 250, animated: true }), 120);
+                  }}
+                  placeholder="Enter password"
+                  placeholderTextColor="#99A7B8"
+                  secureTextEntry={!showPassword}
+                  style={[styles.input, styles.passwordInput]}
+                />
+                <Pressable
+                  onPress={() => setShowPassword((visible) => !visible)}
+                  style={({ pressed }) => [styles.eyeButton, pressed && styles.pressed]}
+                  accessibilityRole="button"
+                  accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  <Ionicons
+                    name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                    size={22}
+                    color={theme.colors.muted}
+                  />
+                </Pressable>
+              </View>
+            </View>
+
+            <Pressable
+              disabled={!canContinue}
+              onPress={handleAdminLogin}
+              style={({ pressed }) => [
+                styles.button,
+                !canContinue && styles.buttonDisabled,
+                pressed && canContinue && styles.pressed
+              ]}
+            >
+              <Text style={styles.buttonText}>{loading ? 'Please wait...' : 'Open Dashboard'}</Text>
+              <Ionicons name="arrow-forward" size={19} color={theme.colors.white} />
+            </Pressable>
+          </View>
+
+          <Pressable
+            onPress={() => navigation.goBack()}
+            style={({ pressed }) => [styles.backLink, pressed && styles.pressed]}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+          >
+            <Ionicons name="arrow-back" size={18} color={theme.colors.navy} />
+            <Text style={styles.backLinkText}>Back</Text>
+          </Pressable>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </Screen>
   );
 }
@@ -128,6 +169,14 @@ export function AdminLoginScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   screen: {
     backgroundColor: theme.colors.white
+  },
+  keyboardView: {
+    flex: 1
+  },
+  content: {
+    padding: theme.spacing.md,
+    paddingBottom: 120,
+    gap: theme.spacing.md
   },
   hero: {
     marginHorizontal: -theme.spacing.md,
@@ -208,6 +257,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '400',
     paddingHorizontal: 16
+  },
+  passwordField: {
+    position: 'relative',
+    justifyContent: 'center'
+  },
+  passwordInput: {
+    paddingRight: 54
+  },
+  eyeButton: {
+    position: 'absolute',
+    right: 6,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   button: {
     minHeight: 58,

@@ -17,6 +17,7 @@ type Objective = {
 type Sector = {
   title: string;
   image: ImageSourcePropType;
+  accent: string;
 };
 
 const objectives: Objective[] = [
@@ -54,60 +55,74 @@ const objectives: Objective[] = [
 
 const sectoralParticipation: Sector[] = [
   {
-    title: 'Power',
-    image: require('../assets/sectoral/Power.png')
+    title: 'POWER',
+    image: require('../assets/sectoral/Power.png'),
+    accent: '#1684D8'
   },
   {
-    title: 'Oil & Gas',
-    image: require('../assets/sectoral/Oil -Gas.png')
+    title: 'CONSTRUCTION',
+    image: require('../assets/sectoral/Construction.png'),
+    accent: '#F37021'
   },
   {
-    title: 'Mining',
-    image: require('../assets/sectoral/MINING.png')
+    title: 'OIL & GAS',
+    image: require('../assets/sectoral/Oil -Gas.png'),
+    accent: '#F2B705'
   },
   {
-    title: 'Manufacturing',
-    image: require('../assets/sectoral/Manufacturing.png')
+    title: 'CHEMICALS & PETROCHEMICALS',
+    image: require('../assets/sectoral/chemicals-Petrochemicals.png'),
+    accent: '#6D5BD0'
   },
   {
-    title: 'Iron, Steel & Aluminium',
-    image: require('../assets/sectoral/IRON-Steel-Aluminumi.png')
+    title: 'IRON / STEEL / ALUMINIUM',
+    image: require('../assets/sectoral/IRON-Steel-Aluminumi.png'),
+    accent: '#8E949A'
   },
   {
-    title: 'Chemicals & Petrochemicals',
-    image: require('../assets/sectoral/chemicals-Petrochemicals.png')
+    title: 'HEALTHCARE & PHARMA',
+    image: require('../assets/sectoral/Healthcare-Pharma.png'),
+    accent: '#7AC943'
   },
   {
-    title: 'Construction',
-    image: require('../assets/sectoral/Construction.png')
+    title: 'MANUFACTURING',
+    image: require('../assets/sectoral/Manufacturing.png'),
+    accent: '#15BDEB'
   },
   {
-    title: 'Logistics & Transportation',
-    image: require('../assets/sectoral/Logistcs-Transportation.png')
+    title: 'LOGISTICS & TRANSPORTATION',
+    image: require('../assets/sectoral/Logistcs-Transportation.png'),
+    accent: '#F7941D'
   },
   {
-    title: 'Healthcare & Pharma',
-    image: require('../assets/sectoral/Healthcare-Pharma.png')
+    title: 'HSE & OTHERS',
+    image: require('../assets/sectoral/HSE-Others.png'),
+    accent: '#009444'
   },
   {
-    title: 'Environment & Sustainability',
-    image: require('../assets/sectoral/Environment-Sustainability.png')
+    title: 'MINING',
+    image: require('../assets/sectoral/MINING.png'),
+    accent: '#3EA7E0'
   },
   {
-    title: 'Academy',
-    image: require('../assets/sectoral/academy.png')
+    title: 'ENVIRONMENT & SUSTAINABILITY',
+    image: require('../assets/sectoral/Environment-Sustainability.png'),
+    accent: '#39B54A'
   },
   {
-    title: 'Consultant',
-    image: require('../assets/sectoral/consultant.png')
+    title: 'REGULATORS',
+    image: require('../assets/sectoral/Regulators.png'),
+    accent: '#354B7C'
   },
   {
-    title: 'Regulators',
-    image: require('../assets/sectoral/Regulators.png')
+    title: 'CONSULTANT',
+    image: require('../assets/sectoral/consultant.png'),
+    accent: '#E6813A'
   },
   {
-    title: 'HSE & Others',
-    image: require('../assets/sectoral/HSE-Others.png')
+    title: 'ACADEMY',
+    image: require('../assets/sectoral/academy.png'),
+    accent: '#31BBD3'
   }
 ];
 
@@ -163,7 +178,9 @@ export function AboutEventScreen({ navigation }: Props) {
               <View style={styles.sectorImageWrap}>
                 <Image source={sector.image} style={styles.sectorImage} resizeMode="contain" />
               </View>
-              <Text style={styles.sectorTitle}>{sector.title}</Text>
+              <View style={[styles.sectorTitlePill, { backgroundColor: sector.accent }]}>
+                <Text style={styles.sectorTitle}>{sector.title}</Text>
+              </View>
             </View>
           ))}
         </View>
@@ -288,47 +305,44 @@ const styles = StyleSheet.create({
   sectorGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: 12,
+    justifyContent: 'center',
+    columnGap: 9,
+    rowGap: 18,
     marginTop: 16
   },
   sectorCard: {
-    width: '48%',
-    minHeight: 176,
-    backgroundColor: theme.colors.white,
-    borderRadius: 20,
-    padding: 12,
+    width: '31%',
+    minHeight: 128,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#E8F0F8',
-    shadowColor: '#0F4070',
-    shadowOpacity: 0.06,
-    shadowOffset: { width: 0, height: 8 },
-    shadowRadius: 14,
-    elevation: 2
+    gap: 8
   },
   sectorImageWrap: {
-    width: 116,
-    height: 116,
-    borderRadius: 32,
-    backgroundColor: '#EFF7FF',
+    width: 72,
+    height: 72,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#DDECF8',
-    marginBottom: 12,
     overflow: 'hidden'
   },
   sectorImage: {
-    width: 98,
-    height: 98
+    width: 68,
+    height: 68
+  },
+  sectorTitlePill: {
+    minHeight: 22,
+    borderRadius: 4,
+    paddingHorizontal: 5,
+    paddingVertical: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'stretch'
   },
   sectorTitle: {
-    color: theme.colors.text,
-    fontSize: 12,
-    lineHeight: 17,
-    fontWeight: '700',
+    color: theme.colors.white,
+    fontSize: 8,
+    lineHeight: 10,
+    fontWeight: '800',
+    textTransform: 'uppercase',
     textAlign: 'center'
   },
   ntpcLogoSection: {
@@ -338,7 +352,7 @@ const styles = StyleSheet.create({
   },
   ntpcEyebrow: {
     color: theme.colors.orange,
-    fontSize: 12,
+    fontSize: 14,
     lineHeight: 16,
     fontWeight: '800',
     textTransform: 'uppercase',

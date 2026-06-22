@@ -33,6 +33,14 @@ export function SpeakersScreen({ navigation }: Props) {
     return () => clearTimeout(timeout);
   }, []);
 
+  if (speakersLoading) {
+    return (
+      <Screen refreshable header={<AppHeader onProfilePress={() => navigation.navigate('More')} />}>
+        <SpeakersScreenSkeleton />
+      </Screen>
+    );
+  }
+
   return (
     <Screen refreshable header={<AppHeader onProfilePress={() => navigation.navigate('More')} />}>
       <LinearGradient
@@ -52,9 +60,7 @@ export function SpeakersScreen({ navigation }: Props) {
       </LinearGradient>
 
       <View style={styles.speakerList}>
-        {speakersLoading ? (
-          <SpeakerSkeletonList />
-        ) : speakers.map((speaker) => (
+        {speakers.map((speaker) => (
           <SpeakerListCard
             key={speaker.id}
             speaker={speaker}
@@ -138,6 +144,24 @@ export function SpeakersScreen({ navigation }: Props) {
         ) : null}
       </Modal>
     </Screen>
+  );
+}
+
+function SpeakersScreenSkeleton() {
+  return (
+    <>
+      <View style={styles.skeletonHero}>
+        <View style={[styles.skeletonBlock, styles.skeletonHeroIcon]} />
+        <View style={styles.skeletonHeroCopy}>
+          <View style={[styles.skeletonBlock, styles.skeletonHeroEyebrow]} />
+          <View style={[styles.skeletonBlock, styles.skeletonHeroTitle]} />
+          <View style={[styles.skeletonBlock, styles.skeletonHeroSubtitle]} />
+        </View>
+      </View>
+      <View style={styles.speakerList}>
+        <SpeakerSkeletonList />
+      </View>
+    </>
   );
 }
 
@@ -329,6 +353,42 @@ const styles = StyleSheet.create({
   },
   skeletonBlock: {
     backgroundColor: '#E8F0F8'
+  },
+  skeletonHero: {
+    borderRadius: 24,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    borderWidth: 1,
+    borderColor: '#DDECF8',
+    backgroundColor: '#F7FBFF',
+    ...theme.shadow
+  },
+  skeletonHeroIcon: {
+    width: 58,
+    height: 58,
+    borderRadius: 20
+  },
+  skeletonHeroCopy: {
+    flex: 1,
+    minWidth: 0,
+    gap: 8
+  },
+  skeletonHeroEyebrow: {
+    width: 82,
+    height: 12,
+    borderRadius: 6
+  },
+  skeletonHeroTitle: {
+    width: 128,
+    height: 28,
+    borderRadius: 14
+  },
+  skeletonHeroSubtitle: {
+    width: '88%',
+    height: 14,
+    borderRadius: 7
   },
   skeletonSpeakerAvatar: {
     width: 62,

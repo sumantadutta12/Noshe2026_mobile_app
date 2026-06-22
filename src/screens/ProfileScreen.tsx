@@ -53,7 +53,7 @@ const primaryItems = [
 ] as const;
 
 export function ProfileScreen({ navigation }: Props) {
-  const { attendee } = useAttendeeAuth();
+  const { attendee, logout } = useAttendeeAuth();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
     useFocusEffect(
       useCallback(() => {
@@ -73,23 +73,23 @@ export function ProfileScreen({ navigation }: Props) {
 
   };
 
-  // const confirmLogout = () => {
-  //   Alert.alert(
-  //     'Logout from attendee access?',
-  //     'Your QR pass and dashboard will be hidden until you login again.',
-  //     [
-  //       {
-  //         text: 'Cancel',
-  //         style: 'cancel'
-  //       },
-  //       {
-  //         text: 'Logout',
-  //         style: 'destructive',
-  //         onPress: handleLogout
-  //       }
-  //     ]
-  //   );
-  // };
+  const confirmLogout = () => {
+    Alert.alert(
+      'Logout from attendee access?',
+      'Your QR pass and dashboard will be hidden until you login again.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel'
+        },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: handleLogout
+        }
+      ]
+    );
+  };
   const handleLogout = async() => {
     try {
 
@@ -104,7 +104,7 @@ export function ProfileScreen({ navigation }: Props) {
       'token',
     ]);
     setIsLoggedIn(false);
-    // logout();
+    logout();
 
     Alert.alert(
       'Success',
@@ -203,7 +203,7 @@ export function ProfileScreen({ navigation }: Props) {
             title="Logout"
             subtitle="Sign out from attendee access on this device"
             tone="danger"
-            onPress={handleLogout}
+            onPress={confirmLogout}
           />
         </View>
       ) : null}
