@@ -20,6 +20,7 @@ export type RootStackParamList = {
   Notifications: undefined;
   Tickets: undefined;
   Contact: undefined;
+  ConferenceSecretariat: undefined;
   PrivacyPolicy: undefined;
 };
 

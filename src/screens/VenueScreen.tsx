@@ -1,11 +1,40 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Linking, Platform, StyleSheet, Text, View } from 'react-native';
+import { WebView } from 'react-native-webview';
 import { CTAButton } from '../components/CTAButton';
 import { Screen } from '../components/Screen';
 import { event } from '../data/events';
 import { theme } from '../theme/theme';
 
 const venueAddress = `${event.venue}, ${event.address}`;
+const venueMapEmbedUrl = `https://www.google.com/maps?q=${encodeURIComponent(venueAddress)}&output=embed`;
+const venueMapHtml = `
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <style>
+      html, body, iframe {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+        overflow: hidden;
+        background: #E9EFFA;
+      }
+    </style>
+  </head>
+  <body>
+    <iframe
+      src="${venueMapEmbedUrl}"
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+      allowfullscreen>
+    </iframe>
+  </body>
+</html>
+`;
 const venueOverview = [
   'PMI is the apex training institute of one of the largest and best power companies in the world, which powers the growth of the fastest-growing major economy in the world-the Indian economy.',
   'Located in the National Capital Region, well connected to Delhi by a state-of-the-art expressway, the Institute has a sprawling 10-acre campus in Sector-16A, NOIDA, in the center of fast-growing IT parks and knowledge hubs which are home to MNCs from across the globe. It faces the green belt along the banks of the Yamuna, and the famous Okhla Bird Sanctuary is only 5 km away. PMI is well connected to all major markets and commercial centers of the National Capital Region.',
@@ -15,6 +44,7 @@ const venueOverview = [
 
 function openVenueMap() {
   const query = encodeURIComponent(venueAddress);
+  const fallbackUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
   const url = Platform.select({
     ios: `maps:0,0?q=${query}`,
     android: `geo:0,0?q=${query}`
@@ -22,9 +52,10 @@ function openVenueMap() {
 
   if (url) {
     Linking.openURL(url).catch(() => {
-      const fallbackUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
       Linking.openURL(fallbackUrl).catch(() => undefined);
     });
+  } else {
+    Linking.openURL(fallbackUrl).catch(() => undefined);
   }
 }
 
@@ -33,8 +64,8 @@ export function VenueScreen() {
     <Screen>
       <View style={styles.hero}>
         <Text style={styles.eyebrow}>Conference Venue</Text>
-        <Text style={styles.title}>{event.venue}</Text>
-        <Text style={styles.subtitle}>{event.address}</Text>
+        <Text style={styles.title}>NTPC PMI, Noida</Text>
+        {/* <Text style={styles.subtitle}>{event.address}</Text> */}
       </View>
 
       <View style={styles.locationCard}>
@@ -48,7 +79,7 @@ export function VenueScreen() {
         </View>
       </View>
 
-      <View style={styles.overviewCard}>
+      {/* <View style={styles.overviewCard}>
         <View style={styles.overviewHeader}>
           <View style={styles.overviewIcon}>
             <Ionicons name="business-outline" size={22} color={theme.colors.orange} />
@@ -66,7 +97,7 @@ export function VenueScreen() {
             </Text>
           ))}
         </View>
-      </View>
+      </View> */}
 
       <View style={styles.mapCard}>
         <View style={styles.mapHeader}>
@@ -79,16 +110,15 @@ export function VenueScreen() {
           />
         </View>
         <View style={styles.mapPreview}>
-          <View style={styles.mapOverlay}>
-            <View style={styles.mapMarker}>
-              <Ionicons name="location-sharp" size={18} color={theme.colors.white} />
-            </View>
-            <Text style={styles.mapPinLabel}>{event.venue}</Text>
-          </View>
-          <View style={styles.mapFooter}>
-            <Ionicons name="location-outline" size={18} color={theme.colors.orange} />
-            <Text style={styles.mapFooterText}>{event.address}</Text>
-          </View>
+          <WebView
+            source={{ html: venueMapHtml }}
+            style={styles.mapWebView}
+            originWhitelist={['*']}
+            javaScriptEnabled
+            domStorageEnabled
+            startInLoadingState
+            scalesPageToFit
+          />
         </View>
       </View>
 
@@ -254,8 +284,17 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.line,
     overflow: 'hidden'
   },
+  mapWebView: {
+    width: '100%',
+    height: 360,
+    backgroundColor: '#E9EFFA'
+  },
   mapOverlay: {
-    flex: 1,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 220,
     padding: theme.spacing.md,
     backgroundColor: 'rgba(2, 14, 49, 0.18)',
     justifyContent: 'flex-end'

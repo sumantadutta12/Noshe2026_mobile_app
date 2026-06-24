@@ -6,7 +6,7 @@ export const sessions: Session[] = [
   {
     id: 'se-1',
     day: 'Day 1',
-    date: 'Thu, Jun 25, 2026',
+    date: 'Fri, 3rd July, 2026',
     time: '09:00 AM',
     duration: '1 Hour',
     title: 'Registration',
@@ -19,7 +19,7 @@ export const sessions: Session[] = [
   {
     id: 'se-2',
     day: 'Day 1',
-    date: 'Thu, Jun 25, 2026',
+    date: 'Fri, 3rd July, 2026',
     time: '10:00 AM',
     duration: '1 Hour 30 Minutes',
     title: 'Inaugural Session',
@@ -32,7 +32,7 @@ export const sessions: Session[] = [
   {
     id: 'se-3',
     day: 'Day 1',
-    date: 'Thu, Jun 25, 2026',
+    date: 'Fri, 3rd July, 2026',
     time: '11:30 AM',
     duration: '30 Minutes',
     title: 'Refreshment Break',
@@ -44,7 +44,7 @@ export const sessions: Session[] = [
   {
     id: 'se-4',
     day: 'Day 1',
-    date: 'Thu, Jun 25, 2026',
+    date: 'Fri, 3rd July, 2026',
     time: '12:00 PM',
     duration: '1 Hour',
     title:
@@ -59,7 +59,7 @@ export const sessions: Session[] = [
   {
     id: 'se-5',
     day: 'Day 1',
-    date: 'Thu, Jun 25, 2026',
+    date: 'Fri, 3rd July, 2026',
     time: '02:00 PM',
     duration: '1 Hour',
     title: 'Technical Session: Industrial Safety Leadership and Risk Governance',
@@ -72,7 +72,7 @@ export const sessions: Session[] = [
   {
     id: 'se-6',
     day: 'Day 2',
-    date: 'Fri, Jun 26, 2026',
+    date: 'Sat, 4th July, 2026',
     time: '09:30 AM',
     duration: '45 Minutes',
     title: 'Day 2 Welcome and Recap',
@@ -84,7 +84,7 @@ export const sessions: Session[] = [
   {
     id: 'se-7',
     day: 'Day 2',
-    date: 'Fri, Jun 26, 2026',
+    date: 'Sat, 4th July, 2026',
     time: '10:30 AM',
     duration: '1 Hour',
     title: 'Emergency Preparedness and Disaster Management for Changing Climate',
@@ -97,7 +97,7 @@ export const sessions: Session[] = [
   {
     id: 'se-8',
     day: 'Day 2',
-    date: 'Fri, Jun 26, 2026',
+    date: 'Sat, 4th July, 2026',
     time: '12:00 PM',
     duration: '1 Hour',
     title: 'Technology Enabled Occupational Health and Safety',
@@ -111,7 +111,7 @@ export const sessions: Session[] = [
   {
     id: 'se-9',
     day: 'Day 2',
-    date: 'Fri, Jun 26, 2026',
+    date: 'Sat, 4th July, 2026',
     time: '03:00 PM',
     duration: '1 Hour',
     title: 'Valedictory Session and Closing Remarks',

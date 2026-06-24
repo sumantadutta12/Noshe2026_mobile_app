@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { theme } from '../theme/theme';
 
-const headerLogo = require('../assets/logo-1.png');
+const nosheLogo = require('../assets/ntpc-logo-1.png');
+const ntpcLogo = require('../assets/NTPC-logo.png');
 
 type Props = {
   onProfilePress?: () => void;
@@ -13,16 +14,19 @@ export function AppHeader({ onProfilePress }: Props) {
     <View style={styles.topHeader}>
       <View style={styles.brand}>
         <Image
-          source={headerLogo}
-          style={styles.logoImage}
+          source={nosheLogo}
+          style={styles.nosheLogo}
           resizeMode="contain"
           accessible
-          accessibilityLabel="NOSHE logo"
+          accessibilityLabel="NOSHE 2026 logo"
         />
-        <View style={styles.brandCopy}>
-          <Text style={styles.brandTitle}>NOSHE2026</Text>
-          <Text style={styles.brandSubtitle}>Event Companion</Text>
-        </View>
+        <Image
+          source={ntpcLogo}
+          style={styles.ntpcLogo}
+          resizeMode="contain"
+          accessible
+          accessibilityLabel="NTPC logo"
+        />
       </View>
       <Pressable
         onPress={onProfilePress}
@@ -52,27 +56,16 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 14,
     minWidth: 0
   },
-  logoImage: {
-    width: 42,
-    height: 42
+  nosheLogo: {
+    width: 118,
+    height: 54
   },
-  brandCopy: {
-    flex: 1,
-    minWidth: 0
-  },
-  brandTitle: {
-    color: theme.colors.navy,
-    fontSize: 18,
-    fontWeight: '900'
-  },
-  brandSubtitle: {
-    color: theme.colors.muted,
-    fontSize: 12,
-    fontWeight: '700',
-    marginTop: 2
+  ntpcLogo: {
+    width: 138,
+    height: 62
   },
   userButton: {
     width: 44,

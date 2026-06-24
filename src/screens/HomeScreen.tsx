@@ -4,7 +4,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Animated, StyleSheet, Text, View } from 'react-native';
+import { Alert, Animated, Image, ImageSourcePropType, StyleSheet, Text, View } from 'react-native';
 import { AppHeader } from '../components/AppHeader';
 import { CTAButton } from '../components/CTAButton';
 import { EventCard } from '../components/EventCard';
@@ -24,7 +24,7 @@ type Props = CompositeScreenProps<
 const conferenceDays = [
   {
     day: 'DAY 1',
-    date: '03rd July 2026',
+    date: '3rd July 2026',
     colors: ['#6576D9', '#263EAA'],
     sessions: [
       {
@@ -61,7 +61,7 @@ const conferenceDays = [
   },
   {
     day: 'DAY 2',
-    date: '04th July 2026',
+    date: '4th July 2026',
     colors: ['#1F5A84', '#1978B7'],
     sessions: [
       {
@@ -98,30 +98,84 @@ const conferenceDays = [
   }
 ] as const;
 
-const pastEvents = [
+type Sector = {
+  title: string;
+  image: ImageSourcePropType;
+  accent: string;
+};
+
+const sectoralParticipation: Sector[] = [
   {
-    title: 'Heads of Project Construction Meet - 2024',
-    description:
-      'Addressing paradigm shift in Power Industry - Proactive & Adaptive approach to project management',
-    dateVenue: '27th May, 2024 - Hotel Sitara, Hyderabad',
-    colors: ['#0D9FEA', '#0878D8'],
-    icon: 'construct-outline'
+    title: 'POWER',
+    image: require('../assets/sectoral/Power.png'),
+    accent: '#1684D8'
   },
   {
-    title: 'National Workshop on',
-    description: 'Standardization of Technical Specification for Pumped Storage Projects',
-    dateVenue: '06th & 07th June, 2024 - NTPC PMI, Noida',
-    colors: ['#F600CF', '#D800F0'],
-    icon: 'water-outline'
+    title: 'CONSTRUCTION',
+    image: require('../assets/sectoral/Construction.png'),
+    accent: '#F37021'
   },
   {
-    title: 'International Nuclear Hydrogen Conference - 2024',
-    description: 'Integration of Nuclear & Hydrogen for Energy Transition',
-    dateVenue: '19th & 20th August, 2024 - NTPC PMI, Noida',
-    colors: ['#08D7E7', '#05BFD8'],
-    icon: 'flash-outline'
+    title: 'OIL & GAS',
+    image: require('../assets/sectoral/Oil -Gas.png'),
+    accent: '#F2B705'
+  },
+  {
+    title: 'CHEMICALS & PETROCHEMICALS',
+    image: require('../assets/sectoral/chemicals-Petrochemicals.png'),
+    accent: '#6D5BD0'
+  },
+  {
+    title: 'IRON / STEEL / ALUMINIUM',
+    image: require('../assets/sectoral/IRON-Steel-Aluminumi.png'),
+    accent: '#9AA0A6'
+  },
+  {
+    title: 'HEALTHCARE & PHARMA',
+    image: require('../assets/sectoral/Healthcare-Pharma.png'),
+    accent: '#7AC943'
+  },
+  {
+    title: 'MANUFACTURING',
+    image: require('../assets/sectoral/Manufacturing.png'),
+    accent: '#15BDEB'
+  },
+  {
+    title: 'LOGISTICS & TRANSPORTATION',
+    image: require('../assets/sectoral/Logistcs-Transportation.png'),
+    accent: '#F7941D'
+  },
+  {
+    title: 'HSE & OTHERS',
+    image: require('../assets/sectoral/HSE-Others.png'),
+    accent: '#009444'
+  },
+  {
+    title: 'MINING',
+    image: require('../assets/sectoral/MINING.png'),
+    accent: '#3EA7E0'
+  },
+  {
+    title: 'ENVIRONMENT & SUSTAINABILITY',
+    image: require('../assets/sectoral/Environment-Sustainability.png'),
+    accent: '#39B54A'
+  },
+  {
+    title: 'REGULATORS',
+    image: require('../assets/sectoral/Regulators.png'),
+    accent: '#354B7C'
+  },
+  {
+    title: 'CONSULTANTS',
+    image: require('../assets/sectoral/consultant.png'),
+    accent: '#F37021'
+  },
+  {
+    title: 'ACADEMIA',
+    image: require('../assets/sectoral/academy.png'),
+    accent: '#31BBD3'
   }
-] as const;
+];
 
 const eventStartTime = new Date('2026-07-03T10:00:00+05:30').getTime();
 
@@ -201,77 +255,6 @@ export function HomeScreen({ navigation }: Props) {
           </LinearGradient>
         </View>
       ) : null}
-      <View style={styles.upcomingSection}>
-        <View style={styles.upcomingHeader}>
-          <Text style={styles.upcomingEyebrow}>Upcoming Events</Text>
-          <Text style={styles.upcomingTitle}>
-            Explore NOSHE 2026 conference updates and key participation details
-          </Text>
-        </View>
-        <LinearGradient
-          colors={['#F5ECFF', '#D9C4F2', '#B49ADD']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.upcomingCard}
-        >
-          <View style={styles.upcomingGlow} />
-          <View style={styles.upcomingIcon}>
-            <Ionicons name="calendar-clear-outline" size={24} color={theme.colors.navy} />
-          </View>
-          <Text style={styles.upcomingCardTitle}>
-            National Conference on Occupational Safety, Health & Environment (NOSHE-2026)
-          </Text>
-          <Text style={styles.upcomingTheme}>
-            Stronger SHE for building a brighter tomorrow.
-          </Text>
-          <Text style={styles.upcomingTagline}>Safe Today, Sustainable Tomorrow</Text>
-          <View style={styles.upcomingMetaRow}>
-            <View style={styles.upcomingMetaPill}>
-              <Ionicons name="calendar-outline" size={15} color={theme.colors.navy} />
-              <Text style={styles.upcomingMetaText}>3rd & 4th July, 2026</Text>
-            </View>
-            <View style={styles.upcomingMetaPill}>
-              <Ionicons name="location-outline" size={15} color={theme.colors.navy} />
-              <Text style={styles.upcomingMetaText}>NTPC PMI, Noida</Text>
-            </View>
-          </View>
-        </LinearGradient>
-      </View>
-      <View style={styles.pastSection}>
-        <View style={styles.pastHeader}>
-          <Text style={styles.pastEyebrow}>Past Events</Text>
-          <Text style={styles.pastTitle}>Highlights from recent NTPC knowledge forums</Text>
-        </View>
-        <View style={styles.pastGrid}>
-          {pastEvents.map((item) => (
-            <LinearGradient
-              key={item.title}
-              colors={item.colors}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.pastCard}
-            >
-              <View style={styles.pastCardGlow} />
-              <View style={styles.pastTopRow}>
-                <View style={styles.pastIcon}>
-                  <Ionicons
-                    name={item.icon as keyof typeof Ionicons.glyphMap}
-                    size={22}
-                    color={theme.colors.white}
-                  />
-                </View>
-                <Text style={styles.pastYear}>2024</Text>
-              </View>
-              <Text style={styles.pastCardTitle}>{item.title}</Text>
-              <Text style={styles.pastCardText}>{item.description}</Text>
-              <View style={styles.pastMeta}>
-                <Ionicons name="calendar-outline" size={15} color="rgba(255,255,255,0.9)" />
-                <Text style={styles.pastMetaText}>{item.dateVenue}</Text>
-              </View>
-            </LinearGradient>
-          ))}
-        </View>
-      </View>
       <Text style={styles.sectionLabel}>Event Snapshot</Text>
       <View style={styles.statsGrid}>
         {[
@@ -305,9 +288,9 @@ export function HomeScreen({ navigation }: Props) {
           onPress={() => navigation.navigate('Agenda')}
         />
         <QuickActionCard
-          title="Speakers"
-          icon={<Ionicons name="people-outline" size={23} color={theme.colors.orange} />}
-          onPress={() => navigation.navigate('Speakers')}
+          title="Contact"
+          icon={<Ionicons name="call-outline" size={23} color={theme.colors.orange} />}
+          onPress={() => navigation.navigate('Contact')}
         />
         <QuickActionCard
           title="Venue"
@@ -315,7 +298,7 @@ export function HomeScreen({ navigation }: Props) {
           onPress={() => navigation.navigate('Venue')}
         />
         <QuickActionCard
-          title="Members"
+          title="Committee"
           icon={<Ionicons name="people-circle-outline" size={23} color={theme.colors.orange} />}
           onPress={() => navigation.navigate('Members')}
         />
@@ -361,6 +344,34 @@ export function HomeScreen({ navigation }: Props) {
                 ))}
               </View>
             </View>
+          ))}
+        </View>
+      </View>
+
+      <View style={styles.sectorSection}>
+        <Text style={styles.sectorHeading}>Sectoral Participation</Text>
+        <View style={styles.sectorStack}>
+          {sectoralParticipation.map((sector) => (
+            <LinearGradient
+              key={sector.title}
+              colors={['#003F8F', '#005CAF', '#1598E8']}
+              locations={[0, 0.55, 1]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.sectorCard}
+            >
+              <View style={styles.sectorShade} />
+              <View style={styles.sectorIconWrap}>
+                <Image
+                  source={sector.image}
+                  style={[styles.sectorIcon, { tintColor: sector.accent }]}
+                  resizeMode="contain"
+                />
+              </View>
+              <Text style={styles.sectorTitle} numberOfLines={1} adjustsFontSizeToFit>
+                {sector.title}
+              </Text>
+            </LinearGradient>
           ))}
         </View>
       </View>
@@ -419,204 +430,6 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     fontWeight: '600',
     marginTop: 4
-  },
-  upcomingSection: {
-    gap: 14,
-    marginTop: 4
-  },
-  upcomingHeader: {
-    gap: 6
-  },
-  upcomingEyebrow: {
-    color: theme.colors.orange,
-    fontSize: 12,
-    lineHeight: 16,
-    fontWeight: '600',
-    letterSpacing: 1,
-    textTransform: 'uppercase'
-  },
-  upcomingTitle: {
-    color: theme.colors.navy,
-    fontSize: 22,
-    lineHeight: 28,
-    fontWeight: '700'
-  },
-  upcomingCard: {
-    minHeight: 238,
-    borderRadius: 24,
-    padding: 20,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#E8DAFF',
-    shadowColor: '#39216B',
-    shadowOpacity: 0.12,
-    shadowOffset: { width: 0, height: 14 },
-    shadowRadius: 24,
-    elevation: 6
-  },
-  upcomingGlow: {
-    position: 'absolute',
-    right: -45,
-    top: -55,
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    backgroundColor: 'rgba(255,255,255,0.32)'
-  },
-  upcomingIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.42)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.56)',
-    marginBottom: 16
-  },
-  upcomingCardTitle: {
-    color: theme.colors.navy,
-    fontSize: 22,
-    lineHeight: 28,
-    fontWeight: '700',
-    maxWidth: 560
-  },
-  upcomingTheme: {
-    color: '#1A2445',
-    fontSize: 15,
-    lineHeight: 22,
-    fontWeight: '500',
-    marginTop: 18
-  },
-  upcomingTagline: {
-    color: '#101A38',
-    fontSize: 15,
-    lineHeight: 22,
-    fontWeight: '600',
-    marginTop: 2
-  },
-  upcomingMetaRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-    marginTop: 24
-  },
-  upcomingMetaPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 7,
-    borderRadius: theme.radius.pill,
-    backgroundColor: 'rgba(255,255,255,0.48)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.58)',
-    paddingHorizontal: 12,
-    paddingVertical: 8
-  },
-  upcomingMetaText: {
-    color: theme.colors.navy,
-    fontSize: 12,
-    lineHeight: 16,
-    fontWeight: '600'
-  },
-  pastSection: {
-    gap: 14,
-    marginTop: 4
-  },
-  pastHeader: {
-    gap: 5
-  },
-  pastEyebrow: {
-    color: theme.colors.orange,
-    fontSize: 12,
-    lineHeight: 16,
-    fontWeight: '600',
-    letterSpacing: 1,
-    textTransform: 'uppercase'
-  },
-  pastTitle: {
-    color: theme.colors.navy,
-    fontSize: 22,
-    lineHeight: 28,
-    fontWeight: '700'
-  },
-  pastGrid: {
-    gap: 14
-  },
-  pastCard: {
-    minHeight: 220,
-    borderRadius: 24,
-    padding: 20,
-    overflow: 'hidden',
-    justifyContent: 'space-between',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.34)',
-    shadowColor: '#0F2440',
-    shadowOpacity: 0.16,
-    shadowOffset: { width: 0, height: 14 },
-    shadowRadius: 24,
-    elevation: 6
-  },
-  pastCardGlow: {
-    position: 'absolute',
-    right: -42,
-    top: -58,
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    backgroundColor: 'rgba(255,255,255,0.22)'
-  },
-  pastTopRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 18
-  },
-  pastIcon: {
-    width: 46,
-    height: 46,
-    borderRadius: 15,
-    backgroundColor: 'rgba(255,255,255,0.18)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.28)'
-  },
-  pastYear: {
-    color: 'rgba(255,255,255,0.78)',
-    fontSize: 12,
-    lineHeight: 16,
-    fontWeight: '700',
-    letterSpacing: 1
-  },
-  pastCardTitle: {
-    color: theme.colors.white,
-    fontSize: 22,
-    lineHeight: 28,
-    fontWeight: '700'
-  },
-  pastCardText: {
-    color: theme.colors.white,
-    fontSize: 15,
-    lineHeight: 23,
-    fontWeight: '600',
-    marginTop: 16
-  },
-  pastMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginTop: 26,
-    borderRadius: theme.radius.pill,
-    backgroundColor: 'rgba(255,255,255,0.16)',
-    paddingHorizontal: 12,
-    paddingVertical: 9,
-    alignSelf: 'flex-start'
-  },
-  pastMetaText: {
-    color: theme.colors.white,
-    fontSize: 13,
-    lineHeight: 18,
-    fontWeight: '600'
   },
   countdownShell: {
     backgroundColor: 'rgba(255,255,255,0.92)',
@@ -940,5 +753,62 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     gap: 11
+  },
+  sectorSection: {
+    gap: 14
+  },
+  sectorHeading: {
+    color: theme.colors.orange,
+    fontSize: 24,
+    lineHeight: 30,
+    fontWeight: '700'
+  },
+  sectorStack: {
+    gap: 14
+  },
+  sectorCard: {
+    minHeight: 184,
+    borderRadius: 24,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 18,
+    paddingTop: 24,
+    paddingBottom: 22,
+    shadowColor: '#0B356C',
+    shadowOpacity: 0.18,
+    shadowOffset: { width: 0, height: 12 },
+    shadowRadius: 18,
+    elevation: 6
+  },
+  sectorShade: {
+    position: 'absolute',
+    right: -24,
+    top: -42,
+    width: 170,
+    height: 170,
+    borderRadius: 85,
+    backgroundColor: 'rgba(255,255,255,0.22)'
+  },
+  sectorIconWrap: {
+    width: 176,
+    height: 148,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: -4
+  },
+  sectorIcon: {
+    width: 168,
+    height: 148,
+    opacity: 0.95
+  },
+  sectorTitle: {
+    color: theme.colors.white,
+    fontSize: 17,
+    lineHeight: 23,
+    fontWeight: '600',
+    textAlign: 'center',
+    letterSpacing: 0,
+    width: '100%'
   }
 });

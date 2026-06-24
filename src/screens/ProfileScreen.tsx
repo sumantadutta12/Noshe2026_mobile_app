@@ -21,23 +21,23 @@ type Props = CompositeScreenProps<
 
 const primaryItems = [
   {
-    title: 'About NOSHE 2026',
-    subtitle: 'Event vision, theme, and conference overview',
+    title: 'About Us',
+    subtitle: 'NTPC Limited and NOSHE 2026 overview',
     icon: 'information-circle-outline',
     route: 'About'
   },
-  {
-    title: 'Foreword',
-    subtitle: 'Message from the event leadership',
-    icon: 'document-text-outline',
-    route: 'Foreword'
-  },
-  {
-    title: 'Organisers',
-    subtitle: 'Organising partners and event committee',
-    icon: 'business-outline',
-    route: 'Organisers'
-  },
+  // {
+  //   title: 'Foreword',
+  //   subtitle: 'Message from the event leadership',
+  //   icon: 'document-text-outline',
+  //   route: 'Foreword'
+  // },
+  // {
+  //   title: 'Organisers',
+  //   subtitle: 'Organising partners and event committee',
+  //   icon: 'business-outline',
+  //   route: 'Organisers'
+  // },
   {
     title: 'Delegate Registration',
     subtitle: 'Registration categories and delegate access',
@@ -187,6 +187,12 @@ export function ProfileScreen({ navigation }: Props) {
           title="Contact Us"
           subtitle="Reach the NOSHE 2026 support desk"
           onPress={() => navigation.navigate('Contact')}
+        />
+        <MoreCard
+          icon="chatbox-ellipses-outline"
+          title="Conference Secretariat"
+          subtitle="Send a message to the NOSHE 2026 contact team"
+          onPress={() => navigation.navigate('ConferenceSecretariat')}
         />
         <MoreCard
           icon="shield-checkmark-outline"

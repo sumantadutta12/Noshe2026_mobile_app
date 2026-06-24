@@ -76,8 +76,8 @@ type FilterData = {
 };
 
 const tabMeta: Record<AgendaTab, string> = {
-  'Day 1': 'Thu, Jun 25, 2026',
-  'Day 2': 'Fri, Jun 26, 2026',
+  'Day 1': 'Fri, 3rd July, 2026',
+  'Day 2': 'Sat, 4th July, 2026',
   'Favorite Sessions': 'No Sessions'
 };
 

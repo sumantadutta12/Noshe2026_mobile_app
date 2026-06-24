@@ -83,8 +83,8 @@ export function SponsorsScreen({ navigation }: Props) {
         </View>
         <View style={styles.heroCopy}>
           <Text style={styles.eyebrow}>NOSHE 2026</Text>
-          <Text style={styles.title}>Members</Text>
-          <Text style={styles.subtitle}>Chief patrons, patrons, and steering committee members.</Text>
+          <Text style={styles.title}>Organizing Committee</Text>
+          <Text style={styles.subtitle}>Meet the leadership team guiding NOSHE 2026</Text>
         </View>
       </LinearGradient>
 

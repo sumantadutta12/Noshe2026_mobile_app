@@ -6,6 +6,7 @@ import { ApprovalRequestsScreen } from '../screens/ApprovalRequestsScreen';
 import { AttendeeDashboardScreen } from '../screens/AttendeeDashboardScreen';
 import { AuthScreen } from '../screens/AuthScreen';
 import { ContactScreen } from '../screens/ContactScreen';
+import { ConferenceSecretariatScreen } from '../screens/ConferenceSecretariatScreen';
 import { ExhibitorsScreen } from '../screens/ExhibitorsScreen';
 import { ForewordScreen } from '../screens/ForewordScreen';
 import { MyScheduleScreen } from '../screens/MyScheduleScreen';
@@ -50,7 +51,7 @@ export function AppNavigator() {
       />
       <Stack.Screen name="ApprovalRequests" component={ApprovalRequestsScreen} options={{ title: 'Approval Requests' }} />
       <Stack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
-      <Stack.Screen name="About" component={AboutEventScreen} options={{ title: 'About NOSHE 2026' }} />
+      <Stack.Screen name="About" component={AboutEventScreen} options={{ title: 'About Us' }} />
       <Stack.Screen name="SessionDetails" component={SessionDetailsScreen} options={{ title: 'Session Details' }} />
       <Stack.Screen name="SpeakerDetails" component={SpeakerDetailsScreen} options={{ title: 'Speaker Details' }} />
       <Stack.Screen name="SponsorDetails" component={SponsorDetailsScreen} options={{ title: 'Sponsor Details' }} />
@@ -62,6 +63,7 @@ export function AppNavigator() {
       <Stack.Screen name="MySchedule" component={MyScheduleScreen} options={{ title: 'My Schedule' }} />
       <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ title: 'Notifications' }} />
       <Stack.Screen name="Contact" component={ContactScreen} options={{ title: 'Contact Team' }} />
+      <Stack.Screen name="ConferenceSecretariat" component={ConferenceSecretariatScreen} options={{ title: 'Conference Secretariat' }} />
       <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} options={{ title: 'Privacy Policy' }} />
     </Stack.Navigator>
   );

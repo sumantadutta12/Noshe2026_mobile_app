@@ -3,15 +3,27 @@
 import api from '../api/axiosInstance';
 
 export interface RegistrationPayload {
-  fullName: string;
-  phone: string;
+  participatingAs?: string;
+  title?: string;
+  firstName?: string;
+  lastName?: string;
+  group?: string;
+  fullName?: string;
   email: string;
-  organisation: string;
-  designation: string;
-  delegateType: string;
-  city: string;
-  dietary: string;
-  message: string;
+  mobile?: string;
+  phone?: string;
+  organization?: string;
+  organisation?: string;
+  designation?: string;
+  delegateType?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  pinCode?: string;
+  otp?: string;
+  dietary?: string;
+  message?: string;
 }
 
 export const submitRegistration = async (

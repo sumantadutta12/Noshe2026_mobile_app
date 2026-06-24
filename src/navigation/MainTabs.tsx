@@ -25,6 +25,14 @@ const tabIcons: Record<
   More: { active: 'grid', inactive: 'grid-outline' }
 };
 
+const tabLabels: Record<keyof MainTabParamList, string> = {
+  Home: 'Home',
+  Agenda: 'Agenda',
+  Speakers: 'Speakers',
+  Members: 'Committee',
+  More: 'More'
+};
+
 function AnimatedTabIcon({
   color,
   focused,
@@ -138,7 +146,7 @@ export function MainTabs() {
         ],
         tabBarItemStyle: styles.tabItem,
         tabBarLabel: ({ color, focused }) => (
-          <AnimatedTabLabel color={color} focused={focused} label={route.name} />
+          <AnimatedTabLabel color={color} focused={focused} label={tabLabels[route.name]} />
         ),
         tabBarIcon: ({ color, focused }) => (
           <AnimatedTabIcon color={color} focused={focused} name={route.name} />

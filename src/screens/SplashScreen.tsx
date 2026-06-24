@@ -6,7 +6,8 @@ import { RootStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Splash'>;
 
-const splashLogo = require('../assets/logo-1.png');
+const nosheLogo = require('../assets/ntpc-logo-1.png');
+const ntpcLogo = require('../assets/NTPC-logo.png');
 
 export function SplashScreen({ navigation }: Props) {
   useEffect(() => {
@@ -19,11 +20,19 @@ export function SplashScreen({ navigation }: Props) {
       <StatusBar style="light" backgroundColor="#0D74C8" translucent={false} />
       <View style={styles.logoCard}>
         <Image
-          source={splashLogo}
-          style={styles.logo}
+          source={nosheLogo}
+          style={styles.nosheLogo}
           resizeMode="contain"
           accessible
           accessibilityLabel="NOSHE 2026 logo"
+        />
+        <View style={styles.logoDivider} />
+        <Image
+          source={ntpcLogo}
+          style={styles.ntpcLogo}
+          resizeMode="contain"
+          accessible
+          accessibilityLabel="NTPC logo"
         />
       </View>
       <Text style={styles.title}>NOSHE 2026</Text>
@@ -41,17 +50,29 @@ const styles = StyleSheet.create({
     paddingBottom: 18
   },
   logoCard: {
-    width: 150,
-    height: 150,
-    borderRadius: 30,
+    width: 316,
+    minHeight: 104,
+    borderRadius: 28,
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 24
+    flexDirection: 'row',
+    paddingHorizontal: 10,
+    paddingVertical: 10
   },
-  logo: {
-    width: '100%',
-    height: '100%'
+  nosheLogo: {
+    width: 136,
+    height: 84
+  },
+  logoDivider: {
+    width: 1,
+    height: 76,
+    backgroundColor: '#DDECF8',
+    marginHorizontal: 8
+  },
+  ntpcLogo: {
+    width: 136,
+    height: 84
   },
   title: {
     color: '#FFFFFF',
